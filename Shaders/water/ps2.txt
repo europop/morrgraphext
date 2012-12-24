@@ -1,0 +1,20 @@
+ps_1_1
+  def c3, 0.5, 0, 0, 0
+  def c4, 0, 1, 1, 1
+  def c5, 1, 0, 0, 0
+  def c6, 0, 0, 1, 0
+  def c7, 0.5, 0.5, 0.5, 0.5
+  tex t0
+  tex t1
+  tex t2
+  tex t3
+  sub r0.xyz, t1, t0
++ sub r0.w, t2.w, t0.w
+  sub r1.xyz, c7, t0
++ sub r1.w, t3.w, t0.w
+  mad r1.xyz, r1, c2, r0
++ add r1.w, r1.w, r0.w
+  add r1, r1, r1.w
+  dp3 r1, r1, c6
+  mad r1, r1, c5, c3
+  mad r0, t0, c4, r1

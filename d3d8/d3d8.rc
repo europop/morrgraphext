@@ -1,0 +1,33 @@
+#include <windows.h>
+#include <commctrl.h>
+#include <richedit.h>
+#include "mge/MGEversion.h"
+
+
+//
+// Version Information resources
+//
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+1 VERSIONINFO
+    FILEVERSION     MGE_MAJOR_VERSION,MGE_MINOR_VERSION,MGE_BUILD_VERSION,MGE_BUILD_REVISION
+    PRODUCTVERSION  MGE_MAJOR_VERSION,MGE_MINOR_VERSION,MGE_BUILD_VERSION,MGE_BUILD_REVISION
+    FILEOS          VOS__WINDOWS32
+    FILETYPE        VFT_DLL
+{
+    BLOCK "StringFileInfo"
+    {
+        BLOCK "04090000"
+        {
+            VALUE "FileDescription", "Morrowind Graphics Extender"
+            VALUE "FileVersion", MGE_VERSION
+            VALUE "InternalName", "d3d8"
+            VALUE "OriginalFilename", "d3d8.dll"
+            VALUE "ProductName", "Morrowind Graphics Extender"
+            VALUE "ProductVersion", MGE_VERSION
+        }
+    }
+    BLOCK "VarFileInfo"
+    {
+        VALUE "Translation", 1033, 0
+    }
+}

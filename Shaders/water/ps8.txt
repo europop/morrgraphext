@@ -1,0 +1,18 @@
+    ps_1_1
+    def c4, 0, 0, 1, 1
+    def c2, 0.5, 0.5, 0, 0
+    def c1, 1, 1, 0, 0
+    def c3, 0, 0, 1, 0
+    tex t0
+    tex t1
+    tex t2
+    tex t3
+    sub_x4 r0.w, t0, t1
+    mul t0.xyz, r0.w, c5
+  + sub_x4 r1.w, t3, t2
+    mad r0, r1.w, c6, t0
+    add_x2 r0, r0, r0
+    add r0, r0, c2
+    add r0, r0, c3
+
+// approximately 10 instruction slots used (4 texture, 6 arithmetic)

@@ -1,0 +1,15 @@
+  ps_1_1
+  def c1, 0.5, 0.5, 0.5, 0.5
+  def c5, 0.09375, 0.507799983, 0.49217999, 0
+  tex t0
+  texm3x2pad t2, t0_bx2
+  texm3x2tex t3, t0_bx2
+  mul t1, c2, t0_bx2
+  dp3 r1, t1, v0_bx2
+  mul r0.xyz, t3, c4
++ mad r0.w, r1.w, c1.w, c1.w
+  mov_sat r1, v0_bx2
+  lrp r0.xyz, r1.w, c6, r0
+  mul r0.w, r0.w, r0.w
+  mov r1, c7
+  add r0.w, r0.w, -r1.w

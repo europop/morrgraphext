@@ -1,0 +1,41 @@
+//FauxEMBM_Displace
+vs_1_1
+dcl_position v0
+dcl_texcoord v1
+dp4 oPos.x, v0, c2
+dp4 oPos.y, v0, c3
+dp4 oPos.z, v0, c4
+dp4 oPos.w, v0, c5
+dp4 r5, v0, c4
+add r5, r5, -c54.x
+mad oFog, -r5.x, c54.z, c54.w
+add r4, -v0, c6
+mov r9, r4
+mov r4.z, c30.x
+dp3 r4.w, r4, r4
+rsq r4.w, r4.w
+mul r4.xyz, r4, r4.w
+mov r6, r4
+mov r6.z, c30.y
+mov r5, c30.xxzx
+mul r8, r5.yzxw, r4.zxyw
+mad r8, -r4.yzxw, r5.zxyw, r8
+mov r8.z, c30.y
+mov r7, r6
+mov r7.y, r8.x
+mov r8.x, r6.y
+dp3 r9.w, r9, r9
+rsq r9.w, r9.w
+mul r9.xyz, r9, r9.w
+max r9.z, r9.z, -r9.z
+add r5, c1, -r9.z
+mul r5, r5, r5
+mul r5, r5, c30.y
+mad r7.z, r5, r4.x, r7.z
+mad r8.z, r5, r4.y, r8.z
+mul r7.xy, r7, c53
+mul r8.xy, r8, c53
+mov oT2, r7
+mov oT3, r8
+mad oD0, r9.xyzz, c30.y, c30.y
+mov oT0.xy, v1

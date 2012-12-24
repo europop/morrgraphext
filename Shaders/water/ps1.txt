@@ -1,0 +1,13 @@
+ps_1_1
+def c6, 0, 0, 1, 0
+def c7, 0.5, 0.5, 0.5, 0.5
+tex t0
+tex t1
+tex t2
+tex t3
+add_d2 r0, t0_bias, t1_bias
+add_d2 r1, t2_bias, t3_bias
+add_d2 r1, r0, r1
+add r0, r1, c7
+dp3 r1, r0, c6
+mov r0.w, r1.w

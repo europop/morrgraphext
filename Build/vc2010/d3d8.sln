@@ -1,0 +1,20 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "d3d8", "..\..\d3d8\d3d8_vc2012.vcxproj", "{33F34BEB-478C-4E11-866B-0EE7B6D4C3A6}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		DX9 Debug|Win32 = DX9 Debug|Win32
+		DX9 Release|Win32 = DX9 Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{33F34BEB-478C-4E11-866B-0EE7B6D4C3A6}.DX9 Debug|Win32.ActiveCfg = DX9 Debug|Win32
+		{33F34BEB-478C-4E11-866B-0EE7B6D4C3A6}.DX9 Debug|Win32.Build.0 = DX9 Debug|Win32
+		{33F34BEB-478C-4E11-866B-0EE7B6D4C3A6}.DX9 Release|Win32.ActiveCfg = DX9 Release|Win32
+		{33F34BEB-478C-4E11-866B-0EE7B6D4C3A6}.DX9 Release|Win32.Build.0 = DX9 Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

@@ -114,7 +114,7 @@ bool FUNCSETCHARGE::execute(void)
 	{
         // Set charge in attached node. If not present, cannot
         // set current charge.
-        set = SetAttachData(machine, refr, VARNODE, 4, _cpp_min(charge,
+        set = SetAttachData(machine, refr, VARNODE, 4, min(charge,
                                                                GetMaxCharge(machine, temp, type)));
 	}
 	return machine.push(static_cast<VMREGTYPE>(set));
@@ -165,7 +165,7 @@ bool FUNCSETCONDITION::execute(void)
         //
         // TODO: If the attached data is not found, it should be
         // created.
-        set = SetAttachData(machine, refr, VARNODE, 3, _cpp_min(static_cast<ULONG>(value),
+        set = SetAttachData(machine, refr, VARNODE, 3, min(static_cast<ULONG>(value),
             GetMaxCondition(machine, temp, type)));
 	}
 	return machine.push(static_cast<VMREGTYPE>(set));

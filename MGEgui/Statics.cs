@@ -185,8 +185,8 @@ namespace MGEgui {
         /// <summary>
         /// Used to ensure that created options files match the dll versions
         /// </summary>
-        public const string VersionString = "3.8.2";
-        public const string VersionRevision = "178";
+        public const string VersionString = "3.8.5";
+        public const string VersionRevision = "212";
         public const string versionString = "v" + VersionString + "-SVN_rev-" + VersionRevision;
         public const byte SaveVersion = 47;
         public const byte DistantLandVersion = 5;

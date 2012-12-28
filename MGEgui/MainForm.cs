@@ -1693,7 +1693,7 @@ namespace MGEgui {
         }
 
         private void bAbout_Click (object sender, EventArgs e) {
-            string s = String.Format ("Morrowind Graphics Extender\n{0}\n\n{1} Timeslip (www.timeslipped.co.uk)\n\n{2}: LizTail, Krzymar & Phal", Statics.versionString, strings ["CreatedBy"].text, strings ["FurtherDevel"].text);
+            string s = String.Format("Morrowind Graphics Extender\n{0}\n\n{1} Timeslip (www.timeslipped.co.uk)\n\n{2}: LizTail, Krzymar & Phal, Europop", Statics.versionString, strings["CreatedBy"].text, strings["FurtherDevel"].text);
             if (cmbUILanguage.SelectedIndex > 0) {
                 string ttn = Statics.strings ["Translation"].text;
                 string ttr = Statics.Localizations [cmbUILanguage.Text].Translator;

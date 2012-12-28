@@ -1,5 +1,5 @@
 // Original by Timeslip and LizTail, mods by harlanrm, phal and krzymar
-// To be used with MGE 3.8.2 rev. 175 and derivatives
+// To be used with MGE 3.8.2 rev. 178 and derivatives
 Matrix TexProj;
 Matrix view;
 Matrix proj;

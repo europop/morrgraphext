@@ -1,0 +1,325 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="DX9 Debug|Win32">
+      <Configuration>DX9 Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="DX9 Release|Win32">
+      <Configuration>DX9 Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectName>d3d8</ProjectName>
+    <ProjectGuid>{33F34BEB-478C-4E11-866B-0EE7B6D4C3A6}</ProjectGuid>
+    <RootNamespace>d3d8</RootNamespace>
+    <Keyword>Win32Proj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DX9 Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>NotSet</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <PlatformToolset Condition="'$(VisualStudioVersion)' == '11.0'">v110</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DX9 Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>NotSet</CharacterSet>
+    <PlatformToolset Condition="'$(VisualStudioVersion)' == '11.0'">v110</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='DX9 Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='DX9 Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.40219.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='DX9 Debug|Win32'">$(MW_PATH)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='DX9 Debug|Win32'">$(Configuration)\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='DX9 Debug|Win32'">true</LinkIncremental>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='DX9 Release|Win32'">$(MW_PATH)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='DX9 Release|Win32'">$(Configuration)\</IntDir>
+    <IgnoreImportLibrary Condition="'$(Configuration)|$(Platform)'=='DX9 Release|Win32'">false</IgnoreImportLibrary>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='DX9 Release|Win32'">false</LinkIncremental>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='DX9 Release|Win32'">true</GenerateManifest>
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='DX9 Debug|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='DX9 Debug|Win32'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='DX9 Debug|Win32'" />
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='DX9 Release|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='DX9 Release|Win32'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='DX9 Release|Win32'" />
+    <IncludePath Condition="'$(Configuration)|$(Platform)'=='DX9 Debug|Win32'">$(DXSDK_DIR)\Include;$(IncludePath)</IncludePath>
+    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='DX9 Debug|Win32'">$(DXSDK_DIR)\Lib\x86;$(LibraryPath)</LibraryPath>
+    <IncludePath Condition="'$(Configuration)|$(Platform)'=='DX9 Release|Win32'">$(DXSDK_DIR)\Include;$(IncludePath)</IncludePath>
+    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='DX9 Release|Win32'">$(DXSDK_DIR)\Lib\x86;$(LibraryPath)</LibraryPath>
+    <ExecutablePath Condition="'$(Configuration)|$(Platform)'=='DX9 Debug|Win32'">$(DXSDK_DIR)\Utilities\bin\x86;$(ExecutablePath)</ExecutablePath>
+    <ExecutablePath Condition="'$(Configuration)|$(Platform)'=='DX9 Release|Win32'">$(DXSDK_DIR)\Utilities\bin\x86;$(ExecutablePath)</ExecutablePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DX9 Debug|Win32'">
+    <LocalDebuggerCommand>$(MW_PATH)\Morrowind.exe</LocalDebuggerCommand>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+    <LocalDebuggerWorkingDirectory>$(MW_PATH)</LocalDebuggerWorkingDirectory>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DX9 Release|Win32'">
+    <LocalDebuggerCommand>$(MW_PATH)\Morrowind.exe</LocalDebuggerCommand>
+    <LocalDebuggerWorkingDirectory>$(MW_PATH)</LocalDebuggerWorkingDirectory>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DX9 Debug|Win32'">
+    <CustomBuildStep>
+      <Inputs>%(Inputs)</Inputs>
+      <Outputs>d3d8_output.txt;%(Outputs)</Outputs>
+    </CustomBuildStep>
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>scriptcompiler/common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE; DX9;D3D_DEBUG_INFO;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <BufferSecurityCheck>true</BufferSecurityCheck>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
+      <FloatingPointModel>Fast</FloatingPointModel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <ProgramDataBaseFileName>$(IntDir)vc90.pdb</ProgramDataBaseFileName>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <CallingConvention>StdCall</CallingConvention>
+      <DisableSpecificWarnings>4005;4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <EnablePREfast>false</EnablePREfast>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>d3d9.lib;d3dx9d.lib;dinput8.lib;dxguid.lib;gdi32.lib;user32.lib;Strmiids.lib;version.lib;ole32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutDir)d3d8.dll</OutputFile>
+      <Version>
+      </Version>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <ModuleDefinitionFile>exports9.def</ModuleDefinitionFile>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Console</SubSystem>
+      <OptimizeReferences>false</OptimizeReferences>
+      <EnableCOMDATFolding>false</EnableCOMDATFolding>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <DataExecutionPrevention>
+      </DataExecutionPrevention>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DX9 Release|Win32'">
+    <CustomBuildStep>
+      <Inputs>%(Inputs)</Inputs>
+      <Outputs>d3d8_output.txt;%(Outputs)</Outputs>
+    </CustomBuildStep>
+    <ClCompile>
+      <Optimization>Full</Optimization>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <OmitFramePointers>true</OmitFramePointers>
+      <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
+      <WholeProgramOptimization>true</WholeProgramOptimization>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;RELEASE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <BufferSecurityCheck>true</BufferSecurityCheck>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
+      <FloatingPointModel>Fast</FloatingPointModel>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <TreatWarningAsError>false</TreatWarningAsError>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <CallingConvention>StdCall</CallingConvention>
+      <DisableSpecificWarnings>4005;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>d3d9.lib;d3dx9.lib;dinput8.lib;dxguid.lib;gdi32.lib;user32.lib;Strmiids.lib;version.lib;ole32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutDir)d3d8.dll</OutputFile>
+      <Version>
+      </Version>
+      <ModuleDefinitionFile>exports9.def</ModuleDefinitionFile>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <SubSystem>Console</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <NoEntryPoint>false</NoEntryPoint>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <DataExecutionPrevention>
+      </DataExecutionPrevention>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="mge\DInputMisc.cpp" />
+    <ClCompile Include="mge\DInputWrapper.cpp" />
+    <ClCompile Include="mge\MMEfunctions.cpp" />
+    <ClCompile Include="mge\MWBridge.cpp" />
+    <ClCompile Include="mwse\Breakpoint.cpp" />
+    <ClCompile Include="mwse\BUFSPACE.cpp" />
+    <ClCompile Include="mwse\FILECACHE.cpp" />
+    <ClCompile Include="mwse\MWSEmain.cpp" />
+    <ClCompile Include="mwse\ProcessMem.cpp" />
+    <ClCompile Include="mwse\REFERENCE.cpp" />
+    <ClCompile Include="mwse\STRING.cpp" />
+    <ClCompile Include="mwse\TES3MACHINE.cpp" />
+    <ClCompile Include="mwse\TES3OFFSETS.cpp" />
+    <ClCompile Include="mwse\VIRTUALMACHINE.cpp" />
+    <ClCompile Include="mwse\FUNCAI.cpp" />
+    <ClCompile Include="mwse\FUNCEXTENDER.cpp" />
+    <ClCompile Include="mwse\FUNCFILE.cpp" />
+    <ClCompile Include="mwse\FUNCINVENTORY.cpp" />
+    <ClCompile Include="mwse\FUNCLOG.cpp" />
+    <ClCompile Include="mwse\FUNCPOSITION.cpp" />
+    <ClCompile Include="mwse\FUNCPROPERTIES.cpp" />
+    <ClCompile Include="mwse\FUNCREFERENCE.cpp" />
+    <ClCompile Include="mwse\FUNCTEXT.cpp" />
+    <ClCompile Include="mwse\FUNCVARIABLES.cpp" />
+    <ClCompile Include="mwse\INSTCALL.cpp" />
+    <ClCompile Include="mwse\INSTCOPY.cpp" />
+    <ClCompile Include="mwse\INSTFLOAT.cpp" />
+    <ClCompile Include="mwse\INSTINT.cpp" />
+    <ClCompile Include="mwse\INSTJUMP.cpp" />
+    <ClCompile Include="mwse\INSTPOP.cpp" />
+    <ClCompile Include="mwse\INSTPUSH.cpp" />
+    <ClCompile Include="mwse\FUNCMGE.cpp" />
+    <ClCompile Include="mge\Configuration.cpp" />
+    <ClCompile Include="mge\ModuleInformation.cpp" />
+    <ClCompile Include="mge\MWSEFunctions.cpp" />
+    <ClCompile Include="mge\DepthManager.cpp" />
+    <ClCompile Include="mge\DistantLand.cpp" />
+    <ClCompile Include="mge\DLMath.cpp" />
+    <ClCompile Include="mge\DrawRecorder.cpp" />
+    <ClCompile Include="mge\MemoryPool.cpp" />
+    <ClCompile Include="mge\QuadTree.cpp" />
+    <ClCompile Include="mge\WaterManager.cpp" />
+    <ClCompile Include="mge\d3d8.cpp" />
+    <ClCompile Include="mge\FogFormulas.cpp" />
+    <ClCompile Include="mge\HDR.cpp" />
+    <ClCompile Include="mge\hook.cpp" />
+    <ClCompile Include="mge\MorrowindBSA.cpp" />
+    <ClCompile Include="mge\VideoPlayback.cpp" />
+    <ClCompile Include="mge\VidTex.cpp" />
+    <ClCompile Include="mge\WrapperClasses.cpp" />
+    <ClCompile Include="mge\BlendComp.cpp" />
+    <ClCompile Include="mge\FogComp.cpp" />
+    <ClCompile Include="mge\ShaderEffect.cpp" />
+    <ClCompile Include="mge\SunlitComp.cpp" />
+    <ClCompile Include="mge\TransformComp.cpp" />
+    <ClCompile Include="mge\Threading.cpp" />
+    <ClCompile Include="mge\MWE.cpp" />
+    <ClCompile Include="mge\MWECompiler.cpp" />
+    <ClCompile Include="mge\MWEImproving.cpp" />
+    <ClCompile Include="mge\ForcedInitialization.cpp" />
+    <ClCompile Include="mge\Integration.cpp" />
+    <ClCompile Include="mge\Patch.cpp" />
+    <ClCompile Include="Log.cpp" />
+    <ClCompile Include="main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="mge\DInputHeader.h" />
+    <ClInclude Include="mge\MME function defs.h" />
+    <ClInclude Include="mge\MWBridge.h" />
+    <ClInclude Include="mwse\ADDRESSSPACE.h" />
+    <ClInclude Include="mwse\Breakpoint.h" />
+    <ClInclude Include="mwse\BUFSPACE.h" />
+    <ClInclude Include="mwse\FILECACHE.h" />
+    <ClInclude Include="mwse\FUNCTION.h" />
+    <ClInclude Include="mwse\INSTRUCTION.h" />
+    <ClInclude Include="mwse\MEMACCESSOR.h" />
+    <ClInclude Include="mwse\MEMACCESSORS.h" />
+    <ClInclude Include="mwse\MWSEHeader.h" />
+    <ClInclude Include="mwse\MWSEmain.h" />
+    <ClInclude Include="mwse\ProcessMem.h" />
+    <ClInclude Include="mwse\REFERENCE.h" />
+    <ClInclude Include="mwse\STRINGS.h" />
+    <ClInclude Include="mwse\TES3MACHINE.h" />
+    <ClInclude Include="mwse\TES3MemMap.h" />
+    <ClInclude Include="mwse\TES3OFFSETS.h" />
+    <ClInclude Include="mwse\TES3OPCODES.h" />
+    <ClInclude Include="mwse\TES3TYPES.h" />
+    <ClInclude Include="mwse\VIRTUALMACHINE.h" />
+    <ClInclude Include="mwse\VMTYPES.h" />
+    <ClInclude Include="mwse\WinHeader.h" />
+    <ClInclude Include="mwse\FUNCAI.h" />
+    <ClInclude Include="mwse\FUNCEXTENDER.h" />
+    <ClInclude Include="mwse\FUNCFILE.h" />
+    <ClInclude Include="mwse\FUNCINVENTORY.h" />
+    <ClInclude Include="mwse\FUNCLOG.h" />
+    <ClInclude Include="mwse\FUNCPOSITION.h" />
+    <ClInclude Include="mwse\FUNCPROPERTIES.h" />
+    <ClInclude Include="mwse\FUNCREFERENCE.h" />
+    <ClInclude Include="mwse\FUNCTEXT.h" />
+    <ClInclude Include="mwse\FUNCVARIABLES.h" />
+    <ClInclude Include="mwse\INSTCALL.h" />
+    <ClInclude Include="mwse\INSTCOPY.h" />
+    <ClInclude Include="mwse\INSTFLOAT.h" />
+    <ClInclude Include="mwse\INSTINT.h" />
+    <ClInclude Include="mwse\INSTJUMP.h" />
+    <ClInclude Include="mwse\INSTNOP.h" />
+    <ClInclude Include="mwse\INSTPOP.h" />
+    <ClInclude Include="mwse\INSTPUSH.h" />
+    <ClInclude Include="mwse\FUNCMGE.h" />
+    <ClInclude Include="mge\BitOperations.h" />
+    <ClInclude Include="mge\ConfigInternal.h" />
+    <ClInclude Include="mge\Configuration.h" />
+    <ClInclude Include="mge\INIData.h" />
+    <ClInclude Include="mge\MGEversion.h" />
+    <ClInclude Include="mge\ModuleInformation.h" />
+    <ClInclude Include="mge\MWSEFunctions.h" />
+    <ClInclude Include="mge\DepthManager.h" />
+    <ClInclude Include="mge\DistantLand.h" />
+    <ClInclude Include="mge\DLMath.h" />
+    <ClInclude Include="mge\DrawRecorder.h" />
+    <ClInclude Include="mge\MemoryPool.h" />
+    <ClInclude Include="mge\PooledList.h" />
+    <ClInclude Include="mge\QuadTree.h" />
+    <ClInclude Include="mge\WaterManager.h" />
+    <ClInclude Include="mge\VideoPlayback.h" />
+    <ClInclude Include="mge\d3d8header.h" />
+    <ClInclude Include="mge\FogFormulas.h" />
+    <ClInclude Include="mge\joint.h" />
+    <ClInclude Include="mge\MorrowindBSA.h" />
+    <ClInclude Include="mge\VidTex.h" />
+    <ClInclude Include="mge\WrapperClasses.h" />
+    <ClInclude Include="mge\BlendComp.h" />
+    <ClInclude Include="mge\EffectComponent.h" />
+    <ClInclude Include="mge\FogComp.h" />
+    <ClInclude Include="mge\ShaderEffect.h" />
+    <ClInclude Include="mge\SunlitComp.h" />
+    <ClInclude Include="mge\TransformComp.h" />
+    <ClInclude Include="mge\Threading.h" />
+    <ClInclude Include="mge\MWE.h" />
+    <ClInclude Include="mge\MWECompiler.h" />
+    <ClInclude Include="mge\MWEImproving.h" />
+    <ClInclude Include="mge\ForcedInitialization.h" />
+    <ClInclude Include="mge\Integration.h" />
+    <ClInclude Include="mge\Patch.h" />
+    <ClInclude Include="Log.h" />
+    <ClInclude Include="main.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\Shaders\distantland\Depth.fx" />
+    <None Include="..\Shaders\distantland\Fog.hlsl" />
+    <None Include="..\Shaders\distantland\InGame.fx" />
+    <None Include="..\Shaders\distantland\Water.fx" />
+    <None Include="mge\d3d8header.inl" />
+    <None Include="exports9.def" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="d3d8.rc" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

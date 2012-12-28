@@ -1,0 +1,508 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Input">
+      <UniqueIdentifier>{9d351e85-4d7a-4520-92a0-b38974c9450c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Input\.headers">
+      <UniqueIdentifier>{655a9aff-3154-4cde-b1c4-4000f75a8e79}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MorrowindBridge">
+      <UniqueIdentifier>{541912b1-24c9-418a-af45-2e05ae2b35ab}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="mwse">
+      <UniqueIdentifier>{d82aafd0-8238-423b-afd2-6112b2181b5d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="mwse\functions">
+      <UniqueIdentifier>{009e086f-9305-4214-8ba1-4d2bd2573eae}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="mwse\mge functions">
+      <UniqueIdentifier>{525d3e03-9665-42da-ae0f-6bd838a23469}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Configuration">
+      <UniqueIdentifier>{7507fd68-6eb7-43ea-9b46-73d6c5bdf659}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Configuration\.headers">
+      <UniqueIdentifier>{8865308e-0a17-495f-85bc-61bfd3fc7d30}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MWSEFunctions">
+      <UniqueIdentifier>{187824be-b3d8-4cae-bd1f-ec473ee5fd01}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Graphics">
+      <UniqueIdentifier>{d9b3add1-fb1c-43c7-9cc0-f12cf4c84c82}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Graphics\Shaders">
+      <UniqueIdentifier>{a036929a-8d15-46de-9b2a-4c05e7b1667e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Graphics\mge">
+      <UniqueIdentifier>{0d8ea5ad-2e62-431e-8d1f-30037d21b24b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Graphics\mge\.headers">
+      <UniqueIdentifier>{474fd171-55b3-4485-9d84-d82e283a5503}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Graphics\mge\D3DWrapper">
+      <UniqueIdentifier>{e9fb3ded-9559-49dd-a897-40bf296cddb8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Graphics\Effects">
+      <UniqueIdentifier>{a0e0ff1e-1d03-4610-8cd8-d8298504ee80}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Threading">
+      <UniqueIdentifier>{cc3da2ae-8ef2-455f-bd49-19e4c9635e52}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="mwe">
+      <UniqueIdentifier>{75e117f2-472e-4382-810e-d087e2798bf2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Patch">
+      <UniqueIdentifier>{87ef429a-22b5-47f9-b599-f43689c67c54}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="mge\DInputMisc.cpp">
+      <Filter>Input</Filter>
+    </ClCompile>
+    <ClCompile Include="mge\DInputWrapper.cpp">
+      <Filter>Input</Filter>
+    </ClCompile>
+    <ClCompile Include="mge\MMEfunctions.cpp">
+      <Filter>Input</Filter>
+    </ClCompile>
+    <ClCompile Include="mge\MWBridge.cpp">
+      <Filter>MorrowindBridge</Filter>
+    </ClCompile>
+    <ClCompile Include="mwse\Breakpoint.cpp">
+      <Filter>mwse</Filter>
+    </ClCompile>
+    <ClCompile Include="mwse\BUFSPACE.cpp">
+      <Filter>mwse</Filter>
+    </ClCompile>
+    <ClCompile Include="mwse\FILECACHE.cpp">
+      <Filter>mwse</Filter>
+    </ClCompile>
+    <ClCompile Include="mwse\MWSEmain.cpp">
+      <Filter>mwse</Filter>
+    </ClCompile>
+    <ClCompile Include="mwse\ProcessMem.cpp">
+      <Filter>mwse</Filter>
+    </ClCompile>
+    <ClCompile Include="mwse\REFERENCE.cpp">
+      <Filter>mwse</Filter>
+    </ClCompile>
+    <ClCompile Include="mwse\STRING.cpp">
+      <Filter>mwse</Filter>
+    </ClCompile>
+    <ClCompile Include="mwse\TES3MACHINE.cpp">
+      <Filter>mwse</Filter>
+    </ClCompile>
+    <ClCompile Include="mwse\TES3OFFSETS.cpp">
+      <Filter>mwse</Filter>
+    </ClCompile>
+    <ClCompile Include="mwse\VIRTUALMACHINE.cpp">
+      <Filter>mwse</Filter>
+    </ClCompile>
+    <ClCompile Include="mwse\FUNCAI.cpp">
+      <Filter>mwse\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="mwse\FUNCEXTENDER.cpp">
+      <Filter>mwse\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="mwse\FUNCFILE.cpp">
+      <Filter>mwse\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="mwse\FUNCINVENTORY.cpp">
+      <Filter>mwse\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="mwse\FUNCLOG.cpp">
+      <Filter>mwse\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="mwse\FUNCPOSITION.cpp">
+      <Filter>mwse\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="mwse\FUNCPROPERTIES.cpp">
+      <Filter>mwse\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="mwse\FUNCREFERENCE.cpp">
+      <Filter>mwse\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="mwse\FUNCTEXT.cpp">
+      <Filter>mwse\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="mwse\FUNCVARIABLES.cpp">
+      <Filter>mwse\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="mwse\INSTCALL.cpp">
+      <Filter>mwse\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="mwse\INSTCOPY.cpp">
+      <Filter>mwse\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="mwse\INSTFLOAT.cpp">
+      <Filter>mwse\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="mwse\INSTINT.cpp">
+      <Filter>mwse\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="mwse\INSTJUMP.cpp">
+      <Filter>mwse\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="mwse\INSTPOP.cpp">
+      <Filter>mwse\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="mwse\INSTPUSH.cpp">
+      <Filter>mwse\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="mwse\FUNCMGE.cpp">
+      <Filter>mwse\mge functions</Filter>
+    </ClCompile>
+    <ClCompile Include="mge\Configuration.cpp">
+      <Filter>Configuration</Filter>
+    </ClCompile>
+    <ClCompile Include="mge\ModuleInformation.cpp">
+      <Filter>Configuration</Filter>
+    </ClCompile>
+    <ClCompile Include="mge\MWSEFunctions.cpp">
+      <Filter>MWSEFunctions</Filter>
+    </ClCompile>
+    <ClCompile Include="mge\DepthManager.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="mge\DistantLand.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="mge\DLMath.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="mge\DrawRecorder.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="mge\MemoryPool.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="mge\QuadTree.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="mge\WaterManager.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="mge\d3d8.cpp">
+      <Filter>Graphics\mge</Filter>
+    </ClCompile>
+    <ClCompile Include="mge\FogFormulas.cpp">
+      <Filter>Graphics\mge</Filter>
+    </ClCompile>
+    <ClCompile Include="mge\HDR.cpp">
+      <Filter>Graphics\mge</Filter>
+    </ClCompile>
+    <ClCompile Include="mge\hook.cpp">
+      <Filter>Graphics\mge</Filter>
+    </ClCompile>
+    <ClCompile Include="mge\MorrowindBSA.cpp">
+      <Filter>Graphics\mge</Filter>
+    </ClCompile>
+    <ClCompile Include="mge\VideoPlayback.cpp">
+      <Filter>Graphics\mge</Filter>
+    </ClCompile>
+    <ClCompile Include="mge\VidTex.cpp">
+      <Filter>Graphics\mge</Filter>
+    </ClCompile>
+    <ClCompile Include="mge\WrapperClasses.cpp">
+      <Filter>Graphics\mge</Filter>
+    </ClCompile>
+    <ClCompile Include="mge\BlendComp.cpp">
+      <Filter>Graphics\Effects</Filter>
+    </ClCompile>
+    <ClCompile Include="mge\FogComp.cpp">
+      <Filter>Graphics\Effects</Filter>
+    </ClCompile>
+    <ClCompile Include="mge\ShaderEffect.cpp">
+      <Filter>Graphics\Effects</Filter>
+    </ClCompile>
+    <ClCompile Include="mge\SunlitComp.cpp">
+      <Filter>Graphics\Effects</Filter>
+    </ClCompile>
+    <ClCompile Include="mge\TransformComp.cpp">
+      <Filter>Graphics\Effects</Filter>
+    </ClCompile>
+    <ClCompile Include="mge\Threading.cpp">
+      <Filter>Threading</Filter>
+    </ClCompile>
+    <ClCompile Include="mge\MWE.cpp">
+      <Filter>mwe</Filter>
+    </ClCompile>
+    <ClCompile Include="mge\MWECompiler.cpp">
+      <Filter>mwe</Filter>
+    </ClCompile>
+    <ClCompile Include="mge\MWEImproving.cpp">
+      <Filter>mwe</Filter>
+    </ClCompile>
+    <ClCompile Include="mge\ForcedInitialization.cpp">
+      <Filter>Patch</Filter>
+    </ClCompile>
+    <ClCompile Include="mge\Integration.cpp">
+      <Filter>Patch</Filter>
+    </ClCompile>
+    <ClCompile Include="mge\Patch.cpp">
+      <Filter>Patch</Filter>
+    </ClCompile>
+    <ClCompile Include="Log.cpp" />
+    <ClCompile Include="main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="mge\DInputHeader.h">
+      <Filter>Input\.headers</Filter>
+    </ClInclude>
+    <ClInclude Include="mge\MME function defs.h">
+      <Filter>Input\.headers</Filter>
+    </ClInclude>
+    <ClInclude Include="mge\MWBridge.h">
+      <Filter>MorrowindBridge</Filter>
+    </ClInclude>
+    <ClInclude Include="mwse\ADDRESSSPACE.h">
+      <Filter>mwse</Filter>
+    </ClInclude>
+    <ClInclude Include="mwse\Breakpoint.h">
+      <Filter>mwse</Filter>
+    </ClInclude>
+    <ClInclude Include="mwse\BUFSPACE.h">
+      <Filter>mwse</Filter>
+    </ClInclude>
+    <ClInclude Include="mwse\FILECACHE.h">
+      <Filter>mwse</Filter>
+    </ClInclude>
+    <ClInclude Include="mwse\FUNCTION.h">
+      <Filter>mwse</Filter>
+    </ClInclude>
+    <ClInclude Include="mwse\INSTRUCTION.h">
+      <Filter>mwse</Filter>
+    </ClInclude>
+    <ClInclude Include="mwse\MEMACCESSOR.h">
+      <Filter>mwse</Filter>
+    </ClInclude>
+    <ClInclude Include="mwse\MEMACCESSORS.h">
+      <Filter>mwse</Filter>
+    </ClInclude>
+    <ClInclude Include="mwse\MWSEHeader.h">
+      <Filter>mwse</Filter>
+    </ClInclude>
+    <ClInclude Include="mwse\MWSEmain.h">
+      <Filter>mwse</Filter>
+    </ClInclude>
+    <ClInclude Include="mwse\ProcessMem.h">
+      <Filter>mwse</Filter>
+    </ClInclude>
+    <ClInclude Include="mwse\REFERENCE.h">
+      <Filter>mwse</Filter>
+    </ClInclude>
+    <ClInclude Include="mwse\STRINGS.h">
+      <Filter>mwse</Filter>
+    </ClInclude>
+    <ClInclude Include="mwse\TES3MACHINE.h">
+      <Filter>mwse</Filter>
+    </ClInclude>
+    <ClInclude Include="mwse\TES3MemMap.h">
+      <Filter>mwse</Filter>
+    </ClInclude>
+    <ClInclude Include="mwse\TES3OFFSETS.h">
+      <Filter>mwse</Filter>
+    </ClInclude>
+    <ClInclude Include="mwse\TES3OPCODES.h">
+      <Filter>mwse</Filter>
+    </ClInclude>
+    <ClInclude Include="mwse\TES3TYPES.h">
+      <Filter>mwse</Filter>
+    </ClInclude>
+    <ClInclude Include="mwse\VIRTUALMACHINE.h">
+      <Filter>mwse</Filter>
+    </ClInclude>
+    <ClInclude Include="mwse\VMTYPES.h">
+      <Filter>mwse</Filter>
+    </ClInclude>
+    <ClInclude Include="mwse\WinHeader.h">
+      <Filter>mwse</Filter>
+    </ClInclude>
+    <ClInclude Include="mwse\FUNCAI.h">
+      <Filter>mwse\functions</Filter>
+    </ClInclude>
+    <ClInclude Include="mwse\FUNCEXTENDER.h">
+      <Filter>mwse\functions</Filter>
+    </ClInclude>
+    <ClInclude Include="mwse\FUNCFILE.h">
+      <Filter>mwse\functions</Filter>
+    </ClInclude>
+    <ClInclude Include="mwse\FUNCINVENTORY.h">
+      <Filter>mwse\functions</Filter>
+    </ClInclude>
+    <ClInclude Include="mwse\FUNCLOG.h">
+      <Filter>mwse\functions</Filter>
+    </ClInclude>
+    <ClInclude Include="mwse\FUNCPOSITION.h">
+      <Filter>mwse\functions</Filter>
+    </ClInclude>
+    <ClInclude Include="mwse\FUNCPROPERTIES.h">
+      <Filter>mwse\functions</Filter>
+    </ClInclude>
+    <ClInclude Include="mwse\FUNCREFERENCE.h">
+      <Filter>mwse\functions</Filter>
+    </ClInclude>
+    <ClInclude Include="mwse\FUNCTEXT.h">
+      <Filter>mwse\functions</Filter>
+    </ClInclude>
+    <ClInclude Include="mwse\FUNCVARIABLES.h">
+      <Filter>mwse\functions</Filter>
+    </ClInclude>
+    <ClInclude Include="mwse\INSTCALL.h">
+      <Filter>mwse\functions</Filter>
+    </ClInclude>
+    <ClInclude Include="mwse\INSTCOPY.h">
+      <Filter>mwse\functions</Filter>
+    </ClInclude>
+    <ClInclude Include="mwse\INSTFLOAT.h">
+      <Filter>mwse\functions</Filter>
+    </ClInclude>
+    <ClInclude Include="mwse\INSTINT.h">
+      <Filter>mwse\functions</Filter>
+    </ClInclude>
+    <ClInclude Include="mwse\INSTJUMP.h">
+      <Filter>mwse\functions</Filter>
+    </ClInclude>
+    <ClInclude Include="mwse\INSTNOP.h">
+      <Filter>mwse\functions</Filter>
+    </ClInclude>
+    <ClInclude Include="mwse\INSTPOP.h">
+      <Filter>mwse\functions</Filter>
+    </ClInclude>
+    <ClInclude Include="mwse\INSTPUSH.h">
+      <Filter>mwse\functions</Filter>
+    </ClInclude>
+    <ClInclude Include="mwse\FUNCMGE.h">
+      <Filter>mwse\mge functions</Filter>
+    </ClInclude>
+    <ClInclude Include="mge\BitOperations.h">
+      <Filter>Configuration\.headers</Filter>
+    </ClInclude>
+    <ClInclude Include="mge\ConfigInternal.h">
+      <Filter>Configuration\.headers</Filter>
+    </ClInclude>
+    <ClInclude Include="mge\Configuration.h">
+      <Filter>Configuration\.headers</Filter>
+    </ClInclude>
+    <ClInclude Include="mge\INIData.h">
+      <Filter>Configuration\.headers</Filter>
+    </ClInclude>
+    <ClInclude Include="mge\MGEversion.h">
+      <Filter>Configuration\.headers</Filter>
+    </ClInclude>
+    <ClInclude Include="mge\ModuleInformation.h">
+      <Filter>Configuration\.headers</Filter>
+    </ClInclude>
+    <ClInclude Include="mge\MWSEFunctions.h">
+      <Filter>MWSEFunctions</Filter>
+    </ClInclude>
+    <ClInclude Include="mge\DepthManager.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="mge\DistantLand.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="mge\DLMath.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="mge\DrawRecorder.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="mge\MemoryPool.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="mge\PooledList.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="mge\QuadTree.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="mge\WaterManager.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="mge\VideoPlayback.h">
+      <Filter>Graphics\mge</Filter>
+    </ClInclude>
+    <ClInclude Include="mge\d3d8header.h">
+      <Filter>Graphics\mge\.headers</Filter>
+    </ClInclude>
+    <ClInclude Include="mge\FogFormulas.h">
+      <Filter>Graphics\mge\.headers</Filter>
+    </ClInclude>
+    <ClInclude Include="mge\joint.h">
+      <Filter>Graphics\mge\.headers</Filter>
+    </ClInclude>
+    <ClInclude Include="mge\MorrowindBSA.h">
+      <Filter>Graphics\mge\.headers</Filter>
+    </ClInclude>
+    <ClInclude Include="mge\VidTex.h">
+      <Filter>Graphics\mge\.headers</Filter>
+    </ClInclude>
+    <ClInclude Include="mge\WrapperClasses.h">
+      <Filter>Graphics\mge\.headers</Filter>
+    </ClInclude>
+    <ClInclude Include="mge\BlendComp.h">
+      <Filter>Graphics\Effects</Filter>
+    </ClInclude>
+    <ClInclude Include="mge\EffectComponent.h">
+      <Filter>Graphics\Effects</Filter>
+    </ClInclude>
+    <ClInclude Include="mge\FogComp.h">
+      <Filter>Graphics\Effects</Filter>
+    </ClInclude>
+    <ClInclude Include="mge\ShaderEffect.h">
+      <Filter>Graphics\Effects</Filter>
+    </ClInclude>
+    <ClInclude Include="mge\SunlitComp.h">
+      <Filter>Graphics\Effects</Filter>
+    </ClInclude>
+    <ClInclude Include="mge\TransformComp.h">
+      <Filter>Graphics\Effects</Filter>
+    </ClInclude>
+    <ClInclude Include="mge\Threading.h">
+      <Filter>Threading</Filter>
+    </ClInclude>
+    <ClInclude Include="mge\MWE.h">
+      <Filter>mwe</Filter>
+    </ClInclude>
+    <ClInclude Include="mge\MWECompiler.h">
+      <Filter>mwe</Filter>
+    </ClInclude>
+    <ClInclude Include="mge\MWEImproving.h">
+      <Filter>mwe</Filter>
+    </ClInclude>
+    <ClInclude Include="mge\ForcedInitialization.h">
+      <Filter>Patch</Filter>
+    </ClInclude>
+    <ClInclude Include="mge\Integration.h">
+      <Filter>Patch</Filter>
+    </ClInclude>
+    <ClInclude Include="mge\Patch.h">
+      <Filter>Patch</Filter>
+    </ClInclude>
+    <ClInclude Include="Log.h" />
+    <ClInclude Include="main.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\Shaders\distantland\Depth.fx">
+      <Filter>Graphics\Shaders</Filter>
+    </None>
+    <None Include="..\Shaders\distantland\Fog.hlsl">
+      <Filter>Graphics\Shaders</Filter>
+    </None>
+    <None Include="..\Shaders\distantland\InGame.fx">
+      <Filter>Graphics\Shaders</Filter>
+    </None>
+    <None Include="..\Shaders\distantland\Water.fx">
+      <Filter>Graphics\Shaders</Filter>
+    </None>
+    <None Include="mge\d3d8header.inl">
+      <Filter>Graphics\mge\.headers</Filter>
+    </None>
+    <None Include="exports9.def" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="d3d8.rc" />
+  </ItemGroup>
+</Project>

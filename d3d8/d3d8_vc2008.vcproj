@@ -18,7 +18,7 @@
 	<Configurations>
 		<Configuration
 			Name="DX9 Debug|Win32"
-			OutputDirectory="..\bin"
+			OutputDirectory="$(MW_PATH)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="2"
 			CharacterSet="0"
@@ -28,8 +28,6 @@
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
-				Description="Copying Files to Morrowind Path..."
-				CommandLine="fxc ..\Shaders\distantland\InGame.fx&#x0D;&#x0A;fxc ..\Shaders\distantland\Depth.fx&#x0D;&#x0A;fxc ..\Shaders\distantland\Water.fx&#x0D;&#x0A;copy ..\bin\d3d8.dll &quot;%MW_PATH%\d3d8.dll&quot;&#x0D;&#x0A;copy ..\bin\d3d8.pdb &quot;%MW_PATH%\d3d8.pdb&quot;&#x0D;&#x0A;copy ..\Shaders\distantland\InGame.fx &quot;%MW_PATH%\Data Files\shaders\distantland\InGame.fx&quot;&#x0D;&#x0A;copy ..\Shaders\distantland\Depth.fx &quot;%MW_PATH%\Data Files\shaders\distantland\Depth.fx&quot;&#x0D;&#x0A;copy ..\Shaders\distantland\Water.fx &quot;%MW_PATH%\Data Files\shaders\distantland\Water.fx&quot;&#x0D;&#x0A;"
 				AdditionalDependencies=""
 				Outputs="d3d8_output.txt"
 			/>
@@ -113,7 +111,7 @@
 		</Configuration>
 		<Configuration
 			Name="DX9 Release|Win32"
-			OutputDirectory="..\bin"
+			OutputDirectory="$(MW_PATH)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="2"
 			CharacterSet="0"
@@ -124,8 +122,6 @@
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
-				Description="Copying Files to Morrowind Path..."
-				CommandLine="fxc ..\Shaders\distantland\InGame.fx&#x0D;&#x0A;fxc ..\Shaders\distantland\Depth.fx&#x0D;&#x0A;fxc ..\Shaders\distantland\Water.fx&#x0D;&#x0A;copy ..\bin\d3d8.dll &quot;%MW_PATH%\d3d8.dll&quot;&#x0D;&#x0A;copy ..\bin\d3d8.pdb &quot;%MW_PATH%\d3d8.pdb&quot;&#x0D;&#x0A;copy ..\Shaders\distantland\InGame.fx &quot;%MW_PATH%\Data Files\shaders\distantland\InGame.fx&quot;&#x0D;&#x0A;copy ..\Shaders\distantland\Depth.fx &quot;%MW_PATH%\Data Files\shaders\distantland\Depth.fx&quot;&#x0D;&#x0A;copy ..\Shaders\distantland\Water.fx &quot;%MW_PATH%\Data Files\shaders\distantland\Water.fx&quot;&#x0D;&#x0A;"
 				AdditionalDependencies=""
 				Outputs="d3d8_output.txt"
 			/>

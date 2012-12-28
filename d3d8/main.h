@@ -10,7 +10,7 @@ static const char WelcomeMessage [] =
 	"\r\nThis program is free software, licensed according to the GNU Public License,\r\n"
 	"and comes with ABSOLUTELY NO WARRANTY.  Visit http://www.gnu.org/copyleft/gpl.html for details.\r\n"
 	"MWSE contributers: cdcooley, Fliggerty, Tp21, Timeslip and probably others\r\n"
-	"MGE contributers: Timeslip, LizTail, Scanti, krzymar, phal, peachykeen, d4w\r\n"
+	"MGE contributers: Timeslip, LizTail, Scanti, krzymar, phal, peachykeen, d4w, tetchy, vtastek, mendres82, europop\r\n"
 	"\r\n";
 
 

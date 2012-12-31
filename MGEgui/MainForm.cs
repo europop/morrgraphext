@@ -69,8 +69,9 @@ namespace MGEgui {
             gbMainUILocation.Y -= this.Size.Height;
             //Load settings
             LoadSettings ();
+            RegistryKey key = null;
             try {
-                RegistryKey key = Registry.LocalMachine.OpenSubKey (Statics.reg_mw);
+                key = Statics.reg_key_bethesda.OpenSubKey(Statics.reg_morrowind);
                 uint width, height;
                 try {
                     width = (uint)(int)key.GetValue ("Screen Width");
@@ -89,7 +90,7 @@ namespace MGEgui {
                     cbWindowed.Checked = false;
                 }
                 key.Close ();
-            } catch { }
+            } catch { if (key != null) { key.Close(); key = null; } }
         }
 
         public Dictionary<Control, string> default_text = new Dictionary<Control, string> ();
@@ -1026,7 +1027,7 @@ namespace MGEgui {
             iniFile.setKey ("DLExpMul", (double)udDLFogExpMul.Value);
             iniFile.save ();
             try {
-                RegistryKey key = Registry.LocalMachine.OpenSubKey (Statics.reg_mw, true);
+                RegistryKey key = Statics.reg_key_bethesda.OpenSubKey(Statics.reg_morrowind, true);
                 if (key != null) {
                     key.SetValue ("Pixelshader", new byte [] { Convert.ToByte (!gbDistantLand.Enabled) });
                     key.Close ();
@@ -1461,7 +1462,7 @@ namespace MGEgui {
             bCalcRefresh.Enabled = !cbWindowed.Checked && !cbDisableMGE.Checked;
             RegistryKey key = null;
             try {
-                key = Registry.LocalMachine.OpenSubKey (Statics.reg_mw, true);
+                key = Statics.reg_key_bethesda.OpenSubKey(Statics.reg_morrowind, true);
             } catch {
                 MessageBox.Show (strings ["RegNotWrit"].text, Statics.strings ["Error"].text);
             }
@@ -1572,7 +1573,7 @@ namespace MGEgui {
         private void bCalcRefresh_Click(object sender, EventArgs e)
         {
             int width, height;
-            RegistryKey key = Registry.LocalMachine.OpenSubKey(Statics.reg_mw, true);
+            RegistryKey key = Statics.reg_key_bethesda.OpenSubKey(Statics.reg_morrowind, true);
             try
             {
                 width = (int)key.GetValue("Screen Width");
@@ -2179,17 +2180,19 @@ namespace MGEgui {
             bool status = cbUILangAuto.Checked;
             cmbUILanguage.Enabled = !status;
             if (status) {
-                int index = cmbUILanguage.FindStringExact (LocalizationInterface.SysLang);
-                if (index == -1) {
-                    index = cmbUILanguage.FindStringExact (LocalizationInterface.SysLangRev);
+                foreach (System.Globalization.CultureInfo culture in LocalizationInterface.UserLanguages) {
+                    int index = cmbUILanguage.FindStringExact(LocalizationInterface.SysLang(culture));
                     if (index == -1) {
-                        index = cmbUILanguage.FindString (LocalizationInterface.SysLangOrg);
+                        index = cmbUILanguage.FindStringExact(LocalizationInterface.SysLangRev(culture));
                         if (index == -1) {
-                            index = cmbUILanguage.FindString (LocalizationInterface.SysLangEng);
+                            index = cmbUILanguage.FindString(LocalizationInterface.SysLangOrg(culture));
+                            if (index == -1) {
+                                index = cmbUILanguage.FindString(LocalizationInterface.SysLangEng(culture));
+                            }
                         }
                     }
+                    if (index != -1) { cmbUILanguage.SelectedIndex = index; break; }
                 }
-                if (index != -1) cmbUILanguage.SelectedIndex = index;
             }
         }
 
@@ -2238,7 +2241,7 @@ namespace MGEgui {
             int length = cmbUILanguage.Text.IndexOf(")") - start;
             String language = start > 0 && length > 0 ? cmbUILanguage.Text.Substring(start, length) : "English";
             language = cmbUILanguage.Text == "English (default)" ? "English" : language;
-            (new PatchForm(cbUILangAuto.Checked ? LocalizationInterface.SysLangEng : language)).ShowDialog();
+            (new PatchForm(cbUILangAuto.Checked ? LocalizationInterface.SysLangEng() : language)).ShowDialog();
         }
 
     }

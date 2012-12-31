@@ -159,7 +159,7 @@ namespace MGEgui {
                 if (patch.Removed != new Patch().Removed)
                     defmcp.Add(new INIFile.INIVariableDef(defmcp.Count.ToString(), section, Patch.Keys[Patch.Key.Removed], INIFile.INIVariableType.Dictionary, patch.Removed.ToString()));
             }
-            INIFile mcpFile = new INIFile(fileName, defmcp.ToArray(), true);
+            INIFile mcpFile = new INIFile(fileName, defmcp.ToArray(), Encoding.Default, true);
             mcpFile.initialize();
             foreach (String[] triplet in comments) mcpFile.setCommentAbove(triplet[0], triplet[1], triplet[2]);
             return mcpFile.save();
@@ -226,7 +226,7 @@ namespace MGEgui {
             RestoreButton();
             if (!SaveChanges(true)) return;
             if (openPatch.ShowDialog() != DialogResult.OK) return;
-            INIFile mcpFile = new INIFile(openPatch.FileName, new INIFile.INIVariableDef[] { INIFile.iniDefEmpty });
+            INIFile mcpFile = new INIFile(openPatch.FileName, new INIFile.INIVariableDef[] { INIFile.iniDefEmpty }, Encoding.Default);
             String[] sections = mcpFile.getSections();
             if (sections.Length > 0) {
                 currentSections.Clear();
@@ -410,7 +410,7 @@ namespace MGEgui {
             if (bHex.CheckState != CheckState.Unchecked) {
                 bAsm.CheckState = CheckState.Checked;
                 bHex.CheckState = CheckState.Unchecked;
-                propertyGrid_SelectedGridItemChanged(null, new SelectedGridItemChangedEventArgs(propertyGrid.SelectedGridItem, propertyGrid.SelectedGridItem));
+                if (propertyGrid.SelectedGridItem != null) propertyGrid_SelectedGridItemChanged(null, new SelectedGridItemChangedEventArgs(propertyGrid.SelectedGridItem, propertyGrid.SelectedGridItem));
             }
         }
 
@@ -418,7 +418,7 @@ namespace MGEgui {
             if (bAsm.CheckState != CheckState.Unchecked) {
                 bAsm.CheckState = CheckState.Unchecked;
                 bHex.CheckState = CheckState.Checked;
-                propertyGrid_SelectedGridItemChanged(null, new SelectedGridItemChangedEventArgs(propertyGrid.SelectedGridItem, propertyGrid.SelectedGridItem));
+                if (propertyGrid.SelectedGridItem != null) propertyGrid_SelectedGridItemChanged(null, new SelectedGridItemChangedEventArgs(propertyGrid.SelectedGridItem, propertyGrid.SelectedGridItem));
             }
         }
 

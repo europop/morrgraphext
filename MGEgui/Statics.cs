@@ -222,6 +222,33 @@ namespace MGEgui {
         /* registry keys */
         public const string reg_mw = @"Software\Bethesda Softworks\Morrowind";
         public const string reg_mwe = @"Software\Morrowind Enhanced";
+        public const string reg_mw64 = @"Software\Classes\VirtualStore\MACHINE\SOFTWARE\Wow6432Node\Bethesda Softworks\Morrowind";
+        public static String reg_morrowind {
+            get {
+                return reg_key_bethesda == Registry.CurrentUser ? Statics.reg_mw64 : Statics.reg_mw;
+            }
+        }
+        public static RegistryKey reg_key_bethesda {
+            get {
+                if (m_reg_key_bethesda == null) {
+                    RegistryKey key = null;
+                    try {
+                        key = Registry.LocalMachine.OpenSubKey(Statics.reg_mw, true);       // We try standard Mw key at first.
+                    } catch {
+                        try {
+                            key = Registry.CurrentUser.OpenSubKey(Statics.reg_mw64, true);
+                        } catch {}
+                    }
+                    m_reg_key_bethesda = (key != null) ? (key.Name.StartsWith(Registry.LocalMachine.Name) ? Registry.LocalMachine : Registry.CurrentUser) : Registry.LocalMachine;
+                    if (key != null) key.Close();
+                }
+                return m_reg_key_bethesda;
+            }
+            set {
+                m_reg_key_bethesda = value;
+            }
+        }
+        private static RegistryKey m_reg_key_bethesda = null;
 
         public static string runDir;
 
@@ -378,21 +405,21 @@ namespace MGEgui {
 
             runDir = System.Windows.Forms.Application.StartupPath;
             //check if MW registry keys exist
-            if (Registry.LocalMachine.OpenSubKey (reg_mw) == null) {
+            RegistryKey key = Statics.reg_key_bethesda.OpenSubKey(Statics.reg_morrowind);
+            if (key != null) { key.Close(); key = null;
+            } else {
                 MessageBox.Show (strings ["MWRegistry"].text, strings ["Error"].text);
                 return;
             }
 
             //mendres: Check if MGE needs administrator privileges.
-            try
-            {
-                RegistryKey key = Registry.LocalMachine.OpenSubKey(Statics.reg_mw, true);
-            }
-            catch (System.Security.SecurityException)
-            {
+            try {
+                key = Statics.reg_key_bethesda.OpenSubKey(Statics.reg_morrowind, true);
+            } catch (System.Security.SecurityException) {
                 MessageBox.Show(strings["MgeAccess"].text, strings["Error"].text);
                 return;
             }
+            if (key != null) { key.Close(); key = null; }
 
             //Create the data files directories MGE uses
             if (!Directory.Exists (@"data files\shaders")) {

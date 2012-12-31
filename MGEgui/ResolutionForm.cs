@@ -170,7 +170,7 @@ namespace MGEgui {
         static Point[] Resolutions;
         public static bool ShowDialog(out Point p, bool Windowed) {
             //Fetch data from the registry
-            RegistryKey key=Registry.LocalMachine.OpenSubKey(@"Software\Bethesda Softworks\Morrowind");
+            RegistryKey key = Statics.reg_key_bethesda.OpenSubKey(Statics.reg_morrowind);
             sWidth=(int)key.GetValue("Screen Width");
             sHeight=(int)key.GetValue("Screen Height");
             Adaptor=DirectX.DXMain.Adapter;
@@ -183,7 +183,7 @@ namespace MGEgui {
             if(rf.ShowDialog()==DialogResult.OK) {
                 //Write new dtat to the registry
                 try {
-                    key = Registry.LocalMachine.OpenSubKey(@"Software\Bethesda Softworks\Morrowind", true);
+                    key = Statics.reg_key_bethesda.OpenSubKey(Statics.reg_morrowind, true);
                 } catch {
                     MessageBox.Show("Could not write Morrowind registry key. MGE needs to be launched as Administrator.", "Error");
                 }

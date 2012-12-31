@@ -54,7 +54,7 @@ namespace MGEgui.DirectX {
         public static void GetDeviceCaps() {
             Device.IsUsingEventHandlers=false;
 
-            adapter=(int)Microsoft.Win32.Registry.GetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Bethesda Softworks\Morrowind", "Adapter", 0);
+            adapter=(int)Microsoft.Win32.Registry.GetValue(Statics.reg_key_bethesda.Name + "\\" + Statics.reg_morrowind, "Adapter", 0);
             if(Manager.Adapters.Count<=adapter) throw new ApplicationException("Morrowind is set up to use an adapter which could not be found on your system");
 
             for(int i=2;i<=16;i++) {

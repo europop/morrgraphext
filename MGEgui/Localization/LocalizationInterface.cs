@@ -37,34 +37,51 @@ namespace MGEgui.Localization {
 
         }
 
-        public static string SysLang {
+        private static List<CultureInfo> UserCultures = new List<CultureInfo>();
+        public static CultureInfo[] UserLanguages {
             get {
-                return (SysLangOrg + " (" + SysLangEng + ")");
+                if(UserCultures.Count == 0) {
+                    UserCultures.Add(CultureInfo.CurrentCulture);
+                    foreach (InputLanguage inputlanguage in System.Windows.Forms.InputLanguage.InstalledInputLanguages)
+                        if (!UserCultures.Contains(inputlanguage.Culture) && !inputlanguage.Culture.EnglishName.StartsWith("English"))
+                            UserCultures.Add(inputlanguage.Culture);
+                }
+                return UserCultures.ToArray();
             }
         }
 
-        public static string SysLangRev {
-            get {
-                return (SysLangEng + " (" + SysLangOrg + ")");
-            }
+        public static String SysLang(CultureInfo culture) {
+            return (SysLangOrg(culture) + " (" + SysLangEng(culture) + ")");
+        }
+        public static String SysLang() {
+            return SysLang(CultureInfo.CurrentCulture);
         }
 
-        public static string SysLangEng {
-            get {
-                string s = CultureInfo.CurrentCulture.EnglishName;
-                int i = s.IndexOf ('(');
-                if (i > 0) s = (s.Substring (0, i)).Trim ();
-                return s;
-            }
+        public static String SysLangRev(CultureInfo culture) {
+            return (SysLangEng(culture) + " (" + SysLangOrg(culture) + ")");
+        }
+        public static String SysLangRev() {
+            return SysLangRev(CultureInfo.CurrentCulture);
         }
 
-        public static string SysLangOrg {
-            get {
-                string s = CultureInfo.CurrentCulture.NativeName;
-                int i = s.IndexOf ('(');
-                if (i > 0) s = (s.Substring (0, i)).Trim ();
-                return s;
-            }
+        public static String SysLangEng(CultureInfo culture) {
+            String s = culture.EnglishName;
+            int i = s.IndexOf('(');
+            if (i > 0) s = (s.Substring(0, i)).Trim();
+            return s;
+        }
+        public static String SysLangEng() {
+            return SysLangEng(CultureInfo.CurrentCulture);
+        }
+
+        public static String SysLangOrg(CultureInfo culture) {
+            String s = culture.NativeName;
+            int i = s.IndexOf('(');
+            if (i > 0) s = (s.Substring(0, i)).Trim();
+            return s;
+        }
+        public static String SysLangOrg() {
+            return SysLangOrg(CultureInfo.CurrentCulture);
         }
 
         private Dictionary<string, Localization> localizations;

@@ -56,7 +56,7 @@ namespace MGEgui {
             List<String> files = new List<String>(Directory.GetFiles("mge3", "*.mcp", SearchOption.AllDirectories));
             files.Add(patchSettings); // last of all
             foreach (String file in files) {
-                INIFile mcpFile = new INIFile(file, new INIFile.INIVariableDef[] { INIFile.iniDefEmpty });
+                INIFile mcpFile = new INIFile(file, new INIFile.INIVariableDef[] { INIFile.iniDefEmpty }, Encoding.Default);
                 String[] sections = mcpFile.getSections();
                 foreach (String Section in sections) {
                     Patch patch = new Patch(mcpFile, Section);

@@ -37,17 +37,33 @@ namespace MGEgui.Localization {
 
         }
 
+        public const String DefaultLanguage = "English (default)";
+
         private static List<CultureInfo> UserCultures = new List<CultureInfo>();
         public static CultureInfo[] UserLanguages {
             get {
                 if(UserCultures.Count == 0) {
                     UserCultures.Add(CultureInfo.CurrentCulture);
                     foreach (InputLanguage inputlanguage in System.Windows.Forms.InputLanguage.InstalledInputLanguages)
-                        if (!UserCultures.Contains(inputlanguage.Culture) && !inputlanguage.Culture.EnglishName.StartsWith("English"))
+                        if (!UserCultures.Contains(inputlanguage.Culture) && !inputlanguage.Culture.EnglishName.StartsWith(GetFirstInPair(DefaultLanguage)))
                             UserCultures.Add(inputlanguage.Culture);
                 }
                 return UserCultures.ToArray();
             }
+        }
+
+        public static String GetFirstInPair(String pair) {
+            String s = pair;
+            int i = s.IndexOf('(');
+            if (i > 0) s = (s.Substring(0, i)).Trim();
+            return s;
+        }
+        public static String GetSecondInPair(String pair) {
+            String s = pair;
+            int i = s.IndexOf('(');
+            int e = s.IndexOf(')');
+            if (i++ > 0 && e > i) s = (s.Substring(i, e - i)).Trim();
+            return s;
         }
 
         public static String SysLang(CultureInfo culture) {
@@ -65,20 +81,14 @@ namespace MGEgui.Localization {
         }
 
         public static String SysLangEng(CultureInfo culture) {
-            String s = culture.EnglishName;
-            int i = s.IndexOf('(');
-            if (i > 0) s = (s.Substring(0, i)).Trim();
-            return s;
+            return GetFirstInPair(culture.EnglishName);
         }
         public static String SysLangEng() {
             return SysLangEng(CultureInfo.CurrentCulture);
         }
 
         public static String SysLangOrg(CultureInfo culture) {
-            String s = culture.NativeName;
-            int i = s.IndexOf('(');
-            if (i > 0) s = (s.Substring(0, i)).Trim();
-            return s;
+            return GetFirstInPair(culture.NativeName);
         }
         public static String SysLangOrg() {
             return SysLangOrg(CultureInfo.CurrentCulture);

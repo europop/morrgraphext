@@ -695,7 +695,7 @@ namespace MGEgui {
         // Main
         private static INIFile.INIVariableDef iniVersion = new INIFile.INIVariableDef ("Version", siniMain, "Version", INIFile.INIVariableType.String, Statics.versionString);
         private static INIFile.INIVariableDef iniIipSpeed = new INIFile.INIVariableDef ("IipSpeed", siniMain, "Tooltip Reading Speed", INIFile.INIVariableType.Dictionary, "15cps", tipSpeedDict);
-        public static INIFile.INIVariableDef iniLanguage = new INIFile.INIVariableDef ("Language", siniMain, "GUI Language", INIFile.INIVariableType.String, "English (default)");
+        public static INIFile.INIVariableDef iniLanguage = new INIFile.INIVariableDef ("Language", siniMain, "GUI Language", INIFile.INIVariableType.String, LocalizationInterface.DefaultLanguage);
         public static INIFile.INIVariableDef iniAutoLang = new INIFile.INIVariableDef ("AutoLang", siniMain, "Language Autodetection", INIFile.INIBoolType.Text, "True");
         // Global Graphics
         private static INIFile.INIVariableDef iniAntiAlias = new INIFile.INIVariableDef ("AntiAlias", siniGlobGraph, "Antialiasing Level", INIFile.INIVariableType.Dictionary, "None", antiAliasDict);
@@ -2237,11 +2237,17 @@ namespace MGEgui {
         }
 
         private void bPatch_Click(object sender, EventArgs e) {
-            int start = cmbUILanguage.Text.IndexOf("(") + 1;
-            int length = cmbUILanguage.Text.IndexOf(")") - start;
-            String language = start > 0 && length > 0 ? cmbUILanguage.Text.Substring(start, length) : "English";
-            language = cmbUILanguage.Text == "English (default)" ? "English" : language;
-            (new PatchForm(cbUILangAuto.Checked ? LocalizationInterface.SysLangEng() : language)).ShowDialog();
+            List<String> languagesEng = new List<String>();
+            if (cbUILangAuto.Checked) {
+                foreach (System.Globalization.CultureInfo culture in LocalizationInterface.UserLanguages)
+                    languagesEng.Add(LocalizationInterface.GetFirstInPair(culture.EnglishName));
+            } else {
+                if (cmbUILanguage.Text != LocalizationInterface.DefaultLanguage)
+                    languagesEng.Add(LocalizationInterface.GetSecondInPair(cmbUILanguage.Text));
+            }
+            if (!languagesEng.Contains(LocalizationInterface.GetFirstInPair(LocalizationInterface.DefaultLanguage)))
+                languagesEng.Add(LocalizationInterface.GetFirstInPair(LocalizationInterface.DefaultLanguage));
+            (new PatchForm(languagesEng.ToArray())).ShowDialog();
         }
 
     }

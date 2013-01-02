@@ -33,7 +33,10 @@ namespace MGEgui {
             if (!BinaryFiles.ContainsKey(name)) {
                 BinaryFiles.Add(name, new Byte[] { });
                 if(File.Exists(fileName)) {
-                    BinaryReader binReader = new BinaryReader(File.Open(fileName, FileMode.Open));
+                    BinaryReader binReader = null;
+                    try {
+                        binReader = new BinaryReader(File.Open(fileName, FileMode.Open));
+                    } catch { }
                     if(binReader != null) {
                         byte[] buffer = new byte[binReader.BaseStream.Length];
                         int count = binReader.Read(buffer, 0, buffer.Length);
@@ -192,6 +195,7 @@ namespace MGEgui {
             OpenFileDialog openParent = new OpenFileDialog();
             openParent.Title = title;
             openParent.Filter = "Executable files (EXE & DLL)|*.exe;*.dll";
+            openParent.RestoreDirectory = false;
             openParent.InitialDirectory = "mge3\\..";
             if (openParent.ShowDialog() != DialogResult.Cancel) {
                 Environment.CurrentDirectory = currentDirectory;
@@ -316,7 +320,7 @@ namespace MGEgui {
                     currentSections.Remove(lbSections.SelectedItem.ToString());
                     lbSections.Items.Remove(lbSections.SelectedItem);
                     RestoreButton();
-                } else patch = new Patch("Morrowind.exe\\Misc");
+                } else patch = new Patch("Morrowind.exe" + Patch.SepInternal.ToString() + "Misc");
                 lbSections.Items.Add(section);
                 currentSections.Add(section, patch);
                 HistoryUpdate();

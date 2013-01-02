@@ -6,6 +6,8 @@ using System.Windows.Forms;
 using System.Windows.Forms.Design;
 using System.Drawing.Design;
 using System.Globalization;
+using System.IO;
+using MGEgui.Localization;
 
 namespace MGEgui.Patching {
 
@@ -88,14 +90,25 @@ namespace MGEgui.Patching {
 	        return UITypeEditorEditStyle.Modal;
         }
         public override object EditValue(ITypeDescriptorContext context, IServiceProvider provider, object value) {
-            String Parent = value==null ? "" : (String)value;
+            String Parent = Patch.RebuildParentString(value==null ? "" : (String)value);
             String fileName = MGEgui.Statics.mf.PatchEditor.SelectExecutableFile("Open executable file"); 
             if (fileName != null) {
-                String directory = Application.StartupPath + "\\";
+                Patch patch = (Patch)context.Instance;
+                String directory = Application.StartupPath + Path.DirectorySeparatorChar.ToString();
                 if(fileName.StartsWith(directory)) {
-                    String ParentBranch = Patch.GetParentBranch(Parent);
-                    Parent = fileName.Substring(directory.Length) + (ParentBranch.Length > 0 ? "\\" + ParentBranch : "");
-                    MGEgui.Statics.mf.PatchEditor.AddBinaryFile(Patch.GetParentFile(Parent));
+                    try {
+                        System.Diagnostics.FileVersionInfo versionInfo = System.Diagnostics.FileVersionInfo.GetVersionInfo(fileName);
+                        String name = fileName.Substring(directory.Length);
+                        if (Path.GetExtension(fileName).ToLower() == Patch.ExtExe) {
+                            if (name.ToLower() != Path.GetFileName(name).ToLower()) throw new System.ArgumentException();
+                            name = versionInfo.OriginalFilename;
+                            if (!name.EndsWith(Patch.ExtExe, StringComparison.OrdinalIgnoreCase)) name += Patch.ExtExe;
+                        }
+                        String ParentBranch = Patch.GetBranch(Parent);
+                        Parent = name + (ParentBranch.Length > 0 ? Patch.SepInternal.ToString() + ParentBranch : "");
+                        patch.FileVersion = versionInfo.FilePrivatePart;
+                        MGEgui.Statics.mf.PatchEditor.AddBinaryFile(Patch.GetParentFile(Parent));
+                    } catch { }
                 }
             }
             return Parent;
@@ -125,6 +138,10 @@ namespace MGEgui.Patching {
     }
 
     public class Patch {
+        public const String ExtExe = ".exe";
+        public const String ExtDll = ".dll";
+        public const Char SepInternal = '/';
+        public const Char SepExternal = '\\';
         public const uint Default_Instance_Exe = 0x00400000;
         public const uint Default_Instance_Dll = 0x10000000;
         public Patch() { }
@@ -159,17 +176,18 @@ namespace MGEgui.Patching {
                             case Key.FileVersion: { try { fileVersion = Math.Abs(Convert.ToInt32(value)); } catch { } break; }
                             case Key.Author: { Author = value; break; }
                             case Key.Removed: { try { Removed = Convert.ToBoolean(value.ToLower()); } catch { } break; }
+                            case Key.Expanded: { try { Expanded = Convert.ToBoolean(value.ToLower()); } catch { } break; }
                         }
                         break;
                     }
                 }
             }
         }
-        public enum Key { None, Checked, Parent, Version, FileVersion, Original, Patch, Attach, Affected, Author, Description, Removed }
+        public enum Key { None, Checked, Parent, Version, FileVersion, Original, Patch, Attach, Affected, Author, Description, Removed, Expanded }
         public static Dictionary<Key, String> Keys = new Dictionary<Key, String> {
             { Key.Checked, "Checked" }, { Key.Parent, "Parent" }, { Key.Version, "Version" }, { Key.FileVersion, "FileVersion" },
             { Key.Original, "Original" }, { Key.Patch, "Patch" }, { Key.Attach, "Attach" }, { Key.Affected, "Affected" },
-            { Key.Author, "Author" }, { Key.Description, "Description" }, { Key.Removed, "Removed" }
+            { Key.Author, "Author" }, { Key.Description, "Description" }, { Key.Removed, "Removed" }, { Key.Expanded, "Expanded" }
         };
         private Unit[] CopyArray(Unit[] array) {
             if (array == null) return array;
@@ -185,34 +203,47 @@ namespace MGEgui.Patching {
             copy.Attach = CopyArray(copy.Attach);
             return copy;
         }
-        private static String GetParentFile(String ParentString, String End) {
-            String ParentFile = "";
-            int EndIndex = 0;
-            while ((EndIndex = ParentString.IndexOf(End, EndIndex, StringComparison.OrdinalIgnoreCase) + End.Length) > End.Length) {
-                if (EndIndex == ParentString.Length ? true : ParentString[EndIndex] == '\\') {
-                    ParentFile = ParentString.Substring(0, EndIndex);
-                    break;
+
+        public static bool ParseParentString(String ParentString, out String filename, out String branch) {
+            filename = branch = "";
+            bool namebuilt = false;
+            String[] parts = ParentString.Split(new Char[] { Patch.SepExternal, Patch.SepInternal }, StringSplitOptions.RemoveEmptyEntries);
+            for (int i = 0; i < parts.Length; i++) {
+                if (i == 0 && parts[i].Trim().EndsWith(Patch.ExtExe, StringComparison.OrdinalIgnoreCase)) { filename = parts[i].Trim(); namebuilt = true; continue; }
+                if (!namebuilt) {
+                    filename += (filename.Length > 0 ? Patch.SepExternal.ToString() : "") + parts[i].Trim();
+                    if (parts[i].Trim().EndsWith(Patch.ExtDll, StringComparison.OrdinalIgnoreCase)) namebuilt = true;
+                    continue;
                 }
+                branch += (branch.Length > 0 ? Patch.SepInternal.ToString() : "") + parts[i].Trim();
             }
-            return ParentFile;
+            return namebuilt;
+        }
+
+        public static String RebuildParentString(String ParentString) {
+            String filename, branch;
+            ParseParentString(ParentString, out filename, out branch);
+            return filename + (branch.Length > 0 ? Patch.SepInternal.ToString() + branch : "" );
         }
         public static String GetParentFile(String ParentString) {
-            String ParentExe = GetParentFile(ParentString, ".exe");
-            String ParentDll = GetParentFile(ParentString, ".dll");
-            return ParentExe.Length <= 0 ? ParentDll : ParentDll.Length <= 0 ? ParentExe : (ParentExe.Length < ParentDll.Length ? ParentExe : ParentDll);
+            String filename, branch;
+            ParseParentString(ParentString, out filename, out branch);
+            return filename;
         }
         public String GetParentFile() {
             return GetParentFile(Parent);
         }
-        public static String GetParentBranch(String ParentString) {
-            String ParentFile = GetParentFile(ParentString);
-            return ParentFile.Length > 0 && ParentString.Length > ParentFile.Length ? ParentString.Substring(ParentFile.Length + 1) : "";
+
+        public static String GetBranch(String ParentString) {
+            String filename, branch;
+            ParseParentString(ParentString, out filename, out branch);
+            return branch;
         }
-        public String GetParentBranch() {
-            return GetParentBranch(Parent);
+        public String GetBranch() {
+            return GetBranch(Parent);
         }
         public uint GetDefaultInstance() {
-            return GetParentFile().EndsWith(".exe", StringComparison.OrdinalIgnoreCase) ? Patch.Default_Instance_Exe : Patch.Default_Instance_Dll;
+            return GetParentFile().EndsWith(Patch.ExtExe, StringComparison.OrdinalIgnoreCase) ? Patch.Default_Instance_Exe : Patch.Default_Instance_Dll;
         }
         private const String general = "General";
         private const String patching = "Patching";
@@ -233,12 +264,9 @@ namespace MGEgui.Patching {
         public String Parent {
             get { return parent; }
             set { parent = value;
-                parent = parent.Replace("/", "\\");
+                parent = Patch.RebuildParentString(parent);
                 Char[] llegalchar = new Char[] { '\t', '\n', '\r', '=' }; // And may be '-', '+', '&', '|', '^', '>', '<', '?', '(', ')', '[', ']', '*', ':', '\"' 
                 while (parent.IndexOfAny(llegalchar) >= 0) parent = parent.Remove(parent.IndexOfAny(llegalchar), 1); 
-                while (parent.IndexOf("\\ ") >= 0) parent = parent.Replace("\\ ", "\\");
-                while (parent.IndexOf(" \\") >= 0) parent = parent.Replace(" \\", "\\");
-                while (parent.IndexOf("\\\\") >= 0) parent = parent.Replace("\\\\", "\\");
             }
         }
         private float version = 1F;
@@ -313,6 +341,8 @@ namespace MGEgui.Patching {
             get { return removed; }
             set { removed = value; }
         }
+        // Hidden
+        public bool Expanded = true;
     }
 
     public class DescriptionConverter : StringConverter {
@@ -326,8 +356,8 @@ namespace MGEgui.Patching {
             languages.Sort();
             languages.Remove(CultureInfo.CurrentCulture.Parent.EnglishName);
             languages.Insert(0, CultureInfo.CurrentCulture.Parent.EnglishName);
-            languages.Remove("English");
-            languages.Insert(0, "English");
+            languages.Remove(LocalizationInterface.GetFirstInPair(LocalizationInterface.DefaultLanguage));
+            languages.Insert(0, LocalizationInterface.GetFirstInPair(LocalizationInterface.DefaultLanguage));
             languages.Insert(0, "");
             List<String> top = new List<String>();
             foreach (Unit unit in (Unit[])((Patch)context.Instance).Description) if (unit.Name != "" && unit.Hex.Trim() != "") top.Add(unit.Name);

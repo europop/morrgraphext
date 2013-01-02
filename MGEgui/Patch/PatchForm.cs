@@ -10,12 +10,11 @@ using MGEgui.Patching;
 
 namespace MGEgui {
     public partial class PatchForm : Form {
-        public PatchForm(String selectedLangEng) {
-            Languages.Remove(selectedLangEng);
-            Languages.Insert(0, selectedLangEng);
+        public PatchForm(String[] languagesEng) {
+            Languages = languagesEng;
             InitializeComponent();
         }
-        private List<String> Languages = new List<String>() {"English"};
+        private String[] Languages;
         private String patchSettings = "mge3/PatchSettings";
         private bool loaded = false;
         private void RemoveEmptyNodes(TreeNodeCollection nodes) {
@@ -31,18 +30,27 @@ namespace MGEgui {
                 node.ForeColor = Checked && node.Checked ? TreeView.DefaultForeColor : Color.Silver;
                 UpdateColour(node.Nodes, Checked && node.Checked);
             }
-        }        
+        }
+        private void ExpandNodes(TreeNodeCollection nodes) {
+            foreach (TreeNode node in nodes) {
+                Patch patch = (Patch)node.Tag;
+                if (patch != null ? patch.Expanded : true) node.Expand();
+                else node.Collapse();
+                ExpandNodes(node.Nodes);
+            }
+        }
         private void SaveNodes(TreeNodeCollection nodes, List<INIFile.INIVariableDef> list) {
             foreach (TreeNode node in nodes) {
                 Dictionary<Patch.Key, String> str = new Dictionary<Patch.Key, String> { { Patch.Key.Checked, node.Checked.ToString() }, { Patch.Key.Version, "3E33" } };
-                if (node.FullPath.LastIndexOf(node.Text) > 0) str.Add(Patch.Key.Parent, node.FullPath.Substring(0, node.FullPath.LastIndexOf(node.Text) - 1));
+                if (!node.IsExpanded && node.Nodes.Count > 0) str.Add(Patch.Key.Expanded, node.IsExpanded.ToString());
+                if (node.FullPath.LastIndexOf(node.Text) > 0) str.Add(Patch.Key.Parent, Patch.RebuildParentString(node.FullPath.Substring(0, node.FullPath.LastIndexOf(node.Text) - 1)));
                 foreach (Patch.Key key in str.Keys)
                     list.Add(new INIFile.INIVariableDef(list.Count.ToString(), node.Text, Patch.Keys[key], INIFile.INIVariableType.Dictionary, str[key]));
                 SaveNodes(node.Nodes, list);
             }
         }
-        private void tvPatch_BeforeCheck(object sender, TreeViewCancelEventArgs e) { if (loaded) try { File.Delete(patchSettings); } catch { e.Cancel = true; return; } }
-        private void tvPatch_AfterCheck(object sender, TreeViewEventArgs e) {
+        private void tvPatch_BeforeEditing(object sender, TreeViewCancelEventArgs e) { if (loaded) try { File.Delete(patchSettings); } catch { e.Cancel = true; return; } }
+        private void tvPatch_AfterEditing(object sender, TreeViewEventArgs e) {
             if (!loaded) return;
             UpdateColour(tvPatch.Nodes, true);
             List<INIFile.INIVariableDef> guimcp = new List<INIFile.INIVariableDef> { INIFile.iniDefEmpty };
@@ -60,7 +68,7 @@ namespace MGEgui {
                 String[] sections = mcpFile.getSections();
                 foreach (String Section in sections) {
                     Patch patch = new Patch(mcpFile, Section);
-                    String[] parents = patch.Parent.Split(new String[] { tvPatch.PathSeparator }, StringSplitOptions.RemoveEmptyEntries);
+                    String[] parents = patch.Parent.Split(new String[] { Patch.SepInternal.ToString() }, StringSplitOptions.RemoveEmptyEntries);
                     TreeNodeCollection nodes = tvPatch.Nodes;
                     TreeNode[] exist;
                     for (int i = 0; i < parents.Length; i++) {
@@ -81,6 +89,7 @@ namespace MGEgui {
                             if (patch.Original == null && patch.Patched == null && patch.Attach == null) {
                                 exist[0].Checked = existing.Checked = patch.Checked;
                                 existing.Removed = patch.Removed || existing.Removed;
+                                existing.Expanded = patch.Expanded;
                                 continue;
                             }
 		                    update = true;
@@ -104,6 +113,7 @@ namespace MGEgui {
             }
             RemoveEmptyNodes(tvPatch.Nodes);
             UpdateColour(tvPatch.Nodes, true);
+            ExpandNodes(tvPatch.Nodes);
             tvPatch.Sort();
             loaded = true;
         }

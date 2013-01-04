@@ -690,6 +690,7 @@ namespace MGEgui {
         private const string siniInput = "Input";
         private const string siniMisc = "Misc";
         private const string siniDL = "Distant Land";
+        private const string siniTools = "Tools";
 
         #region mge_ini_variable_definitions
         // Main
@@ -781,6 +782,13 @@ namespace MGEgui {
         private static INIFile.INIVariableDef iniDLExpMul = new INIFile.INIVariableDef ("DLExpMul", siniDL, "Exponential Distance Multiplier", INIFile.INIVariableType.Single, "4.0", 2.5, 5.0, 2);
         private static INIFile.INIVariableDef iniWaveHght = new INIFile.INIVariableDef ("WaveHght", siniDL, "Water Wave Height", INIFile.INIVariableType.Byte, "50", 0, 250);
         private static INIFile.INIVariableDef iniCaustics = new INIFile.INIVariableDef ("Caustics", siniDL, "Water Caustics Intensity", INIFile.INIVariableType.Byte, "50", 0, 100);
+        // Tools
+        private static INIFile.INIVariableDef iniPTreeWidth = new INIFile.INIVariableDef("PTreeWidth", siniTools, "Patch Tree Width", INIFile.INIVariableType.UInt16, "400", 100, 10000);
+        private static INIFile.INIVariableDef iniPTreeHeight = new INIFile.INIVariableDef("PTreeHeight", siniTools, "Patch Tree Height", INIFile.INIVariableType.UInt16, "400", 100, 10000);
+        private static INIFile.INIVariableDef iniPEditorWidth = new INIFile.INIVariableDef("PEditorWidth", siniTools, "Patch Editor Width", INIFile.INIVariableType.UInt16, "650", 400, 10000);
+        private static INIFile.INIVariableDef iniPEditorHeight = new INIFile.INIVariableDef("PEditorHeight", siniTools, "Patch Editor Height", INIFile.INIVariableType.UInt16, "400", 300, 10000);
+        private static INIFile.INIVariableDef iniPEditorBarW = new INIFile.INIVariableDef("PEditorBarW", siniTools, "Patch Editor BarW", INIFile.INIVariableType.UInt16, "150", 100, 10000);
+        private static INIFile.INIVariableDef iniPEditorBarH = new INIFile.INIVariableDef("PEditorBarH", siniTools, "Patch Editor BarH", INIFile.INIVariableType.UInt16, "160", 100, 10000);
         #endregion
 
         private static INIFile.INIVariableDef [] iniSettings = {
@@ -812,7 +820,10 @@ namespace MGEgui {
             iniAboveBeg, iniAboveEnd, iniBelowBeg, iniBelowEnd,
             iniInterBeg, iniInterEnd, iniSkyRefl, iniDynRipples,
             iniDLShader, iniReflBlur, iniExpFog, iniDLExpMul,
-            iniWaveHght, iniCaustics
+            iniWaveHght, iniCaustics,
+            // Tools
+            iniPTreeWidth, iniPTreeHeight, iniPEditorWidth, iniPEditorHeight,
+            iniPEditorBarW, iniPEditorBarH
         };
 
         private Dictionary<string, bool> DLOptions = new Dictionary<string, bool> {
@@ -928,6 +939,13 @@ namespace MGEgui {
             cbDLAutoDist.Checked = (iniFile.getKeyValue ("AutoDist") == 1);
             //MGE disabled
             cbDisableMGE.Checked = (iniFile.getKeyValue ("DisableMGE") == 1);
+            //Tools
+            PatchTreeSize.Width = (int)iniFile.getKeyValue("PTreeWidth");
+            PatchTreeSize.Height = (int)iniFile.getKeyValue("PTreeHeight");
+            PatchEditorSize.Width = (int)iniFile.getKeyValue("PEditorWidth");
+            PatchEditorSize.Height = (int)iniFile.getKeyValue("PEditorHeight");
+            PatchEditorBars.Width = (int)iniFile.getKeyValue("PEditorBarW");
+            PatchEditorBars.Height = (int)iniFile.getKeyValue("PEditorBarH");
             loading = false;
         }
 
@@ -1025,6 +1043,13 @@ namespace MGEgui {
             iniFile.setKey ("InterEnd", (double)udDLFogIEnd.Value);
             iniFile.setKey ("ExpFog", cbDLFogExp.Checked);
             iniFile.setKey ("DLExpMul", (double)udDLFogExpMul.Value);
+            //Tools
+            iniFile.setKey("PTreeWidth", (double)PatchTreeSize.Width);
+            iniFile.setKey("PTreeHeight", (double)PatchTreeSize.Height);
+            iniFile.setKey("PEditorWidth", (double)PatchEditorSize.Width);
+            iniFile.setKey("PEditorHeight", (double)PatchEditorSize.Height);
+            iniFile.setKey("PEditorBarW", (double)PatchEditorBars.Width);
+            iniFile.setKey("PEditorBarH", (double)PatchEditorBars.Height);
             iniFile.save ();
             try {
                 RegistryKey key = Statics.reg_key_bethesda.OpenSubKey(Statics.reg_morrowind, true);
@@ -2228,14 +2253,24 @@ namespace MGEgui {
         }
 
         public PatchEditorForm PatchEditor;
+        public Size PatchEditorSize;
+        public Size PatchEditorBars;
         private void bPatchEd_Click(object sender, EventArgs e) {
             String currentDirectory = Environment.CurrentDirectory;
             PatchEditor = new PatchEditorForm();
+            PatchEditor.Size = PatchEditorSize;
+            PatchEditor.splitContainer.SplitterDistance = PatchEditorBars.Height;
+            PatchEditor.splitContainerRight.SplitterDistance = PatchEditorBars.Width;
             PatchEditor.ShowDialog();
+            PatchEditorSize = PatchEditor.Size;
+            PatchEditorBars.Height = PatchEditor.splitContainer.SplitterDistance;
+            PatchEditorBars.Width = PatchEditor.splitContainerRight.SplitterDistance;
             PatchEditor = null;
             Environment.CurrentDirectory = currentDirectory;
         }
 
+        public PatchForm PatchTree;
+        public Size PatchTreeSize;
         private void bPatch_Click(object sender, EventArgs e) {
             List<String> languagesEng = new List<String>();
             if (cbUILangAuto.Checked) {
@@ -2247,9 +2282,11 @@ namespace MGEgui {
             }
             if (!languagesEng.Contains(LocalizationInterface.GetFirstInPair(LocalizationInterface.DefaultLanguage)))
                 languagesEng.Add(LocalizationInterface.GetFirstInPair(LocalizationInterface.DefaultLanguage));
-            (new PatchForm(languagesEng.ToArray())).ShowDialog();
+            PatchTree = new PatchForm(languagesEng.ToArray());
+            PatchTree.Size = PatchTreeSize;
+            PatchTree.ShowDialog();
+            PatchTreeSize = PatchTree.Size;
+            PatchTree = null;
         }
-
     }
-
 }

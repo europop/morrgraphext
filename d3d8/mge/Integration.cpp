@@ -61,6 +61,23 @@ bool IntegrateMWECompiler(HINSTANCE hInstance, DWORD dwVersionLS) {
 
 //-----------------------------------------------------------------------------
 
+bool IntegrateDialogFix(HINSTANCE hInstance, DWORD dwVersionLS) {
+	if(dwVersionLS != DEFAULTFILEVER) return false;
+
+	DWORD instance = (DWORD)hInstance;	
+	DWORD address1 = 0x000F276F;
+	BYTE original1[] = {
+						0x74, 0x61								//
+						};
+	if(MachineCode::CompareCode(LPVOID(address1 + instance), original1, sizeof(original1))) {
+		BYTE jmpshort = 0xEB;
+		return MachineCode::SetCode(LPVOID(address1 + instance), &jmpshort, sizeof(BYTE));
+	}
+	return false;
+}
+
+//-----------------------------------------------------------------------------
+
 bool IntegrateDLProgress(HINSTANCE hInstance, DWORD dwVersionLS) {
 	if(dwVersionLS != DEFAULTFILEVER) return false;
 
@@ -627,6 +644,7 @@ void Integration(HINSTANCE hInstance, LPSTR origFilename, DWORD dwVersionLS, boo
 		IntegrateNativeResolution(hInstance, dwVersionLS);
 	} else if(_stricmp(origFilename, "TES Construction Set.exe") == 0) {
 		IntegrateMWECompiler(hInstance, dwVersionLS);
+		IntegrateDialogFix(hInstance, dwVersionLS);
 	} else if(_stricmp(origFilename, "Morrowind Launcher.exe") == 0) {
 		if(dwVersionLS != 0x01) return;
 		IntegrateNativeResolution(hInstance);

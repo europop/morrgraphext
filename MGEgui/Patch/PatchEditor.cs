@@ -15,16 +15,36 @@ namespace MGEgui {
             (this.propertyGrid.Controls[3] as System.Windows.Forms.ToolStrip).Items.AddRange(new System.Windows.Forms.ToolStripItem[] { new System.Windows.Forms.ToolStripSeparator(), this.bAsm, this.bHex});
         }
         public Char[] illegal = new Char[] { '\\', '/', '\t', '\n', '\r', '[', ']', ';' };
-        private int currentState = 0;
         private Dictionary<String, Byte[]> BinaryFiles = new Dictionary<String, Byte[]>();
-        private Dictionary<String, Patch> currentSections = new Dictionary<String, Patch>();
-        private List<Dictionary<String, Patch>> history = new List<Dictionary<String, Patch>>();
 
-        private Dictionary<String, Patch> CopyDictionary(Dictionary<String, Patch> dictionary) {
-            Dictionary<String, Patch> copy = new Dictionary<String,Patch>();
-            foreach (String key in dictionary.Keys) { copy.Add(key, dictionary[key].Copy()); }
-            return copy;
+        public class CurrentSelections {
+            public Dictionary<String, Patch> Sections;
+            public String SelectedSection;
+            public String SelectedLabel;
+            public String SelectedAddress;
+            public CurrentSelections() {
+                Sections = new Dictionary<String, Patch>();
+                SelectedSection = "";
+                SelectedLabel = "";
+                SelectedAddress = "";
+            }
+            public CurrentSelections(CurrentSelections existing) {
+                Sections = CopyDictionary(existing.Sections);
+                SelectedSection = existing.SelectedSection;
+                SelectedLabel = existing.SelectedLabel;
+                SelectedAddress = existing.SelectedAddress;
+            }
+            public static Dictionary<String, Patch> CopyDictionary(Dictionary<String, Patch> dictionary) {
+                Dictionary<String, Patch> copy = new Dictionary<String,Patch>();
+                foreach (String key in dictionary.Keys) { copy.Add(key, dictionary[key].Copy()); }
+                return copy;
+            }
         }
+
+        private int currentState = 0;
+        private List<CurrentSelections> history = new List<CurrentSelections>();
+        private CurrentSelections selections = new CurrentSelections();
+        
         public Patch GetSelectedPatch() {
             return ((Patch)propertyGrid.SelectedObject);
         }
@@ -49,7 +69,7 @@ namespace MGEgui {
         private String[] GetAttachedNames(Patch section) {
             List<String> names = new List<String>();
             if (section != null) {
-                foreach (Patch patch in currentSections.Values) {
+                foreach (Patch patch in selections.Sections.Values) {
                     if (section.Parent.StartsWith(patch.Parent)) {
                         if (patch.Attach != null) foreach (Unit attachment in patch.Attach) names.Add(attachment.Name);
                     }
@@ -74,6 +94,8 @@ namespace MGEgui {
             String name = GetSelectedPatch().GetParentFile().ToLower();
             uint instance = GetSelectedPatch().GetDefaultInstance();
             if (address < instance) { richTextBoxView.Clear(); return; }
+            bool selected = !bCut.Enabled;
+            richTextBoxView.Visible = false;
             String view = "";
             String line = "";
             int SelectionStart = richTextBoxView.SelectionStart;
@@ -101,6 +123,62 @@ namespace MGEgui {
                 richTextBoxView.Select(LLength[i], 9);
                 richTextBoxView.SelectionColor = Color.Blue;
             }
+            richTextBoxView.Visible = true;
+            if (selected) richTextBoxView.Select();
+            if (richTextBoxView.Tag != null) ColourSelect((uint)richTextBoxView.Tag, GetHexLength(richTextBoxEditor.Text));
+        }
+        private uint GetHexLength(String hex) {
+            String line = hex.Replace(" ", "").Replace("\t", "").Replace("\n", "").Replace("\r", "");
+            int length = line.Length;
+            int indexO, indexC = 0;
+            while ((indexO = line.IndexOfAny(new Char[] { '[', '(' }, indexC)) >= 0) {
+                indexC = ((indexC = line.IndexOfAny(new Char[] { ']', ')' }, indexO)) >= 0) ? indexC + 1: line.Length;
+                length = length - (indexC - indexO) + 8;
+            }
+            return (uint)length/2;
+        }
+        private void ColourSelect(uint address, uint length) {
+            String[] lines = richTextBoxView.Text.Split(new Char[] {'\n'});
+            bool selected = !bCut.Enabled;
+            richTextBoxView.Visible = false;
+            richTextBoxView.Select(0, richTextBoxView.Text.Length);
+            richTextBoxView.SelectionBackColor = richTextBoxView.BackColor;
+            richTextBoxView.Select(0, 0);
+            for (int i = 0; i < lines.Length; i++) {
+                uint lineAddress = Convert.ToUInt32(lines[i].Substring(0, 8), 16);
+                uint lineBLength = (uint)GetHexLength(lines[i].Substring(9));
+                if (lineAddress + lineBLength <= address) continue;
+                else {
+                    uint start, count = 0;
+                    if (address >= lineAddress) {
+                        start = address - lineAddress;
+                        count = (start + length > lineBLength ? lineBLength - start : length);
+                    }else {
+                        if (lineAddress - address >= length) break;
+                        start = 0;
+                        count = (length + address - lineAddress > lineBLength ? lineBLength : length + address - lineAddress);
+                    }
+                    if (count > 0) {
+                        start *= 2;
+                        count *= 2;
+                        int position = 0;
+                        int number = 0;
+                        for (int j = 9; j < lines[i].Length; j++) {
+                            if (position > start) { position = j - 1; break; }
+                            if (Char.IsLetterOrDigit(lines[i][j])) position++;
+                        }
+                        for (int j = position; j < lines[i].Length; j++) {
+                            if (Char.IsLetterOrDigit(lines[i][j])) number++;
+                            if (number == count) { number = j - position + 1; break; }
+                        }
+                        richTextBoxView.Select((lines[i].Length + 1) * i + position, number);
+                        richTextBoxView.SelectionBackColor = Color.LightGray;
+                        richTextBoxView.Select(0, 0);
+                    }
+                }
+            }
+            richTextBoxView.Visible = true;
+            if (selected) richTextBoxView.Select();
         }
         private void richTextBoxView_MouseWheel(object sender, MouseEventArgs e) {
             if (richTextBoxView.Tag != null) {
@@ -109,27 +187,62 @@ namespace MGEgui {
                 if (HexViewerAddress != address) FillHexViewer(HexViewerAddress = address);
             }
         }
+
+        private GridItem FindGridItem(GridItem root, String label, String address) {
+            if (root.Label == label ? root.Value != null ? address != null ? ((Unit)root.Value).ToString() == address : true : address == null : false)
+                return root;
+            else {
+                foreach(GridItem gi in root.GridItems) {
+                    GridItem result = FindGridItem(gi, label, address);
+                    if (result != null) return result;
+                }
+                return null;
+            }
+        }
+        private GridItem GetGridItem(String label, String address) {
+            GridItem root = propertyGrid.SelectedGridItem;
+            if (root == null) return null;
+            while (root.Parent != null) root = root.Parent;
+            return FindGridItem(root, label, address);
+        }
+
         private void HistoryUpdate() {
             if (currentState < history.Count) history.RemoveRange(currentState, history.Count - currentState);
-            history.Add(CopyDictionary(currentSections));
+            selections.SelectedSection = lbSections.SelectedItem != null ? lbSections.SelectedItem.ToString() : "";
+            selections.SelectedLabel = propertyGrid.SelectedGridItem != null ? propertyGrid.SelectedGridItem.Label : "";
+            if (propertyGrid.SelectedGridItem != null ? propertyGrid.SelectedGridItem.Value != null && ((propertyGrid.SelectedGridItem.Label.Trim() == Patch.Keys[Patch.Key.Attach]) ||
+                (propertyGrid.SelectedGridItem.Label.Trim() == Patch.Keys[Patch.Key.Original]) || (propertyGrid.SelectedGridItem.Label.Trim() == Patch.Keys[Patch.Key.Patch])) : false) {
+                selections.SelectedAddress = ((Unit)propertyGrid.SelectedGridItem.Value).ToString();
+            } else  selections.SelectedAddress = "";
+            history.Add(new CurrentSelections(selections));
             currentState = history.Count;
             tsmiUndo.Enabled = bUndo.Enabled = tsmiSave.Enabled = bSave.Enabled = currentState > 1;
             tsmiRedo.Enabled = bRedo.Enabled = false;
         }
         private void tsmiUndoRedo_Click(object sender, EventArgs e) {
-            Object selected = lbSections.SelectedItem;
             if (((sender == tsmiUndo || sender == bUndo) && currentState > 1 ) || ((sender == tsmiRedo || sender == bRedo) && currentState < history.Count )) {
                 if (sender == tsmiUndo || sender == bUndo) currentState--; else currentState++;
                 tsmiUndo.Enabled = bUndo.Enabled = tsmiSave.Enabled = bSave.Enabled = currentState > 1;
                 tsmiRedo.Enabled = bRedo.Enabled = currentState < history.Count;
-                currentSections = CopyDictionary(history[currentState - 1]);
+                selections = new CurrentSelections(history[currentState - 1]);
                 lbSections.Items.Clear();
-                foreach (String section in currentSections.Keys) { lbSections.Items.Add(section); }
-                lbSections.SelectedItem = selected;
+                foreach (String section in selections.Sections.Keys) { lbSections.Items.Add(section); }
+                lbSections.SelectedItem = selections.SelectedSection.Length > 0 ? selections.SelectedSection : null;
                 if (lbSections.SelectedIndex < 0) { propertyGrid.SelectedObject = null; DisableEditor(); }
+                else {
+                    if (selections.SelectedLabel.Length > 0) {
+                        try {
+                            GridItem gi = GetGridItem(selections.SelectedLabel.Trim(), null);
+                            if (gi != null) {
+                                gi.Expanded = true;
+                                propertyGrid.SelectedGridItem = GetGridItem(selections.SelectedLabel, gi.Expandable ? selections.SelectedAddress : null);
+                            }    
+                        } catch { }
+                    }
+                }
                 if (propertyGrid.SelectedGridItem == null ? false : (propertyGrid.SelectedGridItem.Label.Trim() == Patch.Keys[Patch.Key.Attach]) || (propertyGrid.SelectedGridItem.Label.Trim() == Patch.Keys[Patch.Key.Original])
                     || (propertyGrid.SelectedGridItem.Label.Trim() == Patch.Keys[Patch.Key.Patch]) || (propertyGrid.SelectedGridItem.Label.Trim() == Patch.Keys[Patch.Key.Description]))
-                    propertyGrid_SelectedGridItemChanged(propertyGrid, new SelectedGridItemChangedEventArgs(propertyGrid.SelectedGridItem, propertyGrid.SelectedGridItem));
+                    propertyGrid_SelectedGridItemChanged(propertyGrid, new SelectedGridItemChangedEventArgs(propertyGrid.SelectedGridItem, propertyGrid.SelectedGridItem)); // Change text at richTextBoxEditor
             }
         }
         private bool SaveFile(String fileName) {
@@ -137,8 +250,8 @@ namespace MGEgui {
             List<INIFile.INIVariableDef> defmcp = new List<INIFile.INIVariableDef>();
             List<String[]> comments = new List<String[]>(); //  0 - section, 1 - key, 2 - comment above
             defmcp.Add(INIFile.iniDefEmpty);
-            foreach (String section in currentSections.Keys) {
-                Patch patch = currentSections[section];
+            foreach (String section in selections.Sections.Keys) {
+                Patch patch = selections.Sections[section];
                 if (patch.Checked != new Patch().Checked)
                     defmcp.Add(new INIFile.INIVariableDef(defmcp.Count.ToString(), section, Patch.Keys[Patch.Key.Checked], INIFile.INIVariableType.Dictionary, patch.Checked.ToString()));
                 defmcp.Add(new INIFile.INIVariableDef(defmcp.Count.ToString(), section, Patch.Keys[Patch.Key.Version], INIFile.INIVariableType.Dictionary, patch.Version.ToString()));
@@ -212,7 +325,7 @@ namespace MGEgui {
         private bool bNew_Click() {
             if (!SaveChanges(true)) return false;
             propertyGrid.SelectedObject = null;
-            currentSections.Clear();
+            selections.Sections.Clear();
             lbSections.Items.Clear();
             currentState = 0;
             HistoryUpdate();
@@ -233,11 +346,11 @@ namespace MGEgui {
             INIFile mcpFile = new INIFile(openPatch.FileName, new INIFile.INIVariableDef[] { INIFile.iniDefEmpty }, Encoding.Default);
             String[] sections = mcpFile.getSections();
             if (sections.Length > 0) {
-                currentSections.Clear();
+                selections.Sections.Clear();
                 lbSections.Items.Clear();
             }
             foreach (String section in sections) {
-                currentSections.Add(section, new Patch(mcpFile, section));
+                selections.Sections.Add(section, new Patch(mcpFile, section));
                 lbSections.Items.Add(section);
             }
             propertyGrid.SelectedObject = null;
@@ -249,7 +362,7 @@ namespace MGEgui {
         private void lbSections_KeyDown(object sender, KeyEventArgs e) {
             if (e.KeyData == Keys.Delete && lbSections.SelectedItem != null) {
                 propertyGrid.SelectedObject = null;
-                currentSections.Remove(lbSections.SelectedItem.ToString());
+                selections.Sections.Remove(lbSections.SelectedItem.ToString());
                 lbSections.Items.Remove(lbSections.SelectedItem);
                 HistoryUpdate();
             }
@@ -259,7 +372,7 @@ namespace MGEgui {
                 RestoreButton();
             }
             if (lbSections.SelectedItem != null) {
-                propertyGrid.SelectedObject = currentSections[(String)lbSections.SelectedItem];
+                propertyGrid.SelectedObject = selections.Sections[(String)lbSections.SelectedItem];
                 AddBinaryFile(GetSelectedPatch().GetParentFile());
             }
             if (propertyGrid.SelectedGridItem == null ? false : (propertyGrid.SelectedGridItem.Label.Trim() == Patch.Keys[Patch.Key.Attach]) || (propertyGrid.SelectedGridItem.Label.Trim() == Patch.Keys[Patch.Key.Original])
@@ -296,6 +409,7 @@ namespace MGEgui {
                 richTextBoxEditor.Text = bAsm.Checked ? array[index].Asm : array[index].Hex;
                 richTextBoxEditor.Tag = array[index];
                 richTextBoxEditor.Enabled = true;
+                if (richTextBoxView.Tag != null) ColourSelect((uint)richTextBoxView.Tag, GetHexLength(richTextBoxEditor.Text));
                 return;
             }
             DisableEditor();
@@ -304,7 +418,11 @@ namespace MGEgui {
         private void richTextBox_TextChanged(object sender, EventArgs e) {
             if (richTextBoxEditor.Tag != null) {
                 Unit unit = (Unit)richTextBoxEditor.Tag;
-                if (bAsm.Checked) unit.Asm = richTextBoxEditor.Text; else unit.Hex = richTextBoxEditor.Text;
+                if (bAsm.Checked) unit.Asm = richTextBoxEditor.Text; 
+                else {
+                    unit.Hex = richTextBoxEditor.Text;
+                    if (richTextBoxView.Tag != null) ColourSelect((uint)richTextBoxView.Tag, GetHexLength(richTextBoxEditor.Text));
+                }
                 HistoryUpdate();
             }
         }
@@ -316,17 +434,17 @@ namespace MGEgui {
             if (!contains) {
                 Patch patch;
                 if (tbNewSection.Tag != null) {
-                    patch = currentSections[(String)lbSections.SelectedItem];
-                    currentSections.Remove(lbSections.SelectedItem.ToString());
+                    patch = selections.Sections[(String)lbSections.SelectedItem];
+                    selections.Sections.Remove(lbSections.SelectedItem.ToString());
                     lbSections.Items.Remove(lbSections.SelectedItem);
                     RestoreButton();
                 } else patch = new Patch("Morrowind.exe" + Patch.SepInternal.ToString() + "Misc");
                 lbSections.Items.Add(section);
-                currentSections.Add(section, patch);
-                HistoryUpdate();
+                selections.Sections.Add(section, patch);
             }
             lbSections.SelectedItem = section;
             tbNewSection.Text = "";
+            if (!contains) HistoryUpdate(); // last of all
         }
         private void tbNewSection_KeyPress(object sender, KeyPressEventArgs e) {
             if (e.KeyChar == '\r') { bAddSection_Click(null, null); e.Handled = true; }
@@ -359,6 +477,8 @@ namespace MGEgui {
                     propertyGrid.SelectedObject = selected;
                 }
             }
+            if (((e.ChangedItem.Label.Trim() == Patch.Keys[Patch.Key.Original]) || (e.ChangedItem.Label.Trim() == Patch.Keys[Patch.Key.Patch])) && (propertyGrid.SelectedGridItem != null))
+                propertyGrid_SelectedGridItemChanged(null, new SelectedGridItemChangedEventArgs(propertyGrid.SelectedGridItem, propertyGrid.SelectedGridItem));
             if (e.ChangedItem.Label == Patch.Keys[Patch.Key.Description]) propertyGrid_SelectedGridItemChanged(s, new SelectedGridItemChangedEventArgs(e.ChangedItem, e.ChangedItem));
             if (e.ChangedItem.Label == Patch.Keys[Patch.Key.Version]) if ((float)e.OldValue == (float)e.ChangedItem.Value) return;
             if (e.ChangedItem.Label == Patch.Keys[Patch.Key.Checked] || e.ChangedItem.Label == Patch.Keys[Patch.Key.Removed]) if ((bool)e.OldValue == (bool)e.ChangedItem.Value) return;
@@ -373,7 +493,7 @@ namespace MGEgui {
                     String[] names = GetAttachedNames(patch);   
                     foreach (String name in names) contextStrip.Items.Add(name);
                 }
-                contextStrip.Show(e.X + splitContainer.Panel2.Left + this.Left + this.Cursor.Size.Width/2, e.Y + menuStrip.Height + toolStrip.Height + splitContainerRight.Panel2.Top + this.Top);
+                contextStrip.Show(e.X + splitContainer.Panel2.Left + splitContainerEditor.Panel2.Left + this.Left + this.Cursor.Size.Width / 2, e.Y + menuStrip.Height + toolStrip.Height + splitContainerRight.Panel2.Top + this.Top);
             }
         }
 
@@ -468,7 +588,7 @@ namespace MGEgui {
             patch.Patched = uPatch.ToArray();
             if(uOriginal.Count > 0) {
                 lbSections.Items.Add(section);
-                currentSections.Add(section, patch);
+                selections.Sections.Add(section, patch);
                 lbSections.SelectedIndex = lbSections.Items.Count - 1;
                 HistoryUpdate();
             } else {

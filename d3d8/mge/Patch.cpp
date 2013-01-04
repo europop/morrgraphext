@@ -179,11 +179,11 @@ bool PatchTree::UpdateTree(PatchTree **tree) {
 	PatchTree **child = tree;
 	bool getdelete = false;
 	char *line = strcpy(new char[MAX_LINE], "");
-	if(Parent) line[strlen(strcat(line, Parent))-1]!='\\'?strcat(line, "\\"):strlen(line)==1?strcpy(line, ""):line;
+	if(Parent) line[strlen(strcat(line, Parent))-1]!='/'?strcat(line, "/"):strlen(line)==1?strcpy(line, ""):line;
 	strcat(line, Section);
 	char *path, *start, *end;
 	end = start = path = strcpy(new char[strlen(line)+1], line);
-	while((end = strstr(end, "\\"))||start) {	
+	while((end = strstr(end, "/"))||start) {	
 		strncpy_s(line, MAX_LINE, start, end ? end++ - start : strlen(start));
 		start = end;
 		if(!(*child)) (*child) = start ? new PatchTree(line) : this;

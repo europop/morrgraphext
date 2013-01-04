@@ -744,11 +744,11 @@
         private System.Windows.Forms.ToolStripButton bCopy;
         private System.Windows.Forms.ToolStripButton bPaste;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator7;
-        private System.Windows.Forms.SplitContainer splitContainer;
+        public System.Windows.Forms.SplitContainer splitContainer;
         private System.Windows.Forms.TextBox tbNewSection;
         private System.Windows.Forms.Button bAddSection;
         private System.Windows.Forms.ListBox lbSections;
-        private System.Windows.Forms.SplitContainer splitContainerRight;
+        public System.Windows.Forms.SplitContainer splitContainerRight;
         private System.Windows.Forms.PropertyGrid propertyGrid;
         private System.Windows.Forms.RichTextBox richTextBoxEditor;
         private System.Windows.Forms.Panel panelBorder;

@@ -27,10 +27,10 @@ namespace MGEgui
 
         private void MWEForm_Load(object sender, EventArgs e)
         {
-            mwekey = Registry.LocalMachine.OpenSubKey(Statics.reg_mwe, true);
+            mwekey = Statics.reg_key_bethesda.OpenSubKey(Statics.reg_morrowind_enhanced, true);
             if (mwekey == null)
             {
-                mwekey = Registry.LocalMachine.CreateSubKey(Statics.reg_mwe);
+                mwekey = Statics.reg_key_bethesda.CreateSubKey(Statics.reg_morrowind_enhanced);
             }
             foreach (Control trb in gbCombat.Controls)
             {

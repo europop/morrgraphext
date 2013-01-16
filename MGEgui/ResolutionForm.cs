@@ -156,18 +156,42 @@ namespace MGEgui {
             }
             tbWidth.Text=sWidth.ToString();
             tbHeight.Text=sHeight.ToString();
-            foreach(Point p in Resolutions) {
-                string s = p.X.ToString() + " x " + p.Y.ToString();
-                if((float)p.Y/(float)p.X!=0.75f) s+=" *";
-                cmbRes.Items.Add(s);
+            String[] resolutions = GetDXResolutions(true);
+            foreach(String resolution in resolutions) cmbRes.Items.Add(resolution);
+        }
+
+        public static String[] GetDXResolutions(bool withasterisk) {
+            // Get the list of valid resolutions
+            Point[] Resolutions = DirectX.DXMain.GetResolutions();
+            System.Collections.Generic.List<String> resolutions = new System.Collections.Generic.List<String>();
+            foreach (Point p in Resolutions) {
+                String resolution = p.X.ToString() + " x " + p.Y.ToString();
+                if (withasterisk && ((float)p.Y / (float)p.X != 0.75f)) resolution += " *";
+                resolutions.Add(resolution);
             }
+            return resolutions.ToArray();
+        }
+
+        public static bool SetResolution(Point resolution) {
+            //Write new dtat to the registry
+            RegistryKey key = null;
+            try {
+                key = Statics.reg_key_bethesda.OpenSubKey(Statics.reg_morrowind, true);
+            } catch {
+                MessageBox.Show("Could not write Morrowind registry key. MGE needs to be launched as Administrator.", "Error");
+            }
+            if (key != null) {
+                key.SetValue("Screen Width", resolution.X);
+                key.SetValue("Screen Height", resolution.Y);
+                key.Close();
+            }
+            return key == null;
         }
 
         static int sWidth;
         static int sHeight;
         static bool Fullscreen;
         static int Adaptor;
-        static Point[] Resolutions;
         public static bool ShowDialog(out Point p, bool Windowed) {
             //Fetch data from the registry
             RegistryKey key = Statics.reg_key_bethesda.OpenSubKey(Statics.reg_morrowind);
@@ -176,24 +200,11 @@ namespace MGEgui {
             Adaptor=DirectX.DXMain.Adapter;
             Fullscreen=!Windowed;
             key.Close();
-            //Get the list of valid resolutions
-            Resolutions=DirectX.DXMain.GetResolutions();
             //Show the dialog
             ResolutionForm rf=new ResolutionForm();
             if(rf.ShowDialog()==DialogResult.OK) {
-                //Write new dtat to the registry
-                try {
-                    key = Statics.reg_key_bethesda.OpenSubKey(Statics.reg_morrowind, true);
-                } catch {
-                    MessageBox.Show("Could not write Morrowind registry key. MGE needs to be launched as Administrator.", "Error");
-                }
-                if (key != null) {
-                    key.SetValue("Screen Width", sWidth);
-                    key.SetValue("Screen Height", sHeight);
-                    key.Close();
-                }
-                //Return
-                p=new Point(sWidth, sHeight);
+                p = new Point(sWidth, sHeight);
+                SetResolution(p);   // Write new dtat to the registry
                 return true;
             }
             p=new Point();

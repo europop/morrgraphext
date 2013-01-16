@@ -223,9 +223,15 @@ namespace MGEgui {
         public const string reg_mw = @"Software\Bethesda Softworks\Morrowind";
         public const string reg_mwe = @"Software\Morrowind Enhanced";
         public const string reg_mw64 = @"Software\Classes\VirtualStore\MACHINE\SOFTWARE\Wow6432Node\Bethesda Softworks\Morrowind";
+        public const string reg_mwe64 = @"Software\Classes\VirtualStore\MACHINE\SOFTWARE\Wow6432Node\Morrowind Enhanced";
         public static String reg_morrowind {
             get {
                 return reg_key_bethesda == Registry.CurrentUser ? Statics.reg_mw64 : Statics.reg_mw;
+            }
+        }
+        public static String reg_morrowind_enhanced {
+            get {
+                return reg_key_bethesda == Registry.CurrentUser ? Statics.reg_mwe64 : Statics.reg_mwe;
             }
         }
         public static RegistryKey reg_key_bethesda {

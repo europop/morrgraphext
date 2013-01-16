@@ -81,7 +81,9 @@ namespace MGEgui {
                     width = 640;
                     height = 480;
                 }
-                tbResolution.Text = width.ToString () + " x " + height.ToString ();
+                String[] resolutions = ResolutionForm.GetDXResolutions(false);
+                foreach (String resolution in resolutions) cmbResolution.Items.Add(resolution);
+                cmbResolution.Text = width.ToString() + " x " + height.ToString();
                 CalcAspectRatio ((int)width, (int)height);
                 try {
                     cbWindowed.Checked = !Convert.ToBoolean (((byte [])key.GetValue ("Fullscreen")) [0]);
@@ -719,10 +721,10 @@ namespace MGEgui {
         private static INIFile.INIVariableDef iniDisableShadersInMenu = new INIFile.INIVariableDef("DisableShadersInMenu", siniRendState, "Disable Shaders In Menu", INIFile.INIBoolType.OnOff, "Off");
         private static INIFile.INIVariableDef iniAAFix = new INIFile.INIVariableDef ("AAFix", siniRendState, "AA Colour Fix", INIFile.INIBoolType.OnOff, "Off");
         private static INIFile.INIVariableDef iniFOV = new INIFile.INIVariableDef ("FOV", siniRendState, "Horizontal Screen FOV", INIFile.INIVariableType.Single, "75", 5, 150, 2);
-        private static INIFile.INIVariableDef iniSSFormat = new INIFile.INIVariableDef ("SSFormat", siniRendState, "Screenshot Format", INIFile.INIVariableType.Dictionary, "BMP", ssFormatDict);
+        private static INIFile.INIVariableDef iniSSFormat = new INIFile.INIVariableDef ("SSFormat", siniRendState, "Screenshot Format", INIFile.INIVariableType.Dictionary, "PNG", ssFormatDict);
         private static INIFile.INIVariableDef iniSSName = new INIFile.INIVariableDef ("SSName", siniRendState, "Screenshot Name Prefix", INIFile.INIVariableType.String, "MGE Screenshot ");
         private static INIFile.INIVariableDef iniSSDir = new INIFile.INIVariableDef ("SSDir", siniRendState, "Screenshot Output Directory", INIFile.INIVariableType.String, "");
-        private static INIFile.INIVariableDef iniSSNum = new INIFile.INIVariableDef ("SSNum", siniRendState, "Screenshot Number Min Lenght", INIFile.INIVariableType.Byte, "1", 1, 5);
+        private static INIFile.INIVariableDef iniSSNum = new INIFile.INIVariableDef ("SSNum", siniRendState, "Screenshot Number Min Lenght", INIFile.INIVariableType.Byte, "3", 1, 5);
         // Input
         private static INIFile.INIVariableDef iniLagFix = new INIFile.INIVariableDef ("LagFix", siniInput, "Input Lag Fix", INIFile.INIBoolType.OnOff, "Off");
         // Misc
@@ -1625,14 +1627,24 @@ namespace MGEgui {
         private void bCalcResolution_Click (object sender, EventArgs e) {
             System.Drawing.Point p;
             if (ResolutionForm.ShowDialog (out p, cbWindowed.Checked)) {
-                tbResolution.Text = p.X.ToString () + " x " + p.Y.ToString ();
-                string refrRate = cmbRefreshRate.Text;
-                bCalcRefresh_Click (null, null);
-                cmbRefreshRate.SelectedIndex = cmbRefreshRate.FindStringExact (refrRate);
-                if (cmbRefreshRate.SelectedIndex == -1) cmbRefreshRate.SelectedIndex = 0;
-                CalcAspectRatio (p.X, p.Y);
-                if (((float)p.Y / (float)p.X) < 0.75) cbAspectZoom.Checked = true;
+                cmbResolution.Text = p.X.ToString() + " x " + p.Y.ToString();
+                cmbResolution_SelectedIndexChanged(null, null);
             }
+        }
+
+        private void cmbResolution_SelectedIndexChanged(object sender, EventArgs e) {
+            String[] resolution = cmbResolution.Text.Trim().Split('x');
+            if (resolution.Length < 2) return;
+            System.Drawing.Point p = new Point();
+            p.X = Convert.ToInt32(resolution[0].Trim());
+            p.Y = Convert.ToInt32(resolution[1].Trim());
+            if (sender != null || e != null) ResolutionForm.SetResolution(p);
+            string refrRate = cmbRefreshRate.Text;
+            bCalcRefresh_Click(null, null);
+            cmbRefreshRate.SelectedIndex = cmbRefreshRate.FindStringExact(refrRate);
+            if (cmbRefreshRate.SelectedIndex == -1) cmbRefreshRate.SelectedIndex = 0;
+            CalcAspectRatio(p.X, p.Y);
+            if (((float)p.Y / (float)p.X) < 0.75) cbAspectZoom.Checked = true;
         }
 
         private void cbIdle_CheckedChanged (object sender, EventArgs e) {

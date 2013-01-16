@@ -161,7 +161,6 @@ namespace MGEgui {
             this.cbWindowed = new System.Windows.Forms.CheckBox();
             this.cmbRefreshRate = new System.Windows.Forms.ComboBox();
             this.bCalcRefresh = new System.Windows.Forms.Button();
-            this.tbResolution = new System.Windows.Forms.TextBox();
             this.lResolution = new System.Windows.Forms.Label();
             this.lAspect = new System.Windows.Forms.Label();
             this.lRefreshRate = new System.Windows.Forms.Label();
@@ -249,6 +248,7 @@ namespace MGEgui {
             this.lDLFogStart = new System.Windows.Forms.Label();
             this.lDLFogEnd = new System.Windows.Forms.Label();
             this.SShotFolderDialog = new System.Windows.Forms.FolderBrowserDialog();
+            this.cmbResolution = new System.Windows.Forms.ComboBox();
             this.tpTools.SuspendLayout();
             this.tpINI.SuspendLayout();
             this.gbMWGeneral.SuspendLayout();
@@ -356,7 +356,7 @@ namespace MGEgui {
             // cbDisableShadersInMenu
             // 
             this.cbDisableShadersInMenu.AutoSize = true;
-            this.cbDisableShadersInMenu.Location = new System.Drawing.Point(10, 124);
+            this.cbDisableShadersInMenu.Location = new System.Drawing.Point(10, 110);
             this.cbDisableShadersInMenu.Name = "cbDisableShadersInMenu";
             this.cbDisableShadersInMenu.Size = new System.Drawing.Size(141, 17);
             this.cbDisableShadersInMenu.TabIndex = 4;
@@ -368,7 +368,7 @@ namespace MGEgui {
             this.cbDLSkyRefl.AutoSize = true;
             this.cbDLSkyRefl.Location = new System.Drawing.Point(11, 19);
             this.cbDLSkyRefl.Name = "cbDLSkyRefl";
-            this.cbDLSkyRefl.Size = new System.Drawing.Size(44, 17);
+            this.cbDLSkyRefl.Size = new System.Drawing.Size (42, 17);
             this.cbDLSkyRefl.TabIndex = 0;
             this.cbDLSkyRefl.Text = "S&ky";
             this.cbDLSkyRefl.UseVisualStyleBackColor = true;
@@ -472,7 +472,7 @@ namespace MGEgui {
             this.cbScreenshots.Enabled = false;
             this.cbScreenshots.Location = new System.Drawing.Point(13, 21);
             this.cbScreenshots.Name = "cbScreenshots";
-            this.cbScreenshots.Size = new System.Drawing.Size(111, 17);
+            this.cbScreenshots.Size = new System.Drawing.Size (109, 17);
             this.cbScreenshots.TabIndex = 0;
             this.cbScreenshots.Text = "Allow screenshots";
             // 
@@ -484,7 +484,7 @@ namespace MGEgui {
             this.cbHitFader.CheckState = System.Windows.Forms.CheckState.Checked;
             this.cbHitFader.Location = new System.Drawing.Point(261, 90);
             this.cbHitFader.Name = "cbHitFader";
-            this.cbHitFader.Size = new System.Drawing.Size(69, 17);
+            this.cbHitFader.Size = new System.Drawing.Size (67, 17);
             this.cbHitFader.TabIndex = 8;
             this.cbHitFader.Text = "Hit Fader";
             // 
@@ -493,7 +493,7 @@ namespace MGEgui {
             this.cbMultipleCS.AutoSize = true;
             this.cbMultipleCS.Location = new System.Drawing.Point(13, 113);
             this.cbMultipleCS.Name = "cbMultipleCS";
-            this.cbMultipleCS.Size = new System.Drawing.Size(154, 17);
+            this.cbMultipleCS.Size = new System.Drawing.Size (152, 17);
             this.cbMultipleCS.TabIndex = 4;
             this.cbMultipleCS.Text = "Allow multiple CS instances";
             // 
@@ -503,7 +503,7 @@ namespace MGEgui {
             this.cbAudio.AutoSize = true;
             this.cbAudio.Location = new System.Drawing.Point(261, 67);
             this.cbAudio.Name = "cbAudio";
-            this.cbAudio.Size = new System.Drawing.Size(90, 17);
+            this.cbAudio.Size = new System.Drawing.Size (88, 17);
             this.cbAudio.TabIndex = 7;
             this.cbAudio.Text = "Disable audio";
             // 
@@ -512,7 +512,7 @@ namespace MGEgui {
             this.cbHQShadows.AutoSize = true;
             this.cbHQShadows.Location = new System.Drawing.Point(13, 44);
             this.cbHQShadows.Name = "cbHQShadows";
-            this.cbHQShadows.Size = new System.Drawing.Size(121, 17);
+            this.cbHQShadows.Size = new System.Drawing.Size (119, 17);
             this.cbHQShadows.TabIndex = 1;
             this.cbHQShadows.Text = "High detail shadows";
             // 
@@ -521,7 +521,7 @@ namespace MGEgui {
             this.cbShowFPS.AutoSize = true;
             this.cbShowFPS.Location = new System.Drawing.Point(13, 67);
             this.cbShowFPS.Name = "cbShowFPS";
-            this.cbShowFPS.Size = new System.Drawing.Size(76, 17);
+            this.cbShowFPS.Size = new System.Drawing.Size (74, 17);
             this.cbShowFPS.TabIndex = 2;
             this.cbShowFPS.Text = "Show FPS";
             // 
@@ -533,7 +533,7 @@ namespace MGEgui {
             this.cbThreadLoad.CheckState = System.Windows.Forms.CheckState.Checked;
             this.cbThreadLoad.Location = new System.Drawing.Point(261, 44);
             this.cbThreadLoad.Name = "cbThreadLoad";
-            this.cbThreadLoad.Size = new System.Drawing.Size(97, 17);
+            this.cbThreadLoad.Size = new System.Drawing.Size (95, 17);
             this.cbThreadLoad.TabIndex = 6;
             this.cbThreadLoad.Text = "Thread loading";
             // 
@@ -543,7 +543,7 @@ namespace MGEgui {
             this.cbYesToAll.AutoSize = true;
             this.cbYesToAll.Location = new System.Drawing.Point(261, 21);
             this.cbYesToAll.Name = "cbYesToAll";
-            this.cbYesToAll.Size = new System.Drawing.Size(95, 17);
+            this.cbYesToAll.Size = new System.Drawing.Size (93, 17);
             this.cbYesToAll.TabIndex = 5;
             this.cbYesToAll.Text = "Allow yes to all";
             // 
@@ -552,7 +552,7 @@ namespace MGEgui {
             this.cbSubtitles.AutoSize = true;
             this.cbSubtitles.Location = new System.Drawing.Point(13, 90);
             this.cbSubtitles.Name = "cbSubtitles";
-            this.cbSubtitles.Size = new System.Drawing.Size(66, 17);
+            this.cbSubtitles.Size = new System.Drawing.Size (64, 17);
             this.cbSubtitles.TabIndex = 3;
             this.cbSubtitles.Text = "Subtitles";
             // 
@@ -647,7 +647,7 @@ namespace MGEgui {
             this.cbCam3rdPrsn.AutoSize = true;
             this.cbCam3rdPrsn.Location = new System.Drawing.Point(8, -2);
             this.cbCam3rdPrsn.Name = "cbCam3rdPrsn";
-            this.cbCam3rdPrsn.Size = new System.Drawing.Size(165, 17);
+            this.cbCam3rdPrsn.Size = new System.Drawing.Size (163, 17);
             this.cbCam3rdPrsn.TabIndex = 0;
             this.cbCam3rdPrsn.Text = "Customize 3rd person camera";
             this.cbCam3rdPrsn.UseVisualStyleBackColor = true;
@@ -781,7 +781,7 @@ namespace MGEgui {
             this.cbIdle.AutoSize = true;
             this.cbIdle.Location = new System.Drawing.Point(8, -2);
             this.cbIdle.Name = "cbIdle";
-            this.cbIdle.Size = new System.Drawing.Size(67, 17);
+            this.cbIdle.Size = new System.Drawing.Size (65, 17);
             this.cbIdle.TabIndex = 0;
             this.cbIdle.Text = "CPU idle";
             this.cbIdle.CheckedChanged += new System.EventHandler(this.cbIdle_CheckedChanged);
@@ -844,7 +844,7 @@ namespace MGEgui {
             this.cbFPSConst.AutoSize = true;
             this.cbFPSConst.Location = new System.Drawing.Point(8, -2);
             this.cbFPSConst.Name = "cbFPSConst";
-            this.cbFPSConst.Size = new System.Drawing.Size(118, 17);
+            this.cbFPSConst.Size = new System.Drawing.Size (116, 17);
             this.cbFPSConst.TabIndex = 0;
             this.cbFPSConst.Text = "Keep FPS constant";
             this.cbFPSConst.CheckedChanged += new System.EventHandler(this.cbFPSConst_CheckedChanged);
@@ -1029,7 +1029,7 @@ namespace MGEgui {
             this.cbHDR.AutoSize = true;
             this.cbHDR.Location = new System.Drawing.Point(14, 88);
             this.cbHDR.Name = "cbHDR";
-            this.cbHDR.Size = new System.Drawing.Size(157, 17);
+            this.cbHDR.Size = new System.Drawing.Size (155, 17);
             this.cbHDR.TabIndex = 3;
             this.cbHDR.Text = "Supply HDR info to shaders";
             this.cbHDR.CheckedChanged += new System.EventHandler(this.cbHDR_CheckedChanged);
@@ -1039,7 +1039,7 @@ namespace MGEgui {
             this.cbShaderDepth.AutoSize = true;
             this.cbShaderDepth.Location = new System.Drawing.Point(14, 65);
             this.cbShaderDepth.Name = "cbShaderDepth";
-            this.cbShaderDepth.Size = new System.Drawing.Size(170, 17);
+            this.cbShaderDepth.Size = new System.Drawing.Size (168, 17);
             this.cbShaderDepth.TabIndex = 2;
             this.cbShaderDepth.Text = "Supply shaders with depth info";
             this.cbShaderDepth.UseVisualStyleBackColor = true;
@@ -1049,7 +1049,7 @@ namespace MGEgui {
             this.cbHook.AutoSize = true;
             this.cbHook.Location = new System.Drawing.Point(14, 19);
             this.cbHook.Name = "cbHook";
-            this.cbHook.Size = new System.Drawing.Size(115, 17);
+            this.cbHook.Size = new System.Drawing.Size (113, 17);
             this.cbHook.TabIndex = 0;
             this.cbHook.Text = "Hook texture loads";
             // 
@@ -1058,7 +1058,7 @@ namespace MGEgui {
             this.cbSetEffectVars.AutoSize = true;
             this.cbSetEffectVars.Location = new System.Drawing.Point(14, 42);
             this.cbSetEffectVars.Name = "cbSetEffectVars";
-            this.cbSetEffectVars.Size = new System.Drawing.Size(141, 17);
+            this.cbSetEffectVars.Size = new System.Drawing.Size (139, 17);
             this.cbSetEffectVars.TabIndex = 1;
             this.cbSetEffectVars.Text = "Update shader variables";
             // 
@@ -1124,7 +1124,7 @@ namespace MGEgui {
             this.cbDisableMWSE.AutoSize = true;
             this.cbDisableMWSE.Location = new System.Drawing.Point(14, 72);
             this.cbDisableMWSE.Name = "cbDisableMWSE";
-            this.cbDisableMWSE.Size = new System.Drawing.Size(172, 17);
+            this.cbDisableMWSE.Size = new System.Drawing.Size (170, 17);
             this.cbDisableMWSE.TabIndex = 2;
             this.cbDisableMWSE.Text = "Disable internal MWSE version";
             // 
@@ -1133,7 +1133,7 @@ namespace MGEgui {
             this.cbAspectZoom.AutoSize = true;
             this.cbAspectZoom.Location = new System.Drawing.Point(14, 47);
             this.cbAspectZoom.Name = "cbAspectZoom";
-            this.cbAspectZoom.Size = new System.Drawing.Size(189, 17);
+            this.cbAspectZoom.Size = new System.Drawing.Size (187, 17);
             this.cbAspectZoom.TabIndex = 1;
             this.cbAspectZoom.Text = "Correct aspect ratio when zooming";
             // 
@@ -1142,7 +1142,7 @@ namespace MGEgui {
             this.cbZoomEffectsHUD.AutoSize = true;
             this.cbZoomEffectsHUD.Location = new System.Drawing.Point(14, 22);
             this.cbZoomEffectsHUD.Name = "cbZoomEffectsHUD";
-            this.cbZoomEffectsHUD.Size = new System.Drawing.Size(172, 17);
+            this.cbZoomEffectsHUD.Size = new System.Drawing.Size (170, 17);
             this.cbZoomEffectsHUD.TabIndex = 0;
             this.cbZoomEffectsHUD.Text = "Camera effects affect the HUD";
             // 
@@ -1221,7 +1221,7 @@ namespace MGEgui {
             this.cbSkipMovie.AutoSize = true;
             this.cbSkipMovie.Location = new System.Drawing.Point(10, 19);
             this.cbSkipMovie.Name = "cbSkipMovie";
-            this.cbSkipMovie.Size = new System.Drawing.Size(119, 17);
+            this.cbSkipMovie.Size = new System.Drawing.Size (117, 17);
             this.cbSkipMovie.TabIndex = 0;
             this.cbSkipMovie.Text = "Skip opening movie";
             // 
@@ -1230,7 +1230,7 @@ namespace MGEgui {
             this.cbConsole.AutoSize = true;
             this.cbConsole.Location = new System.Drawing.Point(10, 42);
             this.cbConsole.Name = "cbConsole";
-            this.cbConsole.Size = new System.Drawing.Size(101, 17);
+            this.cbConsole.Size = new System.Drawing.Size (99, 17);
             this.cbConsole.TabIndex = 1;
             this.cbConsole.Text = "Disable console";
             // 
@@ -1239,7 +1239,7 @@ namespace MGEgui {
             this.cbLagFix.AutoSize = true;
             this.cbLagFix.Location = new System.Drawing.Point(10, 88);
             this.cbLagFix.Name = "cbLagFix";
-            this.cbLagFix.Size = new System.Drawing.Size(80, 17);
+            this.cbLagFix.Size = new System.Drawing.Size (78, 17);
             this.cbLagFix.TabIndex = 3;
             this.cbLagFix.Text = "Input lag fix";
             // 
@@ -1248,7 +1248,7 @@ namespace MGEgui {
             this.cbAltCombat.AutoSize = true;
             this.cbAltCombat.Location = new System.Drawing.Point(10, 65);
             this.cbAltCombat.Name = "cbAltCombat";
-            this.cbAltCombat.Size = new System.Drawing.Size(173, 17);
+            this.cbAltCombat.Size = new System.Drawing.Size (171, 17);
             this.cbAltCombat.TabIndex = 2;
             this.cbAltCombat.Text = "Allow alternate combat controls";
             // 
@@ -1405,7 +1405,7 @@ namespace MGEgui {
             this.gbRendOpts.Controls.Add(this.cbHWShader);
             this.gbRendOpts.Location = new System.Drawing.Point(272, 95);
             this.gbRendOpts.Name = "gbRendOpts";
-            this.gbRendOpts.Size = new System.Drawing.Size(258, 250);
+            this.gbRendOpts.Size = new System.Drawing.Size (258, 158);
             this.gbRendOpts.TabIndex = 3;
             this.gbRendOpts.TabStop = false;
             this.gbRendOpts.Text = "Options";
@@ -1413,18 +1413,18 @@ namespace MGEgui {
             // cbFog
             // 
             this.cbFog.AutoSize = true;
-            this.cbFog.Location = new System.Drawing.Point(10, 32);
+            this.cbFog.Location = new System.Drawing.Point(10, 18);
             this.cbFog.Name = "cbFog";
-            this.cbFog.Size = new System.Drawing.Size(77, 17);
+            this.cbFog.Size = new System.Drawing.Size (75, 17);
             this.cbFog.TabIndex = 0;
             this.cbFog.Text = "Enable fog";
             // 
             // cbDisplayMessages
             // 
             this.cbDisplayMessages.AutoSize = true;
-            this.cbDisplayMessages.Location = new System.Drawing.Point(10, 78);
+            this.cbDisplayMessages.Location = new System.Drawing.Point(10, 64);
             this.cbDisplayMessages.Name = "cbDisplayMessages";
-            this.cbDisplayMessages.Size = new System.Drawing.Size(110, 17);
+            this.cbDisplayMessages.Size = new System.Drawing.Size (108, 17);
             this.cbDisplayMessages.TabIndex = 2;
             this.cbDisplayMessages.Text = "Display messages";
             this.cbDisplayMessages.CheckedChanged += new System.EventHandler(this.cbDisplayMessages_CheckedChanged);
@@ -1432,27 +1432,27 @@ namespace MGEgui {
             // cbFPSCounter
             // 
             this.cbFPSCounter.AutoSize = true;
-            this.cbFPSCounter.Location = new System.Drawing.Point(10, 55);
+            this.cbFPSCounter.Location = new System.Drawing.Point(10, 41);
             this.cbFPSCounter.Name = "cbFPSCounter";
-            this.cbFPSCounter.Size = new System.Drawing.Size(85, 17);
+            this.cbFPSCounter.Size = new System.Drawing.Size (83, 17);
             this.cbFPSCounter.TabIndex = 1;
             this.cbFPSCounter.Text = "FPS counter";
             // 
             // cbAAFix
             // 
             this.cbAAFix.AutoSize = true;
-            this.cbAAFix.Location = new System.Drawing.Point(10, 147);
+            this.cbAAFix.Location = new System.Drawing.Point(10, 133);
             this.cbAAFix.Name = "cbAAFix";
-            this.cbAAFix.Size = new System.Drawing.Size(85, 17);
+            this.cbAAFix.Size = new System.Drawing.Size(83, 17);
             this.cbAAFix.TabIndex = 5;
             this.cbAAFix.Text = "AA colour fix";
             // 
             // cbHWShader
             // 
             this.cbHWShader.AutoSize = true;
-            this.cbHWShader.Location = new System.Drawing.Point(10, 101);
+            this.cbHWShader.Location = new System.Drawing.Point(10, 87);
             this.cbHWShader.Name = "cbHWShader";
-            this.cbHWShader.Size = new System.Drawing.Size(107, 17);
+            this.cbHWShader.Size = new System.Drawing.Size (105, 17);
             this.cbHWShader.TabIndex = 3;
             this.cbHWShader.Text = "Hardware shader";
             // 
@@ -1985,7 +1985,7 @@ namespace MGEgui {
             this.gbDisplay.Controls.Add(this.cbWindowed);
             this.gbDisplay.Controls.Add(this.cmbRefreshRate);
             this.gbDisplay.Controls.Add(this.bCalcRefresh);
-            this.gbDisplay.Controls.Add(this.tbResolution);
+            this.gbDisplay.Controls.Add(this.cmbResolution);
             this.gbDisplay.Controls.Add(this.lResolution);
             this.gbDisplay.Controls.Add(this.lAspect);
             this.gbDisplay.Controls.Add(this.lRefreshRate);
@@ -2019,7 +2019,7 @@ namespace MGEgui {
             this.cbWindowed.AutoSize = true;
             this.cbWindowed.Location = new System.Drawing.Point(182, 53);
             this.cbWindowed.Name = "cbWindowed";
-            this.cbWindowed.Size = new System.Drawing.Size(106, 17);
+            this.cbWindowed.Size = new System.Drawing.Size (104, 17);
             this.cbWindowed.TabIndex = 3;
             this.cbWindowed.Text = "Windowed mode";
             this.cbWindowed.CheckedChanged += new System.EventHandler(this.cbWindowed_CheckedChanged);
@@ -2046,19 +2046,11 @@ namespace MGEgui {
             this.bCalcRefresh.Text = "Find valid refresh rates";
             this.bCalcRefresh.Click += new System.EventHandler(this.bCalcRefresh_Click);
             // 
-            // tbResolution
-            // 
-            this.tbResolution.Location = new System.Drawing.Point(96, 22);
-            this.tbResolution.Name = "tbResolution";
-            this.tbResolution.ReadOnly = true;
-            this.tbResolution.Size = new System.Drawing.Size(80, 20);
-            this.tbResolution.TabIndex = 0;
-            // 
             // lResolution
             // 
             this.lResolution.Location = new System.Drawing.Point(10, 21);
             this.lResolution.Name = "lResolution";
-            this.lResolution.Size = new System.Drawing.Size(83, 21);
+            this.lResolution.Size = new System.Drawing.Size(79, 21);
             this.lResolution.TabIndex = 0;
             this.lResolution.Text = "Resolution";
             this.lResolution.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -2159,9 +2151,9 @@ namespace MGEgui {
             this.cbUILangAuto.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.cbUILangAuto.AutoSize = true;
             this.cbUILangAuto.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.cbUILangAuto.Location = new System.Drawing.Point(78, -1);
+            this.cbUILangAuto.Location = new System.Drawing.Point (80, -1);
             this.cbUILangAuto.Name = "cbUILangAuto";
-            this.cbUILangAuto.Size = new System.Drawing.Size(78, 17);
+            this.cbUILangAuto.Size = new System.Drawing.Size (76, 17);
             this.cbUILangAuto.TabIndex = 0;
             this.cbUILangAuto.Text = "Autodetect";
             this.cbUILangAuto.UseVisualStyleBackColor = true;
@@ -2231,7 +2223,7 @@ namespace MGEgui {
             this.cbDisableMGE.AutoSize = true;
             this.cbDisableMGE.Location = new System.Drawing.Point(10, 331);
             this.cbDisableMGE.Name = "cbDisableMGE";
-            this.cbDisableMGE.Size = new System.Drawing.Size(128, 17);
+            this.cbDisableMGE.Size = new System.Drawing.Size (126, 17);
             this.cbDisableMGE.TabIndex = 4;
             this.cbDisableMGE.Text = "Disable MGE in game";
             this.cbDisableMGE.UseVisualStyleBackColor = true;
@@ -2333,7 +2325,7 @@ namespace MGEgui {
             this.cbImportIni.AutoSize = true;
             this.cbImportIni.Location = new System.Drawing.Point(183, 24);
             this.cbImportIni.Name = "cbImportIni";
-            this.cbImportIni.Size = new System.Drawing.Size(120, 17);
+            this.cbImportIni.Size = new System.Drawing.Size (118, 17);
             this.cbImportIni.TabIndex = 2;
             this.cbImportIni.Text = "Import Morrowind.ini";
             // 
@@ -2343,7 +2335,7 @@ namespace MGEgui {
             this.cbClearINI.AutoSize = true;
             this.cbClearINI.Location = new System.Drawing.Point(8, 24);
             this.cbClearINI.Name = "cbClearINI";
-            this.cbClearINI.Size = new System.Drawing.Size(121, 17);
+            this.cbClearINI.Size = new System.Drawing.Size (119, 17);
             this.cbClearINI.TabIndex = 0;
             this.cbClearINI.Text = "Clear saved settings";
             this.cbClearINI.UseVisualStyleBackColor = true;
@@ -2389,7 +2381,7 @@ namespace MGEgui {
             this.cbDLDistantLand.AutoSize = true;
             this.cbDLDistantLand.Location = new System.Drawing.Point(16, 1);
             this.cbDLDistantLand.Name = "cbDLDistantLand";
-            this.cbDLDistantLand.Size = new System.Drawing.Size(108, 17);
+            this.cbDLDistantLand.Size = new System.Drawing.Size (106, 17);
             this.cbDLDistantLand.TabIndex = 0;
             this.cbDLDistantLand.Text = "Use Distant &Land";
             this.cbDLDistantLand.UseVisualStyleBackColor = true;
@@ -2432,7 +2424,7 @@ namespace MGEgui {
             this.cbDLDistantStatics.AutoSize = true;
             this.cbDLDistantStatics.Location = new System.Drawing.Point(8, -2);
             this.cbDLDistantStatics.Name = "cbDLDistantStatics";
-            this.cbDLDistantStatics.Size = new System.Drawing.Size(116, 17);
+            this.cbDLDistantStatics.Size = new System.Drawing.Size (114, 17);
             this.cbDLDistantStatics.TabIndex = 0;
             this.cbDLDistantStatics.Text = "Use Distant &Statics";
             this.cbDLDistantStatics.UseVisualStyleBackColor = true;
@@ -2647,7 +2639,7 @@ namespace MGEgui {
             this.cbDLAutoDist.Location = new System.Drawing.Point(14, 67);
             this.cbDLAutoDist.Name = "cbDLAutoDist";
             this.cbDLAutoDist.RightToLeft = System.Windows.Forms.RightToLeft.No;
-            this.cbDLAutoDist.Size = new System.Drawing.Size(140, 17);
+            this.cbDLAutoDist.Size = new System.Drawing.Size (138, 17);
             this.cbDLAutoDist.TabIndex = 2;
             this.cbDLAutoDist.Text = "&Auto set other distances";
             this.cbDLAutoDist.UseVisualStyleBackColor = true;
@@ -2842,7 +2834,7 @@ namespace MGEgui {
             this.cbDLReflLand.AutoSize = true;
             this.cbDLReflLand.Location = new System.Drawing.Point(11, 42);
             this.cbDLReflLand.Name = "cbDLReflLand";
-            this.cbDLReflLand.Size = new System.Drawing.Size(79, 17);
+            this.cbDLReflLand.Size = new System.Drawing.Size (77, 17);
             this.cbDLReflLand.TabIndex = 2;
             this.cbDLReflLand.Text = "Landsca&pe";
             this.cbDLReflLand.UseVisualStyleBackColor = true;
@@ -2854,7 +2846,7 @@ namespace MGEgui {
             this.cbDLReflBlur.Enabled = false;
             this.cbDLReflBlur.Location = new System.Drawing.Point(11, 65);
             this.cbDLReflBlur.Name = "cbDLReflBlur";
-            this.cbDLReflBlur.Size = new System.Drawing.Size(95, 17);
+            this.cbDLReflBlur.Size = new System.Drawing.Size (93, 17);
             this.cbDLReflBlur.TabIndex = 4;
             this.cbDLReflBlur.Text = "&Blur reflections";
             this.cbDLReflBlur.UseVisualStyleBackColor = true;
@@ -2866,7 +2858,7 @@ namespace MGEgui {
             this.cbDLReflNStatics.Enabled = false;
             this.cbDLReflNStatics.Location = new System.Drawing.Point(116, 19);
             this.cbDLReflNStatics.Name = "cbDLReflNStatics";
-            this.cbDLReflNStatics.Size = new System.Drawing.Size(95, 17);
+            this.cbDLReflNStatics.Size = new System.Drawing.Size (93, 17);
             this.cbDLReflNStatics.TabIndex = 1;
             this.cbDLReflNStatics.Text = "&Nearby Statics";
             this.cbDLReflNStatics.UseVisualStyleBackColor = true;
@@ -2879,7 +2871,7 @@ namespace MGEgui {
             this.cbDLReflFStatics.Enabled = false;
             this.cbDLReflFStatics.Location = new System.Drawing.Point(116, 42);
             this.cbDLReflFStatics.Name = "cbDLReflFStatics";
-            this.cbDLReflFStatics.Size = new System.Drawing.Size(94, 17);
+            this.cbDLReflFStatics.Size = new System.Drawing.Size (92, 17);
             this.cbDLReflFStatics.TabIndex = 3;
             this.cbDLReflFStatics.Text = "D&istant Statics";
             this.cbDLReflFStatics.UseVisualStyleBackColor = true;
@@ -2901,7 +2893,7 @@ namespace MGEgui {
             this.cbDLDynRipples.AutoSize = true;
             this.cbDLDynRipples.Location = new System.Drawing.Point(8, 114);
             this.cbDLDynRipples.Name = "cbDLDynRipples";
-            this.cbDLDynRipples.Size = new System.Drawing.Size(105, 17);
+            this.cbDLDynRipples.Size = new System.Drawing.Size (103, 17);
             this.cbDLDynRipples.TabIndex = 1;
             this.cbDLDynRipples.Text = "D&ynamic Ripples";
             this.cbDLDynRipples.UseVisualStyleBackColor = true;
@@ -3247,6 +3239,16 @@ namespace MGEgui {
             // 
             this.SShotFolderDialog.Description = "Select output folder for screenshots taken in game:";
             // 
+            // cmbResolution
+            // 
+            this.cmbResolution.FormattingEnabled = true;
+            this.cmbResolution.Location = new System.Drawing.Point(92, 21);
+            this.cmbResolution.Name = "cmbResolution";
+            this.cmbResolution.Size = new System.Drawing.Size(84, 21);
+            this.cmbResolution.TabIndex = 0;
+            this.cmbResolution.SelectedIndexChanged += new System.EventHandler(this.cmbResolution_SelectedIndexChanged);
+            this.cmbResolution.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.IgnoreKey);
+            // 
             // MainForm
             // 
             this.ClientSize = new System.Drawing.Size(546, 379);
@@ -3438,7 +3440,6 @@ namespace MGEgui {
         public CheckBox cbFPSCounter;
         public CheckBox cbDisplayMessages;
         public TabPage tpGlobal;
-        public TextBox tbResolution;
         public Button bCalcResolution;
         public Label lResolution;
         public CheckBox cbWindowed;
@@ -3592,5 +3593,6 @@ namespace MGEgui {
         private Button bPatch;
         private CheckBox cbDisablePatch;
         private CheckBox cbDisableIntegration;
+        public ComboBox cmbResolution;
     }
 }

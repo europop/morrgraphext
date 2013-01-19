@@ -55,6 +55,9 @@
     <Filter Include="Patch">
       <UniqueIdentifier>{87ef429a-22b5-47f9-b599-f43689c67c54}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Localization">
+      <UniqueIdentifier>{7a28415f-27a5-4ad5-bcfb-324d078bb8fa}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="mge\DInputMisc.cpp">
@@ -245,6 +248,9 @@
     </ClCompile>
     <ClCompile Include="Log.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Localization\mw_layout.cpp">
+      <Filter>Localization</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="mge\DInputHeader.h">
@@ -483,6 +489,9 @@
     </ClInclude>
     <ClInclude Include="Log.h" />
     <ClInclude Include="main.h" />
+    <ClInclude Include="Localization\mw_layout.h">
+      <Filter>Localization</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Shaders\distantland\Depth.fx">

@@ -33,6 +33,11 @@ struct mw_text_dll_patch_s{
 	BYTE original_data[20];
 };
 struct mw_text_dll_layout_s{
+	void (__cdecl *game_con_printf) (DWORD,char*,...);
+	void (__cdecl *game_popup_print) (char*,DWORD ,DWORD );
+
+	DWORD* gamedatap;
+
 	mw_text_dll_patch_s con_hook_error_exit;
 	mw_text_dll_patch_s con_hook_normal_exit;
 	mw_text_dll_patch_s hook_addr_console;

@@ -27,7 +27,49 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "../mwse/WinHeader.h"
 
 typedef enum { MW_UNKNOWN = 0, MW_MORROWIND = 1, MW_TRIBUNAL, MW_BLOODMOON }mw_version_t;
+struct mw_text_dll_patch_s{
+	DWORD offset;
+	DWORD length;
+	BYTE original_data[20];
+};
+struct mw_text_dll_layout_s{
+	mw_text_dll_patch_s con_hook_error_exit;
+	mw_text_dll_patch_s con_hook_normal_exit;
+	mw_text_dll_patch_s hook_addr_console;
 
+	//Dialog engine 
+	mw_text_dll_patch_s hook_addr_dictstr;
+	mw_text_dll_patch_s hook_addr_travel_printf;
+	mw_text_dll_patch_s hook_addr_alphavit_prn1;
+	mw_text_dll_patch_s hook_addr_alphavit_prn2;
+	mw_text_dll_patch_s hook_addr_alphavit_cmp;
+	mw_text_dll_patch_s hook_addr_checktopic;
+	mw_text_dll_patch_s hook_addr_mark_topic;
+	mw_text_dll_patch_s addr_char_convert_tbl1;
+	mw_text_dll_patch_s addr_char_convert_tbl2;
+	mw_text_dll_patch_s addr_page_break_str;
+
+	//journal convertsion tribunal & bloodmoon only
+	mw_text_dll_patch_s hook_addr_QuestsParse; 
+	mw_text_dll_patch_s addr_journal_parse;
+
+	//keyboard
+	mw_text_dll_patch_s hook_addr_EnterChar;
+	mw_text_dll_patch_s hook_addr_EnterCharMultiString;
+	mw_text_dll_patch_s hook_addr_GetKeyData;
+
+	mw_text_dll_patch_s unarmored_fix_addr;
+	mw_text_dll_patch_s hook_addr_enter_menu;
+	mw_text_dll_patch_s hook_addr_leave_menu;
+	mw_text_dll_patch_s addr_update_ac;
+
+	//items_info
+	mw_text_dll_patch_s hook_addr_item_info;
+	mw_text_dll_patch_s addr_item_info_normal_exit;
+	mw_text_dll_patch_s addr_item_info_my_exit;
+
+	mw_text_dll_patch_s hook_addr_gameframe;
+};
 struct morrowind_localization_layout_s {
 	void (__cdecl *game_con_printf) (DWORD,char*,...);
 	void (__cdecl *game_popup_print) (char*,DWORD ,DWORD );

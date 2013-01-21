@@ -23,7 +23,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // $Id: mw_layout.h,v 1.2 2005-09-15 17:20:13 AngelD Exp $ 
 //////////////////////////////////////////////////////////////////////
 
-#if
 #pragma once
 #include "../mwse/WinHeader.h"
 

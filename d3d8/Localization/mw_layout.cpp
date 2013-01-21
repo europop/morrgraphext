@@ -23,8 +23,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "mw_layout.h"
 
-void InitLocallizationLayout(DWORD dwVersionLS){
-}
 mw_version_t mw_version = MW_UNKNOWN;
 mw_text_dll_layout_s* mw_text_dll_layout=NULL;
 

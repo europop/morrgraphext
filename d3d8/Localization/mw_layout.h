@@ -30,7 +30,7 @@ typedef enum { MW_UNKNOWN = 0, MW_MORROWIND = 1, MW_TRIBUNAL, MW_BLOODMOON }mw_v
 struct mw_text_dll_patch_s{
 	DWORD offset;
 	DWORD length;
-	BYTE original_data[20];
+	BYTE original_data[30];
 };
 struct mw_text_dll_layout_s{
 	void (__cdecl *game_con_printf) (DWORD,char*,...);

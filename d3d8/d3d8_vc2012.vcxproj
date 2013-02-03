@@ -161,6 +161,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Localization\mw_layout.cpp" />
     <ClCompile Include="mge\DInputMisc.cpp" />
     <ClCompile Include="mge\DInputWrapper.cpp" />
     <ClCompile Include="mge\MMEfunctions.cpp" />
@@ -227,6 +228,7 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Localization\mw_layout.h" />
     <ClInclude Include="mge\DInputHeader.h" />
     <ClInclude Include="mge\MME function defs.h" />
     <ClInclude Include="mge\MWBridge.h" />

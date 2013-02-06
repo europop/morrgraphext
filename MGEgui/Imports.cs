@@ -28,6 +28,14 @@ namespace MGEgui {
         [DllImport("MGE3/MGEfuncs.dll", CallingConvention=CallingConvention.StdCall, CharSet=CharSet.Ansi, EntryPoint="GetLandVertSize")]
         internal static extern int GetLandVertSize();
 
+        [DllImport("d3d8.dll", CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi, EntryPoint = "AssembleInstruction")]
+        internal static extern int AssembleInstruction(
+            [MarshalAs(UnmanagedType.LPStr)] string asmInstruction, uint instructionAddress, uint attempt, uint constSize, System.Text.StringBuilder assembledHexString, System.Text.StringBuilder errorString);
+
+        [DllImport("d3d8.dll", CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi, EntryPoint = "DisassembleInstruction")]
+        internal static extern int DisassembleInstruction(
+            [MarshalAs(UnmanagedType.LPArray)] byte[] binaryCode, int binaryCodeSize, uint startIndex, uint instructionAddress, [MarshalAs(UnmanagedType.I4)] Assembler.DisassembleMode disassembleMode, System.Text.StringBuilder disassembledString);
+        
         #region Key remapper
         [DllImport("MGE3/MGEfuncs.dll", CallingConvention=CallingConvention.StdCall,
             CharSet=CharSet.Ansi, EntryPoint="MGEKeyRemapper_Init")]

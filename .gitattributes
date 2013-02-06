@@ -1,4 +1,8 @@
-# Auto detect text files and perform LF normalization
+# This setting tells git to normalize the files specified on commit, and always convert them to CRLF on checkout. You should use this for files that must retain CRLF endings, even on OSX or Linux.
+* text eol=crlf
+*.c text eol=crlf
+*.h text eol=crlf
+*.cs text eol=crlf
 
 # Custom for Visual Studio
 *.cs     diff=csharp

@@ -123,7 +123,7 @@
             this.toolStripSeparator1,
             this.tsmiEexit});
             this.tsmiFile.Name = "tsmiFile";
-            this.tsmiFile.Size = new System.Drawing.Size(35, 20);
+            this.tsmiFile.Size = new System.Drawing.Size(37, 20);
             this.tsmiFile.Text = "&File";
             // 
             // tsmiNew
@@ -132,7 +132,7 @@
             this.tsmiNew.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsmiNew.Name = "tsmiNew";
             this.tsmiNew.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.N)));
-            this.tsmiNew.Size = new System.Drawing.Size(192, 22);
+            this.tsmiNew.Size = new System.Drawing.Size(186, 22);
             this.tsmiNew.Text = "&New";
             this.tsmiNew.Click += new System.EventHandler(this.bNew_Click);
             // 
@@ -142,14 +142,14 @@
             this.tsmiOpen.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsmiOpen.Name = "tsmiOpen";
             this.tsmiOpen.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.O)));
-            this.tsmiOpen.Size = new System.Drawing.Size(192, 22);
+            this.tsmiOpen.Size = new System.Drawing.Size(186, 22);
             this.tsmiOpen.Text = "&Open";
             this.tsmiOpen.Click += new System.EventHandler(this.bOpen_Click);
             // 
             // toolStripSeparator
             // 
             this.toolStripSeparator.Name = "toolStripSeparator";
-            this.toolStripSeparator.Size = new System.Drawing.Size(189, 6);
+            this.toolStripSeparator.Size = new System.Drawing.Size(183, 6);
             // 
             // tsmiSave
             // 
@@ -158,7 +158,7 @@
             this.tsmiSave.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsmiSave.Name = "tsmiSave";
             this.tsmiSave.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.S)));
-            this.tsmiSave.Size = new System.Drawing.Size(192, 22);
+            this.tsmiSave.Size = new System.Drawing.Size(186, 22);
             this.tsmiSave.Text = "&Save";
             this.tsmiSave.Click += new System.EventHandler(this.bSave_Click);
             // 
@@ -167,21 +167,21 @@
             this.tsmiSaveAs.Image = global::MGEgui.Properties.Resources.saveas;
             this.tsmiSaveAs.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsmiSaveAs.Name = "tsmiSaveAs";
-            this.tsmiSaveAs.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift)
-                        | System.Windows.Forms.Keys.S)));
-            this.tsmiSaveAs.Size = new System.Drawing.Size(192, 22);
+            this.tsmiSaveAs.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift) 
+            | System.Windows.Forms.Keys.S)));
+            this.tsmiSaveAs.Size = new System.Drawing.Size(186, 22);
             this.tsmiSaveAs.Text = "Save &As";
             this.tsmiSaveAs.Click += new System.EventHandler(this.tsmiSaveAs_Click);
             // 
             // toolStripSeparator1
             // 
             this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(189, 6);
+            this.toolStripSeparator1.Size = new System.Drawing.Size(183, 6);
             // 
             // tsmiEexit
             // 
             this.tsmiEexit.Name = "tsmiEexit";
-            this.tsmiEexit.Size = new System.Drawing.Size(192, 22);
+            this.tsmiEexit.Size = new System.Drawing.Size(186, 22);
             this.tsmiEexit.Text = "E&xit";
             this.tsmiEexit.Click += new System.EventHandler(this.tsmiEexit_Click);
             // 
@@ -197,7 +197,7 @@
             this.toolStripSeparator4,
             this.tsmiSelect});
             this.tsmiEdit.Name = "tsmiEdit";
-            this.tsmiEdit.Size = new System.Drawing.Size(37, 20);
+            this.tsmiEdit.Size = new System.Drawing.Size(39, 20);
             this.tsmiEdit.Text = "&Edit";
             // 
             // tsmiUndo
@@ -205,7 +205,7 @@
             this.tsmiUndo.Image = global::MGEgui.Properties.Resources.undo;
             this.tsmiUndo.Name = "tsmiUndo";
             this.tsmiUndo.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Z)));
-            this.tsmiUndo.Size = new System.Drawing.Size(167, 22);
+            this.tsmiUndo.Size = new System.Drawing.Size(164, 22);
             this.tsmiUndo.Text = "&Undo";
             this.tsmiUndo.Click += new System.EventHandler(this.tsmiUndoRedo_Click);
             // 
@@ -214,14 +214,14 @@
             this.tsmiRedo.Image = global::MGEgui.Properties.Resources.redo;
             this.tsmiRedo.Name = "tsmiRedo";
             this.tsmiRedo.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Y)));
-            this.tsmiRedo.Size = new System.Drawing.Size(167, 22);
+            this.tsmiRedo.Size = new System.Drawing.Size(164, 22);
             this.tsmiRedo.Text = "&Redo";
             this.tsmiRedo.Click += new System.EventHandler(this.tsmiUndoRedo_Click);
             // 
             // toolStripSeparator3
             // 
             this.toolStripSeparator3.Name = "toolStripSeparator3";
-            this.toolStripSeparator3.Size = new System.Drawing.Size(164, 6);
+            this.toolStripSeparator3.Size = new System.Drawing.Size(161, 6);
             // 
             // tsmiCut
             // 
@@ -230,7 +230,7 @@
             this.tsmiCut.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsmiCut.Name = "tsmiCut";
             this.tsmiCut.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.X)));
-            this.tsmiCut.Size = new System.Drawing.Size(167, 22);
+            this.tsmiCut.Size = new System.Drawing.Size(164, 22);
             this.tsmiCut.Text = "Cu&t";
             this.tsmiCut.Click += new System.EventHandler(this.bCut_Click);
             // 
@@ -241,7 +241,7 @@
             this.tsmiCopy.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsmiCopy.Name = "tsmiCopy";
             this.tsmiCopy.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.C)));
-            this.tsmiCopy.Size = new System.Drawing.Size(167, 22);
+            this.tsmiCopy.Size = new System.Drawing.Size(164, 22);
             this.tsmiCopy.Text = "&Copy";
             this.tsmiCopy.Click += new System.EventHandler(this.bCopy_Click);
             // 
@@ -252,21 +252,21 @@
             this.tsmiPaste.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsmiPaste.Name = "tsmiPaste";
             this.tsmiPaste.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.V)));
-            this.tsmiPaste.Size = new System.Drawing.Size(167, 22);
+            this.tsmiPaste.Size = new System.Drawing.Size(164, 22);
             this.tsmiPaste.Text = "&Paste";
             this.tsmiPaste.Click += new System.EventHandler(this.bPaste_Click);
             // 
             // toolStripSeparator4
             // 
             this.toolStripSeparator4.Name = "toolStripSeparator4";
-            this.toolStripSeparator4.Size = new System.Drawing.Size(164, 6);
+            this.toolStripSeparator4.Size = new System.Drawing.Size(161, 6);
             // 
             // tsmiSelect
             // 
             this.tsmiSelect.Enabled = false;
             this.tsmiSelect.Name = "tsmiSelect";
             this.tsmiSelect.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.A)));
-            this.tsmiSelect.Size = new System.Drawing.Size(167, 22);
+            this.tsmiSelect.Size = new System.Drawing.Size(164, 22);
             this.tsmiSelect.Text = "Select &All";
             this.tsmiSelect.Click += new System.EventHandler(this.tsmiSelect_Click);
             // 
@@ -277,13 +277,13 @@
             this.customizeToolStripMenuItem,
             this.optionsToolStripMenuItem});
             this.tsmiTools.Name = "tsmiTools";
-            this.tsmiTools.Size = new System.Drawing.Size(44, 20);
+            this.tsmiTools.Size = new System.Drawing.Size(48, 20);
             this.tsmiTools.Text = "&Tools";
             // 
             // tsmiPatchByFile
             // 
             this.tsmiPatchByFile.Name = "tsmiPatchByFile";
-            this.tsmiPatchByFile.Size = new System.Drawing.Size(227, 22);
+            this.tsmiPatchByFile.Size = new System.Drawing.Size(222, 22);
             this.tsmiPatchByFile.Text = "Create Patch by difference...";
             this.tsmiPatchByFile.Click += new System.EventHandler(this.tsmiPatchByFile_Click);
             // 
@@ -291,14 +291,14 @@
             // 
             this.customizeToolStripMenuItem.Enabled = false;
             this.customizeToolStripMenuItem.Name = "customizeToolStripMenuItem";
-            this.customizeToolStripMenuItem.Size = new System.Drawing.Size(227, 22);
+            this.customizeToolStripMenuItem.Size = new System.Drawing.Size(222, 22);
             this.customizeToolStripMenuItem.Text = "&Customize";
             // 
             // optionsToolStripMenuItem
             // 
             this.optionsToolStripMenuItem.Enabled = false;
             this.optionsToolStripMenuItem.Name = "optionsToolStripMenuItem";
-            this.optionsToolStripMenuItem.Size = new System.Drawing.Size(227, 22);
+            this.optionsToolStripMenuItem.Size = new System.Drawing.Size(222, 22);
             this.optionsToolStripMenuItem.Text = "&Options";
             // 
             // tsmiHelp
@@ -311,36 +311,36 @@
             this.aboutToolStripMenuItem});
             this.tsmiHelp.Enabled = false;
             this.tsmiHelp.Name = "tsmiHelp";
-            this.tsmiHelp.Size = new System.Drawing.Size(40, 20);
+            this.tsmiHelp.Size = new System.Drawing.Size(44, 20);
             this.tsmiHelp.Text = "&Help";
             // 
             // contentsToolStripMenuItem
             // 
             this.contentsToolStripMenuItem.Name = "contentsToolStripMenuItem";
-            this.contentsToolStripMenuItem.Size = new System.Drawing.Size(129, 22);
+            this.contentsToolStripMenuItem.Size = new System.Drawing.Size(122, 22);
             this.contentsToolStripMenuItem.Text = "&Contents";
             // 
             // indexToolStripMenuItem
             // 
             this.indexToolStripMenuItem.Name = "indexToolStripMenuItem";
-            this.indexToolStripMenuItem.Size = new System.Drawing.Size(129, 22);
+            this.indexToolStripMenuItem.Size = new System.Drawing.Size(122, 22);
             this.indexToolStripMenuItem.Text = "&Index";
             // 
             // searchToolStripMenuItem
             // 
             this.searchToolStripMenuItem.Name = "searchToolStripMenuItem";
-            this.searchToolStripMenuItem.Size = new System.Drawing.Size(129, 22);
+            this.searchToolStripMenuItem.Size = new System.Drawing.Size(122, 22);
             this.searchToolStripMenuItem.Text = "&Search";
             // 
             // toolStripSeparator5
             // 
             this.toolStripSeparator5.Name = "toolStripSeparator5";
-            this.toolStripSeparator5.Size = new System.Drawing.Size(126, 6);
+            this.toolStripSeparator5.Size = new System.Drawing.Size(119, 6);
             // 
             // aboutToolStripMenuItem
             // 
             this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
-            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(129, 22);
+            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(122, 22);
             this.aboutToolStripMenuItem.Text = "&About...";
             // 
             // toolStrip
@@ -519,21 +519,20 @@
             // 
             // tbNewSection
             // 
-            this.tbNewSection.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.tbNewSection.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.tbNewSection.Location = new System.Drawing.Point(3, 5);
             this.tbNewSection.Name = "tbNewSection";
             this.tbNewSection.Size = new System.Drawing.Size(76, 20);
             this.tbNewSection.TabIndex = 0;
-            this.tbNewSection.Tag = null;
             this.tbNewSection.TextChanged += new System.EventHandler(this.tbNewSection_TextChanged);
             this.tbNewSection.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.tbNewSection_KeyPress);
             // 
             // lbSections
             // 
-            this.lbSections.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.lbSections.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.lbSections.FormattingEnabled = true;
             this.lbSections.IntegralHeight = false;
             this.lbSections.Location = new System.Drawing.Point(3, 30);
@@ -565,9 +564,9 @@
             // 
             // panelBorder
             // 
-            this.panelBorder.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.panelBorder.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.panelBorder.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
             this.panelBorder.Controls.Add(this.propertyGrid);
             this.panelBorder.Location = new System.Drawing.Point(0, 5);
@@ -577,16 +576,16 @@
             // 
             // propertyGrid
             // 
-            this.propertyGrid.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.propertyGrid.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.propertyGrid.HelpVisible = false;
             this.propertyGrid.Location = new System.Drawing.Point(-1, -1);
             this.propertyGrid.Name = "propertyGrid";
             this.propertyGrid.Size = new System.Drawing.Size(463, 133);
             this.propertyGrid.TabIndex = 0;
-            this.propertyGrid.SelectedGridItemChanged += new System.Windows.Forms.SelectedGridItemChangedEventHandler(this.propertyGrid_SelectedGridItemChanged);
             this.propertyGrid.PropertyValueChanged += new System.Windows.Forms.PropertyValueChangedEventHandler(this.propertyGrid_PropertyValueChanged);
+            this.propertyGrid.SelectedGridItemChanged += new System.Windows.Forms.SelectedGridItemChangedEventHandler(this.propertyGrid_SelectedGridItemChanged);
             // 
             // splitContainerEditor
             // 
@@ -607,9 +606,9 @@
             // 
             // richTextBoxView
             // 
-            this.richTextBoxView.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.richTextBoxView.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.richTextBoxView.BackColor = System.Drawing.SystemColors.Window;
             this.richTextBoxView.Font = new System.Drawing.Font("Courier New", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.richTextBoxView.HideSelection = false;
@@ -622,16 +621,16 @@
             this.richTextBoxView.Text = "";
             this.richTextBoxView.WordWrap = false;
             this.richTextBoxView.VScroll += new System.EventHandler(this.richTextBoxView_VScroll);
-            this.richTextBoxView.MouseWheel += new System.Windows.Forms.MouseEventHandler(this.richTextBoxView_MouseWheel);
-            this.richTextBoxView.Resize += new System.EventHandler(this.richTextBoxView_Resize);
             this.richTextBoxView.Enter += new System.EventHandler(this.richTextBoxView_Enter);
             this.richTextBoxView.Leave += new System.EventHandler(this.richTextBoxView_Leave);
+            this.richTextBoxView.MouseWheel += new System.Windows.Forms.MouseEventHandler(this.richTextBoxView_MouseWheel);
+            this.richTextBoxView.Resize += new System.EventHandler(this.richTextBoxView_Resize);
             // 
             // richTextBoxEditor
             // 
-            this.richTextBoxEditor.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.richTextBoxEditor.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.richTextBoxEditor.Enabled = false;
             this.richTextBoxEditor.Font = new System.Drawing.Font("Courier New", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.richTextBoxEditor.Location = new System.Drawing.Point(0, 0);
@@ -640,10 +639,10 @@
             this.richTextBoxEditor.TabIndex = 0;
             this.richTextBoxEditor.Text = "";
             this.richTextBoxEditor.WordWrap = false;
+            this.richTextBoxEditor.TextChanged += new System.EventHandler(this.richTextBox_TextChanged);
             this.richTextBoxEditor.Enter += new System.EventHandler(this.richTextBoxEditor_Enter);
             this.richTextBoxEditor.Leave += new System.EventHandler(this.richTextBoxEditor_Leave);
             this.richTextBoxEditor.MouseDown += new System.Windows.Forms.MouseEventHandler(this.richTextBox_MouseDown);
-            this.richTextBoxEditor.TextChanged += new System.EventHandler(this.richTextBox_TextChanged);
             // 
             // openPatch
             // 
@@ -682,8 +681,8 @@
             this.Name = "PatchEditorForm";
             this.Tag = "";
             this.Text = "PatchEditor";
-            this.Load += new System.EventHandler(this.PatchEditorForm_Load);
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.PatchEditorForm_FormClosing);
+            this.Load += new System.EventHandler(this.PatchEditorForm_Load);
             this.menuStrip.ResumeLayout(false);
             this.menuStrip.PerformLayout();
             this.toolStrip.ResumeLayout(false);

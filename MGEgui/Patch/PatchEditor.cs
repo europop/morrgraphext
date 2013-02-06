@@ -88,6 +88,25 @@ namespace MGEgui {
             richTextBoxEditor.Text = "";
             richTextBoxEditor.Enabled = false;
         }
+
+        private void FillAsmViewer(uint address) {
+            String name = GetSelectedPatch().GetParentFile().ToLower();
+            uint instance = GetSelectedPatch().GetDefaultInstance();
+            String view = "";
+            String line = "";
+            uint position = address;
+            int rows = (int)(richTextBoxView.ClientRectangle.Height / (float)TextRenderer.MeasureText("00000000", richTextBoxView.Font).Height);
+            byte[] bFile = BinaryFiles[name];
+            if (bFile == null) return;
+            SortedList<uint, String> region = Assembler.DisassembleRegion(bFile, instance, address, rows);
+            foreach (uint lineaddress in region.Keys) {
+                line = String.Format("{0:X8}:                 ", lineaddress) + region[lineaddress];
+                view += (view.Length > 0 ? "\n" : "") + line;
+            }
+            richTextBoxView.Text = "";
+            richTextBoxView.Text = view;
+        }
+
         private uint HexViewerColumns = 8;
         private uint HexViewerAddress = 0;
         private void FillHexViewer(uint address) {
@@ -127,7 +146,7 @@ namespace MGEgui {
             if (selected) richTextBoxView.Select();
             if (richTextBoxView.Tag != null) ColourSelect((uint)richTextBoxView.Tag, GetHexLength(richTextBoxEditor.Text));
         }
-        private uint GetHexLength(String hex) {
+        public uint GetHexLength(String hex) {
             String line = hex.Replace(" ", "").Replace("\t", "").Replace("\n", "").Replace("\r", "");
             int length = line.Length;
             int indexO, indexC = 0;
@@ -184,7 +203,7 @@ namespace MGEgui {
             if (richTextBoxView.Tag != null) {
                 uint address = HexViewerAddress - (uint)(HexViewerColumns * (e.Delta / 40));
                 address = (address < GetSelectedPatch().GetDefaultInstance() ? GetSelectedPatch().GetDefaultInstance() : address);
-                if (HexViewerAddress != address) FillHexViewer(HexViewerAddress = address);
+                if (HexViewerAddress != address) { if (bAsm.Checked) FillAsmViewer(HexViewerAddress = address); else FillHexViewer(HexViewerAddress = address); }
             }
         }
 
@@ -400,16 +419,20 @@ namespace MGEgui {
                     String name = GetSelectedPatch().Parent.Split(new Char[] { '\\' })[0].ToLower();
                     richTextBoxView.Clear();
                     richTextBoxView.Tag = HexViewerAddress = array[index].Address;
-                    FillHexViewer(HexViewerAddress);
+                    if (bAsm.Checked) FillAsmViewer(HexViewerAddress); else FillHexViewer(HexViewerAddress);
                 }
                 else splitContainerEditor.Panel1Collapsed = true;
                 if (label.Trim() == Patch.Keys[Patch.Key.Description]) bHex_Click(null, null);
-                else if (richTextBoxEditor.Tag != array[index]) { if (array[index].Asm.Trim().Length > 0) bAsm_Click(null, null); else bHex_Click(null, null); }
+                else if (richTextBoxEditor.Tag != array[index]) { if (array[index].Asm.Trim().Length > 0 || array[index].Hex.Trim().Length == 0) bAsm_Click(null, null); else bHex_Click(null, null); }
                 richTextBoxEditor.Tag = null; // before editing
                 richTextBoxEditor.Text = bAsm.Checked ? array[index].Asm : array[index].Hex;
                 richTextBoxEditor.Tag = array[index];
                 richTextBoxEditor.Enabled = true;
-                if (richTextBoxView.Tag != null) ColourSelect((uint)richTextBoxView.Tag, GetHexLength(richTextBoxEditor.Text));
+                if (richTextBoxView.Tag != null) {
+                    if (bAsm.Checked) { }
+                    else
+                    ColourSelect((uint)richTextBoxView.Tag, GetHexLength(richTextBoxEditor.Text));   
+                }
                 return;
             }
             DisableEditor();
@@ -519,9 +542,8 @@ namespace MGEgui {
             richTextBoxEditor.SelectAll();
         }
 
-        private void richTextBoxView_Resize(object sender, EventArgs e)
-        {
-            if (richTextBoxView.Tag != null) FillHexViewer(HexViewerAddress);
+        private void richTextBoxView_Resize(object sender, EventArgs e) {
+            if (richTextBoxView.Tag != null) { if (bAsm.Checked) FillAsmViewer(HexViewerAddress); else FillHexViewer(HexViewerAddress); }
            //richTextBoxView.Text = Math.Round((richTextBoxView.ClientRectangle.Width / (TextRenderer.MeasureText("00000000", richTextBoxView.Font).Width / 8f - 1f) - 10) / 24f).ToString();
         }
 
@@ -534,6 +556,10 @@ namespace MGEgui {
             if (bHex.CheckState != CheckState.Unchecked) {
                 bAsm.CheckState = CheckState.Checked;
                 bHex.CheckState = CheckState.Unchecked;
+                Unit unit = (Unit)richTextBoxEditor.Tag;
+                if (unit != null) {
+                    unit.Asm = Assembler.DisassembleHex(unit.Hex, unit.Address);
+                }
                 if (propertyGrid.SelectedGridItem != null) propertyGrid_SelectedGridItemChanged(null, new SelectedGridItemChangedEventArgs(propertyGrid.SelectedGridItem, propertyGrid.SelectedGridItem));
             }
         }
@@ -542,6 +568,10 @@ namespace MGEgui {
             if (bAsm.CheckState != CheckState.Unchecked) {
                 bAsm.CheckState = CheckState.Unchecked;
                 bHex.CheckState = CheckState.Checked;
+                Unit unit = (Unit)richTextBoxEditor.Tag;
+                if (unit != null) {
+                    unit.Hex = Assembler.AssembleAsm(unit.Asm, unit.Address, GetAttachedNames(GetSelectedPatch()));
+                }
                 if (propertyGrid.SelectedGridItem != null) propertyGrid_SelectedGridItemChanged(null, new SelectedGridItemChangedEventArgs(propertyGrid.SelectedGridItem, propertyGrid.SelectedGridItem));
             }
         }

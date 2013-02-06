@@ -354,8 +354,10 @@ namespace MGEgui.Patching {
                 if ((info.EnglishName.Length > 0) && (info.EnglishName.IndexOf(" ") < 0)) languages.Add(info.EnglishName);
             }
             languages.Sort();
-            languages.Remove(CultureInfo.CurrentCulture.Parent.EnglishName);
-            languages.Insert(0, CultureInfo.CurrentCulture.Parent.EnglishName);
+            foreach (System.Globalization.CultureInfo culture in LocalizationInterface.UserLanguages) {
+                languages.Remove(culture.Parent.EnglishName);
+                languages.Insert(0, culture.Parent.EnglishName);
+            }
             languages.Remove(LocalizationInterface.GetFirstInPair(LocalizationInterface.DefaultLanguage));
             languages.Insert(0, LocalizationInterface.GetFirstInPair(LocalizationInterface.DefaultLanguage));
             languages.Insert(0, "");

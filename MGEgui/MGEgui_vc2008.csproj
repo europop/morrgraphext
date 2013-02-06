@@ -79,6 +79,7 @@
     <Compile Include="MWEForm.Designer.cs">
       <DependentUpon>MWEForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Patch\Assembler.cs" />
     <Compile Include="Patch\PatchEditor.cs">
       <SubType>Form</SubType>
     </Compile>

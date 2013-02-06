@@ -248,6 +248,9 @@
     </ClCompile>
     <ClCompile Include="Log.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="mge\Assembler.c">
+      <Filter>Patch</Filter>
+    </ClCompile>
     <ClCompile Include="Localization\mw_layout.cpp">
       <Filter>Localization</Filter>
     </ClCompile>

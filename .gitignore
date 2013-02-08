@@ -9,10 +9,11 @@
 *.suo
 *.user
 *.sln.docstates
+*.sdf
 
 # Build results
-[Dd]ebug/
-[Rr]elease/
+*Debug/
+*Release/
 *.ilk
 *.meta
 *.obj

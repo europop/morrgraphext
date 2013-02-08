@@ -3,12 +3,15 @@
 #pragma setlocale("C")
 
 #include "Configuration.h"
-#include "ConfigInternal.h"
+#include "ConfigInternal.h"///**/ #include "support/winheader.h"
+
 #include "INIData.h"
 #include <stdlib.h>
 
+//**/ConfigurationStruct Configuration;
+
 double getSettingValue (char* sval, iniSetting set) {
-	tdictionary *dict = set.dictionary;
+	const tdictionary *dict = set.dictionary;
 	if (dict) for (unsigned int i = 0; i < dict->length; ++i) {
 		tdictent dictent = dict->dictent [i];
 		if (!_stricmp (sval, dictent.key)) {
@@ -37,18 +40,19 @@ double getSettingValue (char* sval, iniSetting set) {
 	return NAN;
 }
 
-void utf8cpyToA_s (char *_Dst, rsize_t _SizeInBytes, const char *_Src) {
-	size_t size = MultiByteToWideChar (CP_UTF8, 0, _Src, -1, NULL, NULL);
+void utf8cpyToA_s (char *_Dst, size_t _SizeInBytes, const char *_Src) {
+	size_t size = MultiByteToWideChar (CP_UTF8, 0, _Src, -1, NULL, 0);
 	WCHAR *buffer = new WCHAR [size];
 	MultiByteToWideChar (CP_UTF8, 0, _Src, -1, buffer, size);
 	WideCharToMultiByte (CP_ACP, 0, buffer, -1, _Dst, _SizeInBytes, NULL, NULL);
 	delete [] buffer;
 }
 
-bool LoadSettings () {
+bool /*ConfigurationStruct::*/LoadSettings () {
 	int buffersize = 16384;
 	char *buffer = new char[buffersize];
 	char *pointer;
+	MGEFlags = 0;
 	GetPrivateProfileSectionNames (buffer, buffersize, mgeini);
 	pointer = buffer;
 	WizardPlugins = NULL;
@@ -66,7 +70,10 @@ bool LoadSettings () {
 		iniSetting set = iniSettings [i];
 		GetPrivateProfileString (set.section, set.key, set.defval, buffer, buffersize, mgeini);
 		if (set.type == t_string) utf8cpyToA_s ((char*)set.variable, set.bit_size, buffer);
-		else if (set.type != t_set) {
+		else if (set.type == t_set) {
+            GetPrivateProfileSection(set.section, buffer, buffersize, mgeini);
+            memcpy(set.variable, buffer, set.bit_size);
+        } else {
 			double temp = getSettingValue (buffer, set);
 			switch (set.type) {
 				case t_bit:

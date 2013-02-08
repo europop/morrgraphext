@@ -11,3 +11,4 @@ IDirect3DTexture9* BSALoadTexture(IDirect3DDevice9* device, const char* filename
 void ClearBSATextureCache();
 void ClearTexturesCache();
 RetData GetNif(const char *filename);
+void BSACacheStats(int *total, int *memuse);

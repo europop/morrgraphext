@@ -1,3 +1,6 @@
+
+// Used by distant land generator to create world ground texture
+
 Matrix transform;
 
 Texture t1;

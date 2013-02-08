@@ -176,6 +176,10 @@ namespace MGEgui {
         public void reset () {
             text = defaultText;
         }
+
+         public static implicit operator String(Str str) {
+             return str.text;
+         }
     }
 
     /// <summary>
@@ -205,11 +209,12 @@ namespace MGEgui {
         public const string fn_triger = "MGE3/Triggers.sav";
         public const string fn_remap = "MGE3/remap.data";
         public const string fn_mwse = "MGE3/mwse";
+        public const string fn_dldefaultoverride = "MGE3/MGE XE Default Statics Classifiers.ovr";
         public const string fn_dllog = "MGE3/DistantLand.log";
         public const string fn_dlcrash = "MGE3/distant-land-crash-dump.txt";
         public const string fn_mwedll = "MGE3/Morrowind Enhanced.dll";
         public const string fn_datafiles = "Data files";
-        public const string fn_shadsav = "Data Files/shaders/default/active.sav";
+        //**/public const string fn_shadsav = "Data Files/shaders/default/active.sav";
         public const string fn_dl = "Data files/distantland";
         public const string fn_dlver = "Data files/distantland/version";
         public const string fn_world = "Data files/distantland/world";
@@ -219,6 +224,7 @@ namespace MGEgui {
         public const string fn_usagedata = "Data files/distantland/statics/usage.data";
         public const string fn_statmesh = "Data files/distantland/statics/static_meshes";
         public const string fn_stattexbsa = "Data Files/DistantLand/Statics/Textures.bsa";
+        public const string pathShaders = "Data Files\\shaders\\default";//**/@"data files\shaders\XEshaders";
         /* registry keys */
         public const string reg_mw = @"Software\Bethesda Softworks\Morrowind";
         public const string reg_mwe = @"Software\Morrowind Enhanced";
@@ -350,6 +356,9 @@ namespace MGEgui {
 
             if (args.styles) Application.EnableVisualStyles ();
 
+            // Damn .NET text rendering
+            Application.SetCompatibleTextRenderingDefault(false);
+
             Directory.SetCurrentDirectory (System.IO.Path.GetDirectoryName (Application.ExecutablePath));
 
             Localizations = new LocalizationInterface ();
@@ -360,6 +369,8 @@ namespace MGEgui {
                 }
             } catch { };
             LocalizationInterface.Localization language = null;
+            Localizations.Current = LocalizationInterface.DefaultLanguage;
+//            Localizations.ApplyStrings("", strings);
             bool autoLanguage = true;
             try {
                 INIFile MGEini = new INIFile (iniFileName, new INIFile.INIVariableDef [] { INIFile.iniDefEmpty, MainForm.iniLanguage, MainForm.iniAutoLang });

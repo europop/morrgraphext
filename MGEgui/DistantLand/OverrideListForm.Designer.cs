@@ -147,6 +147,7 @@
             this.Controls.Add(this.bDown);
             this.Controls.Add(this.bCancel);
             this.Controls.Add(this.bSave);
+            this.Icon = global::MGEgui.Properties.Resources.AppIcon;
             this.MinimumSize = new System.Drawing.Size(480, 240);
             this.Name = "OverrideListForm";
             this.ShowInTaskbar = false;

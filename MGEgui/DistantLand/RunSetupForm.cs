@@ -14,6 +14,8 @@ namespace MGEgui.DistantLand {
 
         public RunSetupForm(Dictionary<string, bool> flags) {
             InitializeComponent();
+            Statics.Localizations.Apply(this);
+            
             this.HelpButtonClicked += new CancelEventHandler(RunSetupForm_HelpButtonClicked);
             this.flags = flags;
             cbTex.Enabled = flags["EnaLandTex"];
@@ -41,6 +43,18 @@ namespace MGEgui.DistantLand {
             flags["Debug"] = cbDebug.Checked;
         }
 
+        private void bAutoSetup_click(object sender, EventArgs e) {
+            flags["ChkLandTex"] = true;
+            flags["ChkLandMesh"] = true;
+            flags["ChkLandAuto"] = true;
+            flags["ChkStatics"] = true;
+            flags["Debug"] = cbDebug.Checked;
+            
+            flags["RunSetup"] = true;
+            flags["AutoRun"] = true;
+            Close();
+        }
+        
         private void bRun_Click(object sender, EventArgs e) {
             setChecked();
             flags["RunSetup"] = true;

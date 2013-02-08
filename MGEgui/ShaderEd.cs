@@ -86,6 +86,7 @@ namespace MGEgui {
             this.rtbTechnique.TabIndex = 5;
             this.rtbTechnique.Text = "";
             this.rtbTechnique.WordWrap = false;
+            this.rtbTechnique.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.rtbTechnique_KeyPress);
             this.rtbTechnique.TextChanged += new System.EventHandler(this.rtbTechnique_TextChanged);
             // 
             // tbMessage
@@ -129,6 +130,7 @@ namespace MGEgui {
             this.bActive.Size = new System.Drawing.Size(128, 23);
             this.bActive.TabIndex = 9;
             this.bActive.Text = "Edit active chain";
+//**/       this.bActive.Enabled = false;
             this.bActive.Click += new System.EventHandler(this.bActive_Click);
             // 
             // OpenImage
@@ -186,7 +188,7 @@ namespace MGEgui {
             // 
             this.OpenShader.DefaultExt = "fx";
             this.OpenShader.Filter = "Shader effect file (fx)|*.fx";
-            this.OpenShader.InitialDirectory = "Data Files\\shaders\\default";
+            this.OpenShader.InitialDirectory = Statics.pathShaders;
             this.OpenShader.RestoreDirectory = true;
             this.OpenShader.Title = "Open shader";
             // 
@@ -194,7 +196,7 @@ namespace MGEgui {
             // 
             this.SaveShader.DefaultExt = "fx";
             this.SaveShader.Filter = "Shader effect file (fx)|*.fx";
-            this.SaveShader.InitialDirectory = "Data Files\\shaders\\default";
+            this.SaveShader.InitialDirectory = Statics.pathShaders;
             this.SaveShader.RestoreDirectory = true;
             this.SaveShader.Title = "Save shader";
             // 
@@ -545,6 +547,22 @@ namespace MGEgui {
             }
         }
 
+        public ShaderEditorForm(string shaderfile) {
+            InitializeComponent();
+
+            if(shaderfile != null) {
+            	FullFileName = shaderfile;
+            	EditingName = shaderfile.Substring(FullFileName.LastIndexOf('\\') + 1);
+            	
+	            StreamReader sr = new StreamReader(File.OpenRead(FullFileName));
+	            rtbTechnique.Text = sr.ReadToEnd().Trim(new char[] { '\n', '\r' });
+	            sr.Close();
+	
+	            ShaderModified = false;
+	            this.Text = EditingName + " - Shader Editor";
+            }
+        }
+
         public ShaderEditorForm() {
             InitializeComponent();
             //foreach(string path in Directory.GetFiles(@"data files\shaders\default")) {
@@ -561,7 +579,7 @@ namespace MGEgui {
 
             if (ShaderModified || FullFileName == null) {
                 string tempfile = (FullFileName == null)
-                    ? Statics.runDir + "\\Data Files\\shaders\\default\\_TempShader"
+                    ? Statics.runDir + "\\" + Statics.pathShaders + "\\_TempShader"
                     : FullFileName + ".tmp";
 
                 StreamWriter sw = new StreamWriter(File.Open(tempfile, FileMode.Create));
@@ -593,7 +611,7 @@ namespace MGEgui {
 
         private void bPreview_Click(object sender, EventArgs e) {
             //saveShader();
-            RenderWindow rw=new RenderWindow();
+            RenderWindow rw = new RenderWindow();
             DirectX.DXMain.CreateDevice(RenderWindow.panel);
             if(Validate(RenderWindow.panel.Handle,true)) {
                 rw.ShowDialog();
@@ -603,16 +621,12 @@ namespace MGEgui {
         }
 
         private void bActive_Click(object sender,EventArgs e) {
-            ShaderActive SetActiveForm=new ShaderActive();
-            SetActiveForm.ShowDialog();
-            SetActiveForm.Dispose();
+/**/            ShaderActive SetActiveForm=new ShaderActive();
+/**/            SetActiveForm.ShowDialog();
+/**/            SetActiveForm.Dispose();
         }
 
         private void ShaderEditorForm_FormClosing(object sender,CancelEventArgs e) {
-            //cmbTechnique.SelectedIndex=0;
-            //FileStream fs=File.Open("effects.sav",FileMode.Create);
-            //Statics.formatter.Serialize(fs,Techniques);
-            //fs.Close();
             Directory.SetCurrentDirectory(Statics.runDir);
         }
 
@@ -642,10 +656,10 @@ namespace MGEgui {
         }
 
         private void bPreviewChain_Click(object sender,EventArgs e) {
-            if (!File.Exists(Statics.runDir + "\\" + Statics.fn_shadsav)) {
-                MessageBox.Show("There are no shaders in the active shader chain.", "Message");
-                return;
-            }
+//**/            if (!File.Exists(Statics.runDir + "\\" + Statics.fn_shadsav)) {
+//**/                MessageBox.Show("There are no shaders in the active shader chain.", "Message");
+    //**/           return;
+//**/            }
             RenderWindow rw=new RenderWindow();
             DirectX.DXMain.CreateDevice(RenderWindow.panel);
             string error=DirectX.Shaders.PreviewShaderChain(PicPath, PicPath2, PicPath3);
@@ -832,6 +846,12 @@ namespace MGEgui {
         private void selectAllToolStripMenuItem_Click(object sender, EventArgs e) {
             rtbTechnique.SelectAll();
         }
-
+        
+        private void rtbTechnique_KeyPress(object sender, KeyPressEventArgs e) {
+        	if(e.KeyChar == '\t') {
+        		rtbTechnique.SelectedText = "    ";
+        		e.Handled = true;
+        	}
+        }
     }
 }

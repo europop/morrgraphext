@@ -1769,7 +1769,7 @@
             // 
             // DLWeatherForm
             // 
-            this.Icon = Properties.Resources.AppIcon;
+            this.Icon = global::MGEgui.Properties.Resources.AppIcon;
             this.BackColor = System.Drawing.SystemColors.Control;
             this.CancelButton = this.bCancel;
             this.ClientSize = new System.Drawing.Size(480, 345);
@@ -1980,6 +1980,6 @@
         private System.Windows.Forms.Label lBlight4;
         private System.Windows.Forms.Label lSnow4;
         private System.Windows.Forms.Label lBlizzard4;
-        private System.Windows.Forms.ToolTip toolTip;
+        public System.Windows.Forms.ToolTip toolTip;
     }
 }

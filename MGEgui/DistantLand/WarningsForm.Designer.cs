@@ -107,6 +107,7 @@
             this.Controls.Add(this.lTotal);
             this.Controls.Add(this.bClose);
             this.Controls.Add(this.dgvWarnings);
+            this.Icon = global::MGEgui.Properties.Resources.AppIcon;
             this.MinimumSize = new System.Drawing.Size(700, 410);
             this.Name = "WarningsForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;

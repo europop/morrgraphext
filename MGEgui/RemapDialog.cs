@@ -2,6 +2,8 @@ using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
+using System.Runtime.InteropServices;
+
 
 namespace MGEgui {
     public class RemapDialog : Form {
@@ -29,10 +31,8 @@ namespace MGEgui {
         /// the contents of this method with the code editor.
         /// </summary>
         private void InitializeComponent() {
-            this.components = new System.ComponentModel.Container();
             this.bCancel = new System.Windows.Forms.Button();
             this.bClear = new System.Windows.Forms.Button();
-            this.timer = new System.Windows.Forms.Timer(this.components);
             this.SuspendLayout();
             // 
             // bCancel
@@ -42,7 +42,7 @@ namespace MGEgui {
             this.bCancel.Size = new System.Drawing.Size(60, 23);
             this.bCancel.TabIndex = 0;
             this.bCancel.Text = "Cancel";
-            //this.bCancel.UseVisualStyleBackColor = true;
+            this.bCancel.PreviewKeyDown += new System.Windows.Forms.PreviewKeyDownEventHandler(this.Button_PreviewKeyDown);
             this.bCancel.Click += new System.EventHandler(this.bCancel_Click);
             // 
             // bClear
@@ -52,18 +52,11 @@ namespace MGEgui {
             this.bClear.Size = new System.Drawing.Size(60, 23);
             this.bClear.TabIndex = 1;
             this.bClear.Text = "Clear";
-            //this.bClear.UseVisualStyleBackColor = true;
+            this.bClear.PreviewKeyDown += new System.Windows.Forms.PreviewKeyDownEventHandler(this.Button_PreviewKeyDown);
             this.bClear.Click += new System.EventHandler(this.bClear_Click);
-            // 
-            // timer
-            // 
-            this.timer.Enabled = true;
-            this.timer.Tick += new System.EventHandler(this.timer_Tick);
             // 
             // RemapDialog
             // 
-            //this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-            //this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Icon = Properties.Resources.AppIcon;
             this.ClientSize = new System.Drawing.Size(154, 47);
             this.ControlBox = false;
@@ -75,21 +68,62 @@ namespace MGEgui {
             this.ShowInTaskbar = false;
             this.Text = "Please hit a key";
             this.TopMost = true;
-            this.Closing += new CancelEventHandler(this.RemapDialog_FormClosing);
             this.Load += new System.EventHandler(this.RemapDialog_Load);
+            this.Closing += new CancelEventHandler(this.RemapDialog_FormClosing);
             this.ResumeLayout(false);
-
         }
 
         #endregion
 
         private Button bCancel;
-        #endregion
         private Button bClear;
-        private Timer timer;
-        
+        #endregion
+
+        [DllImport("user32.dll")]
+        private static extern uint MapVirtualKey(uint uCode, uint uMapType);
+
+        [DllImport("user32.dll")]
+        private static extern short GetAsyncKeyState(Keys vKey);
+
+        public static byte GetKeyScanCode(Keys key, int keyValue) {
+            int scancode = (int)MapVirtualKey((uint)key, 0);
+            switch (key) {
+                case Keys.LWin:
+                case Keys.RWin:
+                case Keys.Apps:
+                case Keys.Insert:
+                case Keys.Delete:
+                case Keys.Home:
+                case Keys.End:
+                case Keys.PageUp:
+                case Keys.PageDown:
+                case Keys.Up:
+                case Keys.Down:
+                case Keys.Left:
+                case Keys.Right:
+                case Keys.Divide:
+                case Keys.VolumeUp:
+                case Keys.VolumeDown:
+                case Keys.VolumeMute:
+                // Add here
+                scancode += 0x80; break;  // Extended key (with KF_EXTENDED flag)
+
+                case Keys.Pause: scancode = 0xC5; break;
+                case Keys.ShiftKey:
+                    if (Convert.ToBoolean(GetAsyncKeyState(Keys.LShiftKey))) scancode = 0x2a;
+                    else if (Convert.ToBoolean(GetAsyncKeyState(Keys.RShiftKey))) scancode = 0x36; break;
+                case Keys.ControlKey:
+                    if (Convert.ToBoolean(GetAsyncKeyState(Keys.LControlKey))) scancode = 0x1d;
+                    else if (Convert.ToBoolean(GetAsyncKeyState(Keys.RControlKey))) scancode = 0x9d; break;
+                case Keys.Menu:
+                    if (Convert.ToBoolean(GetAsyncKeyState(Keys.LMenu))) scancode = 0x38;
+                    else if (Convert.ToBoolean(GetAsyncKeyState(Keys.RMenu))) scancode = 0xb8; break;
+                default: break;
+            }
+            return (byte)((0x01 < scancode) && (scancode < 0xFF) ? scancode : 0);
+        }
+
         public byte result;
-        private bool Initilized=false;
 
         public RemapDialog() {
             InitializeComponent();
@@ -107,27 +141,16 @@ namespace MGEgui {
             Close();
         }
 
-        private void timer_Tick(object sender, EventArgs e) {
-            if(!Initilized) return;
-            byte b=NativeMethods.RemapperPressed();
-            if(b!=0) {
-                result=b;
-                DialogResult=DialogResult.OK;
-                Close();
-            }
+        private void Button_PreviewKeyDown(object sender, PreviewKeyDownEventArgs e) {
+            result = GetKeyScanCode(e.KeyCode, e.KeyValue);
+            DialogResult = DialogResult.OK;
+            Close();
         }
 
         private void RemapDialog_FormClosing(object sender, CancelEventArgs e) {
-            timer.Stop();
-            NativeMethods.RemapperEnd();
         }
 
         private void RemapDialog_Load(object sender, EventArgs e) {
-            if(NativeMethods.RemapperInit(Handle)!=0) {
-                MessageBox.Show("Error creating direct input device", "Error");
-            } else {
-                Initilized=true;
-            }
         }
     }
 }

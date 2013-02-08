@@ -32,11 +32,11 @@
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
     <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
+    <StartWorkingDirectory>$(MW_PATH)</StartWorkingDirectory>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>$(MW_PATH)\</OutputPath>
-    <StartWorkingDirectory>$(MW_PATH)</StartWorkingDirectory>
     <DefineConstants>DEBUG</DefineConstants>
     <NoWarn>1701;1702;0618</NoWarn>
     <DebugType>full</DebugType>
@@ -47,7 +47,6 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>$(MW_PATH)\</OutputPath>
-    <StartWorkingDirectory>$(MW_PATH)</StartWorkingDirectory>
     <Optimize>true</Optimize>
     <NoWarn>1701;1702;0618</NoWarn>
     <DebugType>pdbonly</DebugType>
@@ -265,8 +264,6 @@
   <ItemGroup>
     <Content Include="MGEgui.ico" />
     <Content Include="AppIcon.ico" />
-    <Content Include="Resources\asm.png" />
-    <Content Include="Resources\hex.png" />
     <EmbeddedResource Include="DLRipplesForm.resx">
       <DependentUpon>DLRipplesForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -286,6 +283,8 @@
       <DependentUpon>ShaderFlagsEd.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
+    <EmbeddedResource Include="Resources\asm.png" />
+    <EmbeddedResource Include="Resources\hex.png" />
     <EmbeddedResource Include="Resources\copy.png" />
     <EmbeddedResource Include="Resources\cut.png" />
     <EmbeddedResource Include="Resources\paste.png" />
@@ -315,9 +314,5 @@
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PreBuildEvent>
-    </PreBuildEvent>
-    <PostBuildEvent>
-    </PostBuildEvent>
   </PropertyGroup>
 </Project>

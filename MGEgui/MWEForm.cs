@@ -117,45 +117,9 @@ namespace MGEgui
             }
         }
 
-        private void bHitKey_PreviewKeyDown(object sender, PreviewKeyDownEventArgs e)
-        {
-            int scancode = (int)MapVirtualKey((uint)e.KeyValue, 0);
-            switch (e.KeyCode)
-            {
-                case Keys.LWin:
-                case Keys.RWin:
-                case Keys.Apps:
-                case Keys.Insert:
-                case Keys.Delete:
-                case Keys.Home:
-                case Keys.End:
-                case Keys.PageUp:
-                case Keys.PageDown:
-                case Keys.Up:
-                case Keys.Down:
-                case Keys.Left:
-                case Keys.Right:
-                case Keys.Divide:
-                case Keys.VolumeUp:
-                case Keys.VolumeDown:
-                case Keys.VolumeMute:
-                // Add here
-                    scancode += 0x80; break;  // Extended key (with KF_EXTENDED flag)
-
-                case Keys.Pause: scancode = 0xC5; break;
-                case Keys.ShiftKey:
-                    if (Convert.ToBoolean(GetAsyncKeyState(Keys.LShiftKey))) scancode = 0x2a;
-                    else if (Convert.ToBoolean(GetAsyncKeyState(Keys.RShiftKey))) scancode = 0x36; break;
-                case Keys.ControlKey:
-                    if (Convert.ToBoolean(GetAsyncKeyState(Keys.LControlKey))) scancode = 0x1d;
-                    else if (Convert.ToBoolean(GetAsyncKeyState(Keys.RControlKey))) scancode = 0x9d; break;
-                case Keys.Menu:
-                    if (Convert.ToBoolean(GetAsyncKeyState(Keys.LMenu))) scancode = 0x38;
-                    else if (Convert.ToBoolean(GetAsyncKeyState(Keys.RMenu))) scancode = 0xb8; break;
-                default: break;
-            }
-            if ((0x01 < scancode) && (scancode < 0xFF))
-            {
+        private void bHitKey_PreviewKeyDown(object sender, PreviewKeyDownEventArgs e) {
+            int scancode = RemapDialog.GetKeyScanCode(e.KeyCode, e.KeyValue);
+            if ((0x01 < scancode) && (scancode < 0xFF)) {
                 String name = ((Button)((Button)sender).Tag).Tag.ToString();
                 mwekey.SetValue(name + " Code", scancode, RegistryValueKind.DWord);
                 mwekey.SetValue(name + " Mouse", 0, RegistryValueKind.DWord);

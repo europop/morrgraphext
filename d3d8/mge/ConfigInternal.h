@@ -3,6 +3,7 @@
 #ifndef _CONFIGINTERNAL_H_
 #define _CONFIGINTERNAL_H_
 
+
 #ifndef NAN
 static const unsigned __int64 nan = 0x7fffffffffffffff;
 #define NAN (*(const double*)nan)
@@ -17,36 +18,36 @@ char (&_ArraySizeHelper(T (&array)[N]))[N];
 #define False "0"
 #define True "1"
 
-#define DICTONLY_BIT		 0
-#define DICTONLY			MASK(DICTONLY_BIT)
-#define MINMAX_BIT			 1
-#define MINMAX				MASK(MINMAX_BIT)
-#define MODULO_BIT			 2
-#define MODULO				MASK(MODULO_BIT)
+#define DICTONLY_BIT    0
+#define DICTONLY        MASK(DICTONLY_BIT)
+#define MINMAX_BIT      1
+#define MINMAX          MASK(MINMAX_BIT)
+#define MODULO_BIT      2
+#define MODULO          MASK(MODULO_BIT)
 
-enum vtype {t_bit, t_bool, t_uint8, t_int8, t_uint16, t_int16, t_uint32, t_int32, t_float, t_double, t_string, t_set};
+enum vtype { t_bit, t_bool, t_uint8, t_int8, t_uint16, t_int16, t_uint32, t_int32, t_float, t_double, t_string, t_set };
 
 struct tdictent {
-	char* key;
-	double value;
+    const char* key;
+    double value;
 };
 
 struct tdictionary {
-	unsigned int length;
-	tdictent* dictent;
+    unsigned int length;
+    const tdictent* dictent;
 };
 
 struct iniSetting {
-	void* variable;
-	vtype type;
-	int bit_size;
-	char* section;
-	char* key;
-	char* defval;
-	tdictionary* dictionary;
-	DWORD flags;
-	double min;
-	double max;
+    void* variable;
+    vtype type;
+    int bit_size;
+    const char* section;
+    const char* key;
+    const char* defval;
+    const tdictionary* dictionary;
+    DWORD flags;
+    double min;
+    double max;
 };
 
 #endif /* _CONFIGINTERNAL_H_ */

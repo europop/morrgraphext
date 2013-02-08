@@ -121,7 +121,6 @@
             // 
             // DirectoriesForm
             // 
-            this.Icon = Properties.Resources.AppIcon;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.bCancel;
@@ -133,6 +132,7 @@
             this.Controls.Add(this.bRemove);
             this.Controls.Add(this.bAdd);
             this.Controls.Add(this.bClear);
+            this.Icon = global::MGEgui.Properties.Resources.AppIcon;
             this.MinimumSize = new System.Drawing.Size(480, 292);
             this.Name = "DirectoriesForm";
             this.ShowInTaskbar = false;

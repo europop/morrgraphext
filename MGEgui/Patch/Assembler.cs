@@ -85,7 +85,6 @@ namespace MGEgui {
                     instruction = hexline;
                     position += instrlength;
                 } else {
-                    //variants = Assembler.AssembleLine(PrepareStringToAssembling(line), position);
                     String[] args = asmline.Split(new Char[] {' ', '\t', ','}, StringSplitOptions.RemoveEmptyEntries);
                     if (args.Length > 0) {
                         if (args[0].ToLower() == "db") {

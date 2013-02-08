@@ -124,6 +124,11 @@ namespace MGEgui {
             this.var_HDR.Name = "var_HDR";
             this.var_HDR.Size = new System.Drawing.Size(82, 20);
             this.var_HDR.TabIndex = 3;
+            this.var_HDR.Value = new decimal(new int[] {
+            5,
+            0,
+            0,
+            65536});
             // 
             // hdrLabel
             // 
@@ -245,20 +250,21 @@ namespace MGEgui {
 				DirectX.Shaders.RenderFrame(true, This.var_HDR.Value);
             }
             shader=DateTime.Now-start;
-            double PerfHit=(((double)shader.Ticks/(double)standard.Ticks)-1.0)*100.0;
-            double FrameTime=((double)shader.Milliseconds/1000.0)/(double)cycles;
+            double PerfHit = (1.0 - (double)standard.Ticks / (double)shader.Ticks) * 100.0;
+            double FrameTime = ((double)shader.Milliseconds/1000.0) / (double)cycles;
+            double reduction = Math.Min(1, (double)standard.Ticks / (double)shader.Ticks);
             MessageBox.Show("Completed "+cycles.ToString()+" frames.\n\n"+
                 "Standard time: "+standard.ToString()+"\n"+
                 "Shaded time: "+shader.ToString()+"\n"+
                 "Time spent rendering each shaded frame: "+FrameTime.ToString("G5")+" seconds\n"+
                 "Shader performance hit: "+PerfHit.ToString("G5")+"%\n\n"+
                 "Estimated reduction in Morrowind fps:\n"+
-                "60: "+(1.0/((1.0/60.0)+FrameTime)).ToString("G5")+"\n"+
-                "50: "+(1.0/((1.0/50.0)+FrameTime)).ToString("G5")+"\n"+
-                "40: "+(1.0/((1.0/40.0)+FrameTime)).ToString("G5")+"\n"+
-                "30: "+(1.0/((1.0/30.0)+FrameTime)).ToString("G5")+"\n"+
-                "20: "+(1.0/((1.0/20.0)+FrameTime)).ToString("G5")+"\n"+
-                "10: "+(1.0/((1.0/10.0)+FrameTime)).ToString("G5")+"\n\n"+
+                "60: " + (60 * reduction).ToString("G5") + "\n" +
+                "50: " + (50 * reduction).ToString("G5") + "\n" +
+                "40: " + (40 * reduction).ToString("G5") + "\n" +
+                "30: " + (30 * reduction).ToString("G5") + "\n" +
+                "20: " + (20 * reduction).ToString("G5") + "\n" +
+                "10: " + (10 * reduction).ToString("G5") + "\n\n" +
                 "This fps hit is calculated by assuming that morrowind is limited only by your graphics card\n"+
                 "Because morrowind is usually cpu limited, the real fps hit is likely to be far lower."
                 ,"result");

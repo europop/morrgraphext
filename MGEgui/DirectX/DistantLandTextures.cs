@@ -55,41 +55,90 @@ namespace MGEgui.DirectX {
             texCache.Clear();
         }
 
-        public byte[] LoadTexture(string path) {
-            if(texCache.Contains(path)) return null;
+        public bool LoadTexture(string path, out byte[] lqTexture) {
+            lqTexture = null;
+            if(texCache.Contains(path)) return true;
             texCache.Add(path);
 
-            byte[] data=MGEgui.DistantLand.BSA.GetTexture(path);
+            byte[] data = MGEgui.DistantLand.BSA.GetTexture(path);
             if (data == null) {
                 if (MessageBox.Show("Missing texture: '" + path + "'\n"
                 + "Continuing may result in texture glitches in game.\n"
-                + "Do you wish to continue?", "Warning", MessageBoxButtons.YesNo) == DialogResult.Yes) return null;
+                + "Do you wish to continue?", "Warning", MessageBoxButtons.YesNo) == DialogResult.Yes) return false;
             }
             if (data.Length>6 && data[1] == 0 && (data[2] == 2 || data[2] == 10)) {
                 data[5] = data[6] = 0;
             }
             System.IO.MemoryStream ms=new System.IO.MemoryStream(data);
-            path=System.IO.Path.ChangeExtension(path, ".dds");
-            
-            Texture t=TextureLoader.FromStream(DXMain.device, ms, 0, 0, 0, Usage.None, Format.Unknown, Pool.Scratch, Filter.Triangle|Filter.Dither, Filter.Box, 0);
-            SurfaceDescription sd=t.GetLevelDescription(0);
-            t.Dispose();
-
+            path = System.IO.Path.ChangeExtension(path, ".dds");
+            SurfaceDescription sd;
             Format format;
-            if(sd.Format==Format.Dxt1||sd.Format==Format.X8R8G8B8) format=Format.Dxt1;
-            else format=Format.Dxt3;
+
+            try {
+                Texture t = TextureLoader.FromStream(DXMain.device, ms, 0, 0, 0, Usage.None, Format.Unknown, Pool.Scratch, Filter.Triangle | Filter.Dither, Filter.Triangle, 0);
+                sd = t.GetLevelDescription(0);
+                t.Dispose();
+            } catch { ms.Close(); return false; }
+
+            int newWidth = sd.Width / div, newHeight = sd.Height / div;
+            if (div <= 1 || newWidth < 4 || newHeight < 4) { ms.Close(); return true; }
+
+            if (sd.Format == Format.Dxt1)                
+                format = isDXT1a(sd, data) ? Format.Dxt3 : Format.Dxt1;
+            else if (sd.Format == Format.Dxt3 || sd.Format == Format.Dxt5)
+                format = sd.Format;
+            else if (sd.Format == Format.X8R8G8B8)
+                format = Format.Dxt1;
+            else
+                format = Format.Dxt3;
 
             ms.Position=0;
             //System.IO.Directory.CreateDirectory(System.IO.Path.GetDirectoryName(System.IO.Path.Combine(@"data files\distantland\statics\textures\", path)));
-            t=TextureLoader.FromStream(DXMain.device, ms, sd.Width/div, sd.Height/div, 0, Usage.None, format, Pool.Scratch, Filter.Triangle|Filter.Dither, Filter.Box, 0);
-            //TextureLoader.Save(System.IO.Path.Combine(@"data files\distantland\statics\textures\", path), ImageFileFormat.Dds, t);
-            Microsoft.DirectX.GraphicsStream gs = TextureLoader.SaveToStream(ImageFileFormat.Dds, t);
-            byte[] lqTexture = new byte[gs.Length];
-            if(lqTexture.Length != gs.Read(lqTexture, 0, lqTexture.Length)) lqTexture = null;
-            gs.Close();
-            t.Dispose();
+            try {
+                Texture t;                    
+                if(format == sd.Format) {
+                    // Load reduced size texture
+                    t = TextureLoader.FromStream(DXMain.device, ms, newWidth, newHeight, 0, Usage.None, format, Pool.Scratch, Filter.Triangle|Filter.Dither, Filter.Triangle, 0);
+                } else {
+                    // Recalculate mipmaps
+                    Texture srctex = TextureLoader.FromStream(DXMain.device, ms, newWidth, newHeight, 0, Usage.None, Format.A8B8G8R8, Pool.Scratch, Filter.Triangle|Filter.Dither, Filter.Triangle, 0);
+                    t = new Texture(DXMain.device, newWidth, newHeight, 0, Usage.None, format, Pool.Scratch);
+                    TextureLoader.FilterTexture(srctex, 0, Filter.Triangle|Filter.Srgb);
+                    for(int i = 0; i != t.LevelCount; ++i) {
+                        Surface dest = t.GetSurfaceLevel(i);
+                        Surface src = srctex.GetSurfaceLevel(i);
+                        SurfaceLoader.FromSurface(dest, src, Filter.Point, 0);
+                        src.Dispose();
+                        dest.Dispose();
+                    }
+                    srctex.Dispose();
+                }
+                //TextureLoader.Save(System.IO.Path.Combine(@"data files\distantland\statics\textures\", path), ImageFileFormat.Dds, t);
+                Microsoft.DirectX.GraphicsStream gs = TextureLoader.SaveToStream(ImageFileFormat.Dds, t);
+                lqTexture = new byte[gs.Length];
+                if(lqTexture.Length != gs.Read(lqTexture, 0, lqTexture.Length)) lqTexture = null;
+                gs.Close();
+                t.Dispose();
+            } catch { }
             ms.Close();
-            return lqTexture;
+            return lqTexture != null;
+        }
+
+        private bool isDXT1a(SurfaceDescription sd, byte[] data)
+        {
+            int blocks = (sd.Width * sd.Height) >> 4;
+
+            for (int i = 0; i != blocks; ++i) {
+                int k = 128 + 8 * i;
+                uint c0 = (uint)(data[k + 0] | (data[k + 1] << 8));
+                uint c1 = (uint)(data[k + 2] | (data[k + 3] << 8));
+                uint b = (uint)(data[k + 4] | (data[k + 5] << 8) | (data[k + 6] << 16) | (data[k + 7] << 24));
+
+                if (c0 <= c1 && ((b & 0x55555555) & (b >> 1)) != 0)
+                    return true;
+            }
+
+            return false;
         }
     }
 
@@ -414,7 +463,6 @@ namespace MGEgui.DirectX {
         private Texture CompressedTex;
         private Surface RenderTarget;
         private Effect effect;
-        //private bool vcolor;
 
         private EffectHandle m1h;
         private EffectHandle t1h;
@@ -424,10 +472,11 @@ namespace MGEgui.DirectX {
 
         public CellTexCreator(int Res) {
             texBanks = new System.Collections.Generic.List<TextureBank>();
-            //Create basic vertex buffer that can bue used for all cells which has positions and texture coordinates
+
+            //Create basic vertex buffer that can be used for all cells which has positions and texture coordinates
             vBuffer = new VertexBuffer(typeof(CellVertex), 4225, DXMain.device, Usage.WriteOnly, CellVertex.Format, Pool.Managed);
             CellVertex[] CellData = (CellVertex[])vBuffer.Lock(0, LockFlags.None);
-            //vBuffers=new VertexBuffer[64, 64];
+
             float mult = (float)(Res / 64);
             for(int y=0;y<=64;y++) {
                 for(int x=0;x<=64;x++) {
@@ -493,20 +542,7 @@ namespace MGEgui.DirectX {
             t2h = effect.GetParameter(null, "t2");
             t3h = effect.GetParameter(null, "t3");
             t4h = effect.GetParameter(null, "t4");
-            //if(!vColor) {
-            //    ColorValue white=ColorValue.FromColor(System.Drawing.Color.White);
-            //    effect.SetValue("c1", white);
-            //    effect.SetValue("c2", white);
-            //    effect.SetValue("c3", white);
-            //    effect.SetValue("c4", white);
-            //    vcolor=false;
-            //} else {
-            //    c1h=effect.GetParameter(null, "c1");
-            //    c2h=effect.GetParameter(null, "c2");
-            //    c3h=effect.GetParameter(null, "c3");
-            //    c4h=effect.GetParameter(null, "c4");
-            //    vcolor=true;
-            //}
+
         }
 
         public void ResetColorsAndNormals() {
@@ -635,6 +671,7 @@ namespace MGEgui.DirectX {
         {
             //DXMain.device.SetRenderTarget(0, DXMain.BackBuffer);
             vBuffer.Dispose();
+            iBuffer.Dispose();
             colorBuffer.Dispose();
             texBanks.Clear();
             RenderTarget.Dispose();
@@ -800,33 +837,16 @@ namespace MGEgui.DirectX {
         private Texture UncompressedTex;
         private Texture RenderTargetTex;
         private Surface RenderTarget;
-        //private Surface DefaultSurf;
-
-        //private readonly System.Drawing.Rectangle cellRect;
-        //private Filter surfFilter;
-
-        //private readonly int[] PixelOffsetsX;
-        //private readonly int[] PixelOffsetsY;
-        //private readonly int ArrayOffsetX;
-        //private readonly int ArrayOffsetY;
 
         private int MapMinX, MapMaxX, MapMinY, MapMaxY, MapSpanX, MapSpanY;
         public float x_scale, y_scale, x_spacing, y_spacing;
 
         public WorldTexCreator(int Res, int map_min_x, int map_max_x, int map_min_y, int map_max_y)
         {
-            //float frac=(float)Res/(float)Cells;
-            //cellRect=new System.Drawing.Rectangle(0, 0, CellRes, CellRes);
-
-            //if(filter) surfFilter=Filter.Triangle|Filter.Dither; else surfFilter=Filter.Point;
-
             RenderTargetTex = new Texture(DXMain.device, Res, Res, 0, Usage.RenderTarget, Format.X8R8G8B8, Pool.Default);
             CompressedTex = new Texture(DXMain.device, Res, Res, 0, Usage.None, Format.Dxt1, Pool.SystemMemory);
             UncompressedTex = new Texture(DXMain.device, Res, Res, 0, Usage.None, Format.X8R8G8B8, Pool.SystemMemory);
             RenderTarget = RenderTargetTex.GetSurfaceLevel(0);
-
-            //DefaultSurf=DXMain.device.CreateOffscreenPlainSurface(CellRes, CellRes, Format.X8R8G8B8, Pool.Scratch);
-            //SurfaceLoader.FromFile(DefaultSurf, DefaultTex, Filter.None, 0);
 
             MapMinX = map_min_x;
             MapMaxX = map_max_x;
@@ -840,38 +860,15 @@ namespace MGEgui.DirectX {
             y_scale = 1.0f / (float)MapSpanY;
             x_spacing = x_scale * 2.0f;
             y_spacing = y_scale * 2.0f;
-
-            ////Calculate the texture offsets for each cell that we are rendering
-            //int CellSpanX = CellMaxX - CellMinX + 1;
-            //int CellSpanY = CellMaxY - CellMinY + 1;
-
-            //float frac_x = (float)Res / (float)CellSpanX;
-            //float frac_y = (float)Res / (float)CellSpanY;
-
-            //ArrayOffsetX = 0 - CellMinX;
-            //ArrayOffsetY = 0 - CellMinY;
-
-            //PixelOffsetsX = new int[CellSpanX + 1];
-            //PixelOffsetsY = new int[CellSpanY + 1];
-
-            //for (int i = 0; i <= CellMaxX + ArrayOffsetX; ++i) {
-            //    PixelOffsetsX[i] = (int)(i * frac_x);
-            //}
-            //for ( int i = 0; i <= CellMaxY + ArrayOffsetY; ++i ) {
-            //    PixelOffsetsY[i] = (int)(i*frac_y);
-            //}
-
-            ////Add an extra offset at the end that is exactly on the edge of the final texture
-            //PixelOffsetsX[CellSpanX] = Res-1;
-            //PixelOffsetsY[CellSpanY] = Res-1;
         }
 
         public void Begin()
         {
-            if (DXMain.device.GetRenderTarget(0) != RenderTarget)
-            {
+            Surface rt = DXMain.device.GetRenderTarget(0);
+            if (rt != RenderTarget)
                 DXMain.device.SetRenderTarget(0, RenderTarget);
-            }
+            rt.Dispose();
+
             DXMain.device.Clear(ClearFlags.Target, 0, 0.0f, 0);
         }
 

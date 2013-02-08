@@ -1,4 +1,4 @@
-#include "d3d8header.h"
+#include "d3d8header.h" //**/#include "proxydx/d3d8header.h" #include "support/strsec.h"
 #include <map>
 #include "Configuration.h"
 #include "MorrowindBSA.h"
@@ -160,6 +160,7 @@ static IDirect3DTexture9* BSALoadTexture2(IDirect3DDevice9* device, const char* 
 	if(file!=INVALID_HANDLE_VALUE) {
 		CloseHandle(file);
 		if(!FAILED(D3DXCreateTextureFromFile(device, pathbuf, &tex))) {
+			//**/D3DXCreateTextureFromFileEx(device, pathbuf, 0, 0, 0, 0, D3DFMT_UNKNOWN, D3DPOOL_DEFAULT, D3DX_FILTER_NONE, D3DX_FILTER_NONE, 0, 0, 0, &tex)
 			return SynchronizeTexturesCache(hash, tex); //Want to cache this even if the texture load failed;
 		} else tex=0;
 	}
@@ -188,6 +189,7 @@ static IDirect3DTexture9* BSALoadTexture2(IDirect3DDevice9* device, const char* 
 			} else tex=0;
 		}
 		if(!FAILED(D3DXCreateTextureFromFile(device, pathbuf, &tex))) {
+			//**/D3DXCreateTextureFromFileEx(device, pathbuf, 0, 0, 0, 0, D3DFMT_UNKNOWN, D3DPOOL_DEFAULT, D3DX_FILTER_NONE, D3DX_FILTER_NONE, 0, 0, 0, &tex)
 			return SynchronizeTexturesCache(hash, tex); //Want to cache this even if the texture load failed;
 		} else tex=0;
 	}
@@ -207,6 +209,7 @@ static IDirect3DTexture9* BSALoadTexture2(IDirect3DDevice9* device, const char* 
 		}
 		D3DXCreateTextureFromFileInMemoryEx(device,rd.ptr, rd.size,0,0,D3DX_FROM_FILE,0,D3DFMT_UNKNOWN,
 					D3DPOOL_DEFAULT,D3DX_DEFAULT,D3DX_DEFAULT,0,0,0,&tex);
+   //**/D3DXCreateTextureFromFileInMemoryEx(device,rd.ptr, rd.size,0,0,0,0,D3DFMT_UNKNOWN, D3DPOOL_MANAGED,D3DX_DEFAULT,D3DX_DEFAULT,0,0,0,&tex)
 		delete[] rd.ptr;
 		return SynchronizeTexturesCache(hash, tex); //Want to cache this even if the texture load failed;
 	}
@@ -219,7 +222,7 @@ IDirect3DTexture9* BSALoadTexture(IDirect3DDevice9* device, const char* filename
 	char fname[MAX_PATH];
 	strcpy(fname, "textures\\");
 	strcat(fname, filename);
-	//_strlwr(fname);
+	// try loading dds first
 	DWORD len=strlen(fname);
 	if(fname[len-1]!='s'||fname[len-2]!='d'||fname[len-3]!='d') {
 		char fname2[MAX_PATH];
@@ -260,4 +263,23 @@ RetData GetNif(const char *filename) {
 	BSAHash3 hash = HashString(name);
 	rd = GetBSAEntry(hash, &BSAEntries);
 	return rd;
+}
+
+void BSACacheStats(int *total, int *memuse) {
+    __int64 texMemUsage = 0;
+
+    for(std::map<__int64, IDirect3DTexture9*>::const_iterator i = BSALoadedTextures.begin(); i != BSALoadedTextures.end(); ++i)
+    {
+        D3DSURFACE_DESC texdesc;
+        i->second->GetLevelDesc(0, &texdesc);
+
+        int bpp = 32;
+        if(texdesc.Format == D3DFMT_DXT1) bpp = 4;
+        if(texdesc.Format == D3DFMT_DXT3 || texdesc.Format == D3DFMT_DXT5) bpp = 8;
+
+        texMemUsage += (texdesc.Width * texdesc.Height * bpp / 8) * 4 / 3;
+    }
+
+    *total = BSALoadedTextures.size();
+    *memuse = (int)(texMemUsage / 1048576.0);
 }

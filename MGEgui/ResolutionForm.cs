@@ -92,7 +92,7 @@ namespace MGEgui {
             this.lArbRes.Name = "lArbRes";
             this.lArbRes.Size = new System.Drawing.Size(295, 13);
             this.lArbRes.TabIndex = 0;
-            this.lArbRes.Text = "Arbitrary resolutions can only be set in windowed mode";
+            this.lArbRes.Text = "Arbitrary resolutions can only be set in windowed mode.";
             // 
             // bCancel
             // 
@@ -147,6 +147,8 @@ namespace MGEgui {
 
         public ResolutionForm() {
             InitializeComponent();
+            Statics.Localizations.Apply(this);
+
             cmbRes.ContextMenu = DudMenu;
             if(Fullscreen) {
                 tbWidth.ReadOnly=true;
@@ -159,6 +161,15 @@ namespace MGEgui {
             String[] resolutions = GetDXResolutions(true);
             foreach(String resolution in resolutions) cmbRes.Items.Add(resolution);
         }
+
+        public static System.Collections.Generic.Dictionary<String, String> strings = new System.Collections.Generic.Dictionary<String, String> {
+            {"InvalidWidth",
+                "Invalid value entered for screen width"},
+            {"InvalidHeight",
+                "Invalid value entered for screen height"},
+            {"Screen width and height must be greater than 0",
+                "DimensionError"}
+        };
 
         public static String[] GetDXResolutions(bool withasterisk) {
             // Get the list of valid resolutions
@@ -173,12 +184,12 @@ namespace MGEgui {
         }
 
         public static bool SetResolution(Point resolution) {
-            //Write new dtat to the registry
+            //Write new data to the registry
             RegistryKey key = null;
             try {
                 key = Statics.reg_key_bethesda.OpenSubKey(Statics.reg_morrowind, true);
             } catch {
-                MessageBox.Show("Could not write Morrowind registry key. MGE needs to be launched as Administrator.", "Error");
+                MessageBox.Show(Statics.strings["UnableToWriteReg"], Statics.strings["Error"]);
             }
             if (key != null) {
                 key.SetValue("Screen Width", resolution.X);
@@ -216,17 +227,17 @@ namespace MGEgui {
             try {
                 width=Convert.ToInt32(tbWidth.Text);
             } catch {
-                MessageBox.Show("Invalid value entered for screen width");
+                MessageBox.Show(strings["InvalidWidth"]);
                 return;
             }
             try {
                 height=Convert.ToInt32(tbHeight.Text);
             } catch {
-                MessageBox.Show("Invalid value entered for screen height");
+                MessageBox.Show(strings["InvalidHeight"]);
                 return;
             }
             if(width<=0||height<=0) {
-                MessageBox.Show("Screen width and height must be greater than 0");
+                MessageBox.Show(strings["DimensionError"]);
                 return;
             }
             DialogResult=DialogResult.OK;

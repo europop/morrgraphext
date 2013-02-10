@@ -74,6 +74,12 @@
       <DependentUpon>DLRipplesForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Localization\LocalizationInterface.cs" />
+    <Compile Include="MainFormLight.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="MainFormLight.Designer.cs">
+      <DependentUpon>MainFormLight.cs</DependentUpon>
+    </Compile>
     <Compile Include="MWEForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -203,6 +209,9 @@
     <EmbeddedResource Include="MainForm.resx">
       <SubType>Designer</SubType>
       <DependentUpon>MainForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="MainFormLight.resx">
+      <DependentUpon>MainFormLight.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

@@ -98,7 +98,6 @@ namespace MGEgui.Localization {
 
         public LocalizationInterface () {
             localizations = new Dictionary<string, Localization> ();
-            localizations.Add(DefaultLanguage, new Localization(""));
         }
 
         public void Add (Localization localization) {

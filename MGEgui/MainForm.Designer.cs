@@ -161,6 +161,7 @@ namespace MGEgui {
             this.cbWindowed = new System.Windows.Forms.CheckBox();
             this.cmbRefreshRate = new System.Windows.Forms.ComboBox();
             this.bCalcRefresh = new System.Windows.Forms.Button();
+            this.cmbResolution = new System.Windows.Forms.ComboBox();
             this.lResolution = new System.Windows.Forms.Label();
             this.lAspect = new System.Windows.Forms.Label();
             this.lRefreshRate = new System.Windows.Forms.Label();
@@ -248,7 +249,7 @@ namespace MGEgui {
             this.lDLFogStart = new System.Windows.Forms.Label();
             this.lDLFogEnd = new System.Windows.Forms.Label();
             this.SShotFolderDialog = new System.Windows.Forms.FolderBrowserDialog();
-            this.cmbResolution = new System.Windows.Forms.ComboBox();
+            this.bLightVersion = new System.Windows.Forms.Button();
             this.tpTools.SuspendLayout();
             this.tpINI.SuspendLayout();
             this.gbMWGeneral.SuspendLayout();
@@ -2111,8 +2112,9 @@ namespace MGEgui {
             // 
             // gbMainUI
             // 
-            this.gbMainUI.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.gbMainUI.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.gbMainUI.Controls.Add(this.bLightVersion);
             this.gbMainUI.Controls.Add(this.panel1);
             this.gbMainUI.Controls.Add(this.cmbTipReadSpd);
             this.gbMainUI.Controls.Add(this.lTipReadSpd);
@@ -2192,7 +2194,7 @@ namespace MGEgui {
             this.cmbTipReadSpd.Location = new System.Drawing.Point(358, 41);
             this.cmbTipReadSpd.Name = "cmbTipReadSpd";
             this.cmbTipReadSpd.Size = new System.Drawing.Size(48, 21);
-            this.cmbTipReadSpd.TabIndex = 2;
+            this.cmbTipReadSpd.TabIndex = 3;
             this.cmbTipReadSpd.Text = "15";
             this.cmbTipReadSpd.SelectedIndexChanged += new System.EventHandler(this.cmbMainTipReadSpd_SelectedIndexChanged);
             this.cmbTipReadSpd.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.IgnoreKey);
@@ -3249,6 +3251,17 @@ namespace MGEgui {
             this.cmbResolution.SelectedIndexChanged += new System.EventHandler(this.cmbResolution_SelectedIndexChanged);
             this.cmbResolution.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.IgnoreKey);
             // 
+            // bLightVersion
+            // 
+            this.bLightVersion.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
+            this.bLightVersion.Location = new System.Drawing.Point(181, 38);
+            this.bLightVersion.Name = "bLightVersion";
+            this.bLightVersion.Size = new System.Drawing.Size(160, 25);
+            this.bLightVersion.TabIndex = 2;
+            this.bLightVersion.Text = "Light version";
+            this.bLightVersion.UseVisualStyleBackColor = true;
+            this.bLightVersion.Click += new System.EventHandler(this.bLightVersion_Click);
+            // 
             // MainForm
             // 
             this.ClientSize = new System.Drawing.Size(546, 379);
@@ -3594,5 +3607,6 @@ namespace MGEgui {
         private CheckBox cbDisablePatch;
         private CheckBox cbDisableIntegration;
         public ComboBox cmbResolution;
+        public Button bLightVersion;
     }
 }

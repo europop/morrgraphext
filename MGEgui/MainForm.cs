@@ -2212,22 +2212,16 @@ namespace MGEgui {
             if (tbSShotDir.TextAlign != HorizontalAlignment.Center) tbSShotDir.Text = s;
             SetTooltips ();
         }
-
+        
         private void cbUILangAuto_CheckedChanged (object sender, EventArgs e) {
             bool status = cbUILangAuto.Checked;
             cmbUILanguage.Enabled = !status;
             if (status) {
                 foreach (System.Globalization.CultureInfo culture in LocalizationInterface.UserLanguages) {
                     int index = cmbUILanguage.FindStringExact(LocalizationInterface.SysLang(culture));
-                    if (index == -1) {
-                        index = cmbUILanguage.FindStringExact(LocalizationInterface.SysLangRev(culture));
-                        if (index == -1) {
-                            index = cmbUILanguage.FindString(LocalizationInterface.SysLangOrg(culture));
-                            if (index == -1) {
-                                index = cmbUILanguage.FindString(LocalizationInterface.SysLangEng(culture));
-                            }
-                        }
-                    }
+                    if (index == -1) index = cmbUILanguage.FindStringExact(LocalizationInterface.SysLangRev(culture));
+                    if (index == -1) index = cmbUILanguage.FindString(LocalizationInterface.SysLangOrg(culture));
+                    if (index == -1) index = cmbUILanguage.FindString(LocalizationInterface.SysLangEng(culture));
                     if (index != -1) { cmbUILanguage.SelectedIndex = index; break; }
                 }
             }
@@ -2299,6 +2293,11 @@ namespace MGEgui {
             PatchTree.ShowDialog();
             PatchTreeSize = PatchTree.Size;
             PatchTree = null;
+        }
+
+        private void bLightVersion_Click(object sender, EventArgs e) {
+            Statics.lightversion = !Statics.lightversion;
+            Close();
         }
     }
 }

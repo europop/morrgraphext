@@ -269,6 +269,8 @@ namespace MGEgui {
         public static LocalizationInterface Localizations;
 
         public static MainForm mf;
+        public static MainFormLight mfl;
+        public static bool lightversion = false;
 
         public static Macro[] Macros=new Macro[MACROS];
         public static Trigger[] Triggers=new Trigger[TRIGGERS];
@@ -369,7 +371,7 @@ namespace MGEgui {
                 }
             } catch { };
             LocalizationInterface.Localization language = null;
-            Localizations.Current = LocalizationInterface.DefaultLanguage;
+//            Localizations.Current = LocalizationInterface.DefaultLanguage;
 //            Localizations.ApplyStrings("", strings);
             bool autoLanguage = true;
             try {
@@ -465,8 +467,17 @@ namespace MGEgui {
                 Triggers [i] = new Trigger ();
             }
             DXMain.GetDeviceCaps ();
-            mf = new MainForm (language, autoLanguage);
-            Application.Run (mf);
+            bool GUIchecker = !lightversion;
+            while (GUIchecker != lightversion) {
+                GUIchecker = lightversion;
+                if (lightversion) {
+                    mfl = new MainFormLight(autoLanguage);
+                    Application.Run(mfl);
+                } else {
+                    mf = new MainForm (language, autoLanguage);
+                    Application.Run (mf); 
+                }
+            }
         }
 
     }

@@ -1,21 +1,28 @@
-# Auto detect text files and perform LF normalization
+# This setting tells git that the files specified are not text at all, and it should not try to change them. 
+* -text
+* -diff
+
+
+*.lng    diff=tex
+*.txt    text eol=crlf   diff=tex
+*.fx     diff=cpp
+*.hlsl   diff=cpp
 
 # Custom for Visual Studio
-*.cs     diff=csharp
+*.h               text eol=crlf   diff=cpp
+*.c               text eol=crlf   diff=cpp
+*.cpp             text eol=crlf   diff=cpp
+*.rc              text eol=crlf   diff=cpp
+*.def             text eol=crlf   diff=tex
+*.vcproj          text eol=crlf   diff=tex
+*.vcxproj         text eol=crlf   diff=tex
+*.vcxproj.filters text eol=crlf   diff=tex
+*.cs              text eol=crlf   diff=csharp
+*.csproj          text eol=crlf   diff=tex
+*.resx            text eol=crlf   diff=tex
+*.sln             text eol=crlf   diff=tex
 *.sln    merge=union
 *.csproj merge=union
 *.vbproj merge=union
 *.fsproj merge=union
 *.dbproj merge=union
-
-# Standard to msysgit
-*.doc	 diff=astextplain
-*.DOC	 diff=astextplain
-*.docx diff=astextplain
-*.DOCX diff=astextplain
-*.dot  diff=astextplain
-*.DOT  diff=astextplain
-*.pdf  diff=astextplain
-*.PDF	 diff=astextplain
-*.rtf	 diff=astextplain
-*.RTF	 diff=astextplain

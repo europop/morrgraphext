@@ -4,7 +4,7 @@
 
 
 *.lng    diff=tex
-*.txt    diff=tex
+*.txt    text eol=crlf   diff=tex
 *.fx     diff=cpp
 *.hlsl   diff=cpp
 

@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="progmesh">
+      <UniqueIdentifier>{1c686388-dda6-4f75-a80c-62e9237bfade}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="progmesh\CollapseTriangle.cpp">
+      <Filter>progmesh</Filter>
+    </ClCompile>
+    <ClCompile Include="progmesh\CollapseVertex.cpp">
+      <Filter>progmesh</Filter>
+    </ClCompile>
+    <ClCompile Include="progmesh\ProgMesh.cpp">
+      <Filter>progmesh</Filter>
+    </ClCompile>
+    <ClCompile Include="Input.cpp" />
+    <ClCompile Include="NifConverter.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="progmesh\CollapseTriangle.h">
+      <Filter>progmesh</Filter>
+    </ClInclude>
+    <ClInclude Include="progmesh\CollapseVertex.h">
+      <Filter>progmesh</Filter>
+    </ClInclude>
+    <ClInclude Include="progmesh\ProgMesh.h">
+      <Filter>progmesh</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuildStep Include="exports.def" />
+  </ItemGroup>
+</Project>

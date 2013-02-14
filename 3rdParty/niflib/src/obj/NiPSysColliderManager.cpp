@@ -14,7 +14,7 @@ All rights reserved.  Please see niflib.h for license. */
 #include "../../include/ObjectRegistry.h"
 #include "../../include/NIF_IO.h"
 #include "../../include/obj/NiPSysColliderManager.h"
-#include "../../include/obj/NiPSysPlanarCollider.h"
+#include "../../include/obj/NiPSysCollider.h"
 using namespace Niflib;
 
 //Definition of TYPE constant
@@ -51,18 +51,26 @@ void NiPSysColliderManager::Read( istream& in, list<unsigned int> & link_stack, 
 	//--END CUSTOM CODE--//
 }
 
-void NiPSysColliderManager::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const {
+void NiPSysColliderManager::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const {
 	//--BEGIN PRE-WRITE CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiPSysModifier::Write( out, link_map, info );
+	NiPSysModifier::Write( out, link_map, missing_link_stack, info );
 	if ( info.version < VER_3_3_0_13 ) {
-		NifStream( (unsigned int)&(*collider), out, info );
+		WritePtr32( &(*collider), out );
 	} else {
 		if ( collider != NULL ) {
-			NifStream( link_map.find( StaticCast<NiObject>(collider) )->second, out, info );
+			map<NiObjectRef,unsigned int>::const_iterator it = link_map.find( StaticCast<NiObject>(collider) );
+			if (it != link_map.end()) {
+				NifStream( it->second, out, info );
+				missing_link_stack.push_back( NULL );
+			} else {
+				NifStream( 0xFFFFFFFF, out, info );
+				missing_link_stack.push_back( collider );
+			}
 		} else {
 			NifStream( 0xFFFFFFFF, out, info );
+			missing_link_stack.push_back( NULL );
 		}
 	}
 
@@ -75,7 +83,6 @@ std::string NiPSysColliderManager::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 
 	stringstream out;
-	unsigned int array_output_count = 0;
 	out << NiPSysModifier::asString();
 	out << "  Collider:  " << collider << endl;
 	return out.str();
@@ -84,12 +91,12 @@ std::string NiPSysColliderManager::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 }
 
-void NiPSysColliderManager::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info ) {
+void NiPSysColliderManager::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info ) {
 	//--BEGIN PRE-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiPSysModifier::FixLinks( objects, link_stack, info );
-	collider = FixLink<NiPSysPlanarCollider>( objects, link_stack, info );
+	NiPSysModifier::FixLinks( objects, link_stack, missing_link_stack, info );
+	collider = FixLink<NiPSysCollider>( objects, link_stack, missing_link_stack, info );
 
 	//--BEGIN POST-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
@@ -101,6 +108,12 @@ std::list<NiObjectRef> NiPSysColliderManager::GetRefs() const {
 	if ( collider != NULL )
 		refs.push_back(StaticCast<NiObject>(collider));
 	return refs;
+}
+
+std::list<NiObject *> NiPSysColliderManager::GetPtrs() const {
+	list<NiObject *> ptrs;
+	ptrs = NiPSysModifier::GetPtrs();
+	return ptrs;
 }
 
 //--BEGIN MISC CUSTOM CODE--//

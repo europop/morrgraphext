@@ -19,7 +19,7 @@ using namespace Niflib;
 //Definition of TYPE constant
 const Type NiBillboardNode::TYPE("NiBillboardNode", &NiNode::TYPE );
 
-NiBillboardNode::NiBillboardNode() {
+NiBillboardNode::NiBillboardNode() : billboardMode((BillboardMode)0) {
 	//--BEGIN CONSTRUCTOR CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 }
@@ -50,11 +50,11 @@ void NiBillboardNode::Read( istream& in, list<unsigned int> & link_stack, const 
 	//--END CUSTOM CODE--//
 }
 
-void NiBillboardNode::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const {
+void NiBillboardNode::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const {
 	//--BEGIN PRE-WRITE CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiNode::Write( out, link_map, info );
+	NiNode::Write( out, link_map, missing_link_stack, info );
 	if ( info.version >= 0x0A010000 ) {
 		NifStream( billboardMode, out, info );
 	};
@@ -68,7 +68,6 @@ std::string NiBillboardNode::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 
 	stringstream out;
-	unsigned int array_output_count = 0;
 	out << NiNode::asString();
 	out << "  Billboard Mode:  " << billboardMode << endl;
 	return out.str();
@@ -77,11 +76,11 @@ std::string NiBillboardNode::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 }
 
-void NiBillboardNode::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info ) {
+void NiBillboardNode::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info ) {
 	//--BEGIN PRE-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiNode::FixLinks( objects, link_stack, info );
+	NiNode::FixLinks( objects, link_stack, missing_link_stack, info );
 
 	//--BEGIN POST-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
@@ -91,6 +90,12 @@ std::list<NiObjectRef> NiBillboardNode::GetRefs() const {
 	list<Ref<NiObject> > refs;
 	refs = NiNode::GetRefs();
 	return refs;
+}
+
+std::list<NiObject *> NiBillboardNode::GetPtrs() const {
+	list<NiObject *> ptrs;
+	ptrs = NiNode::GetPtrs();
+	return ptrs;
 }
 
 //--BEGIN MISC CUSTOM CODE--//

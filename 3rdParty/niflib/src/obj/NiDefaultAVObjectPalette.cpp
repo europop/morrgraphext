@@ -58,23 +58,31 @@ void NiDefaultAVObjectPalette::Read( istream& in, list<unsigned int> & link_stac
 	//--END CUSTOM CODE--//
 }
 
-void NiDefaultAVObjectPalette::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const {
+void NiDefaultAVObjectPalette::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const {
 	//--BEGIN PRE-WRITE CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiAVObjectPalette::Write( out, link_map, info );
+	NiAVObjectPalette::Write( out, link_map, missing_link_stack, info );
 	numObjs = (unsigned int)(objs.size());
 	NifStream( unknownInt, out, info );
 	NifStream( numObjs, out, info );
 	for (unsigned int i1 = 0; i1 < objs.size(); i1++) {
 		NifStream( objs[i1].name, out, info );
 		if ( info.version < VER_3_3_0_13 ) {
-			NifStream( (unsigned int)&(*objs[i1].avObject), out, info );
+			WritePtr32( &(*objs[i1].avObject), out );
 		} else {
 			if ( objs[i1].avObject != NULL ) {
-				NifStream( link_map.find( StaticCast<NiObject>(objs[i1].avObject) )->second, out, info );
+				map<NiObjectRef,unsigned int>::const_iterator it = link_map.find( StaticCast<NiObject>(objs[i1].avObject) );
+				if (it != link_map.end()) {
+					NifStream( it->second, out, info );
+					missing_link_stack.push_back( NULL );
+				} else {
+					NifStream( 0xFFFFFFFF, out, info );
+					missing_link_stack.push_back( objs[i1].avObject );
+				}
 			} else {
 				NifStream( 0xFFFFFFFF, out, info );
+				missing_link_stack.push_back( NULL );
 			}
 		}
 	};
@@ -108,13 +116,13 @@ std::string NiDefaultAVObjectPalette::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 }
 
-void NiDefaultAVObjectPalette::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info ) {
+void NiDefaultAVObjectPalette::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info ) {
 	//--BEGIN PRE-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiAVObjectPalette::FixLinks( objects, link_stack, info );
+	NiAVObjectPalette::FixLinks( objects, link_stack, missing_link_stack, info );
 	for (unsigned int i1 = 0; i1 < objs.size(); i1++) {
-		objs[i1].avObject = FixLink<NiAVObject>( objects, link_stack, info );
+		objs[i1].avObject = FixLink<NiAVObject>( objects, link_stack, missing_link_stack, info );
 	};
 
 	//--BEGIN POST-FIXLINKS CUSTOM CODE--//
@@ -127,6 +135,16 @@ std::list<NiObjectRef> NiDefaultAVObjectPalette::GetRefs() const {
 	for (unsigned int i1 = 0; i1 < objs.size(); i1++) {
 	};
 	return refs;
+}
+
+std::list<NiObject *> NiDefaultAVObjectPalette::GetPtrs() const {
+	list<NiObject *> ptrs;
+	ptrs = NiAVObjectPalette::GetPtrs();
+	for (unsigned int i1 = 0; i1 < objs.size(); i1++) {
+		if ( objs[i1].avObject != NULL )
+			ptrs.push_back((NiObject *)(objs[i1].avObject));
+	};
+	return ptrs;
 }
 
 //--BEGIN MISC CUSTOM CODE--//
@@ -147,6 +165,45 @@ void NiDefaultAVObjectPalette::SetObjs( const vector<Ref<NiAVObject> >& value ) 
       obj.avObject = (*itr);
       objs.push_back(obj);
    }
+}
+
+bool NiDefaultAVObjectPalette::AddObj( Ref<NiAVObject > obj ) {
+  for (vector<AVObject>::iterator itr = objs.begin(); itr != objs.end(); ++itr) {
+    if ( (*itr).avObject == obj ) {
+      return false;
+    }
+  }
+
+  struct AVObject avo;
+  avo.name = obj->GetName();
+  avo.avObject = obj;
+
+  objs.push_back(avo);
+  numObjs++;
+
+  return false;
+}
+
+bool NiDefaultAVObjectPalette::RemoveObj( Ref<NiAVObject > obj ) {
+  for (vector<AVObject>::iterator itr = objs.begin(); itr != objs.end(); ++itr) {
+    if ( (*itr).avObject == obj ) {
+      objs.erase(itr);
+      numObjs--;
+
+      return true;
+    }
+  }
+
+  return false;
+}
+
+void NiDefaultAVObjectPalette::ReplaceObj( const Ref<NiAVObject> newobj, const Ref<NiAVObject> oldobj ) {
+  for (vector<AVObject>::iterator itr = objs.begin(); itr != objs.end(); ++itr) {
+    if ( (*itr).avObject == oldobj ) {
+      (*itr).name = newobj->GetName();
+      (*itr).avObject = newobj;
+    }
+  }
 }
 
 //--END CUSTOM CODE--//

@@ -52,11 +52,11 @@ void NiStringsExtraData::Read( istream& in, list<unsigned int> & link_stack, con
 	//--END CUSTOM CODE--//
 }
 
-void NiStringsExtraData::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const {
+void NiStringsExtraData::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const {
 	//--BEGIN PRE-WRITE CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiExtraData::Write( out, link_map, info );
+	NiExtraData::Write( out, link_map, missing_link_stack, info );
 	numStrings = (unsigned int)(data.size());
 	NifStream( numStrings, out, info );
 	for (unsigned int i1 = 0; i1 < data.size(); i1++) {
@@ -94,11 +94,11 @@ std::string NiStringsExtraData::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 }
 
-void NiStringsExtraData::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info ) {
+void NiStringsExtraData::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info ) {
 	//--BEGIN PRE-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiExtraData::FixLinks( objects, link_stack, info );
+	NiExtraData::FixLinks( objects, link_stack, missing_link_stack, info );
 
 	//--BEGIN POST-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
@@ -110,15 +110,26 @@ std::list<NiObjectRef> NiStringsExtraData::GetRefs() const {
 	return refs;
 }
 
+std::list<NiObject *> NiStringsExtraData::GetPtrs() const {
+	list<NiObject *> ptrs;
+	ptrs = NiExtraData::GetPtrs();
+	return ptrs;
+}
+
 //--BEGIN MISC CUSTOM CODE--//
 
 vector<string> NiStringsExtraData::GetData() const {
-	return data;
+	vector<string> value;
+	value.resize(data.size());
+	std::copy(data.begin(), data.end(), value.begin());
+	return value;
 };
 	
 void NiStringsExtraData::SetData( const vector<string> & n ) {
 	numStrings = (unsigned int)(n.size());
-	data = n;
+	vector<string> value;
+	data.resize(n.size());
+	std::copy(n.begin(), n.end(), data.begin());
 };
 
 //--END CUSTOM CODE--//

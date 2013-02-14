@@ -269,6 +269,8 @@ protected:
 protected:
 	/*! Some flags; commonly 0x000C or 0x000A. */
 	unsigned short flags;
+	/*! Unknown Flag */
+	unsigned short unknownShort1;
 	/*! The translation vector. */
 	Vector3 translation;
 	/*! The rotation part of the transformation matrix. */
@@ -281,6 +283,10 @@ protected:
 	mutable unsigned int numProperties;
 	/*! List of node properties. */
 	vector<Ref<NiProperty > > properties;
+	/*! Always 2,0,2,0. */
+	array<4,unsigned int > unknown1;
+	/*! 0 or 1. */
+	byte unknown2;
 	/*! Do we have a bounding box? */
 	bool hasBoundingBox;
 	/*! The bounding box. */
@@ -294,11 +300,13 @@ public:
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
 	NIFLIB_HIDDEN virtual void Read( istream& in, list<unsigned int> & link_stack, const NifInfo & info );
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
-	NIFLIB_HIDDEN virtual void Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const;
+	NIFLIB_HIDDEN virtual void Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const;
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
-	NIFLIB_HIDDEN virtual void FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info );
+	NIFLIB_HIDDEN virtual void FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info );
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
 	NIFLIB_HIDDEN virtual list<NiObjectRef> GetRefs() const;
+	/*! NIFLIB_HIDDEN function.  For internal use only. */
+	NIFLIB_HIDDEN virtual list<NiObject *> GetPtrs() const;
 };
 
 //--BEGIN FILE FOOT CUSTOM CODE--//

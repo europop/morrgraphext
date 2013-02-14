@@ -14,15 +14,15 @@ All rights reserved.  Please see niflib.h for license. */
 #include "../../include/ObjectRegistry.h"
 #include "../../include/NIF_IO.h"
 #include "../../include/obj/NiLookAtInterpolator.h"
+#include "../../include/obj/NiFloatInterpolator.h"
 #include "../../include/obj/NiNode.h"
 #include "../../include/obj/NiPoint3Interpolator.h"
-#include "../../include/obj/NiFloatInterpolator.h"
 using namespace Niflib;
 
 //Definition of TYPE constant
 const Type NiLookAtInterpolator::TYPE("NiLookAtInterpolator", &NiInterpolator::TYPE );
 
-NiLookAtInterpolator::NiLookAtInterpolator() : unknownShort((unsigned short)0), lookAt(NULL), unknownFloat(0.0f), scale(0.0f), unknownLink1(NULL), unknownLink2(NULL), unknownLink3(NULL) {
+NiLookAtInterpolator::NiLookAtInterpolator() : unknownShort((unsigned short)0), lookAt(NULL), scale(0.0f), unknownLink1(NULL), unknownLink2(NULL), unknownLink3(NULL) {
 	//--BEGIN CONSTRUCTOR CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 }
@@ -49,10 +49,12 @@ void NiLookAtInterpolator::Read( istream& in, list<unsigned int> & link_stack, c
 	NifStream( unknownShort, in, info );
 	NifStream( block_num, in, info );
 	link_stack.push_back( block_num );
-	NifStream( unknownFloat, in, info );
-	NifStream( translation, in, info );
-	NifStream( rotation, in, info );
-	NifStream( scale, in, info );
+	NifStream( target, in, info );
+	if ( info.version <= 0x14050000 ) {
+		NifStream( translation, in, info );
+		NifStream( rotation, in, info );
+		NifStream( scale, in, info );
+	};
 	NifStream( block_num, in, info );
 	link_stack.push_back( block_num );
 	NifStream( block_num, in, info );
@@ -64,50 +66,84 @@ void NiLookAtInterpolator::Read( istream& in, list<unsigned int> & link_stack, c
 	//--END CUSTOM CODE--//
 }
 
-void NiLookAtInterpolator::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const {
+void NiLookAtInterpolator::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const {
 	//--BEGIN PRE-WRITE CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiInterpolator::Write( out, link_map, info );
+	NiInterpolator::Write( out, link_map, missing_link_stack, info );
 	NifStream( unknownShort, out, info );
 	if ( info.version < VER_3_3_0_13 ) {
-		NifStream( (unsigned int)&(*lookAt), out, info );
+		WritePtr32( &(*lookAt), out );
 	} else {
 		if ( lookAt != NULL ) {
-			NifStream( link_map.find( StaticCast<NiObject>(lookAt) )->second, out, info );
+			map<NiObjectRef,unsigned int>::const_iterator it = link_map.find( StaticCast<NiObject>(lookAt) );
+			if (it != link_map.end()) {
+				NifStream( it->second, out, info );
+				missing_link_stack.push_back( NULL );
+			} else {
+				NifStream( 0xFFFFFFFF, out, info );
+				missing_link_stack.push_back( lookAt );
+			}
 		} else {
 			NifStream( 0xFFFFFFFF, out, info );
+			missing_link_stack.push_back( NULL );
 		}
 	}
-	NifStream( unknownFloat, out, info );
-	NifStream( translation, out, info );
-	NifStream( rotation, out, info );
-	NifStream( scale, out, info );
+	NifStream( target, out, info );
+	if ( info.version <= 0x14050000 ) {
+		NifStream( translation, out, info );
+		NifStream( rotation, out, info );
+		NifStream( scale, out, info );
+	};
 	if ( info.version < VER_3_3_0_13 ) {
-		NifStream( (unsigned int)&(*unknownLink1), out, info );
+		WritePtr32( &(*unknownLink1), out );
 	} else {
 		if ( unknownLink1 != NULL ) {
-			NifStream( link_map.find( StaticCast<NiObject>(unknownLink1) )->second, out, info );
+			map<NiObjectRef,unsigned int>::const_iterator it = link_map.find( StaticCast<NiObject>(unknownLink1) );
+			if (it != link_map.end()) {
+				NifStream( it->second, out, info );
+				missing_link_stack.push_back( NULL );
+			} else {
+				NifStream( 0xFFFFFFFF, out, info );
+				missing_link_stack.push_back( unknownLink1 );
+			}
 		} else {
 			NifStream( 0xFFFFFFFF, out, info );
+			missing_link_stack.push_back( NULL );
 		}
 	}
 	if ( info.version < VER_3_3_0_13 ) {
-		NifStream( (unsigned int)&(*unknownLink2), out, info );
+		WritePtr32( &(*unknownLink2), out );
 	} else {
 		if ( unknownLink2 != NULL ) {
-			NifStream( link_map.find( StaticCast<NiObject>(unknownLink2) )->second, out, info );
+			map<NiObjectRef,unsigned int>::const_iterator it = link_map.find( StaticCast<NiObject>(unknownLink2) );
+			if (it != link_map.end()) {
+				NifStream( it->second, out, info );
+				missing_link_stack.push_back( NULL );
+			} else {
+				NifStream( 0xFFFFFFFF, out, info );
+				missing_link_stack.push_back( unknownLink2 );
+			}
 		} else {
 			NifStream( 0xFFFFFFFF, out, info );
+			missing_link_stack.push_back( NULL );
 		}
 	}
 	if ( info.version < VER_3_3_0_13 ) {
-		NifStream( (unsigned int)&(*unknownLink3), out, info );
+		WritePtr32( &(*unknownLink3), out );
 	} else {
 		if ( unknownLink3 != NULL ) {
-			NifStream( link_map.find( StaticCast<NiObject>(unknownLink3) )->second, out, info );
+			map<NiObjectRef,unsigned int>::const_iterator it = link_map.find( StaticCast<NiObject>(unknownLink3) );
+			if (it != link_map.end()) {
+				NifStream( it->second, out, info );
+				missing_link_stack.push_back( NULL );
+			} else {
+				NifStream( 0xFFFFFFFF, out, info );
+				missing_link_stack.push_back( unknownLink3 );
+			}
 		} else {
 			NifStream( 0xFFFFFFFF, out, info );
+			missing_link_stack.push_back( NULL );
 		}
 	}
 
@@ -120,11 +156,10 @@ std::string NiLookAtInterpolator::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 
 	stringstream out;
-	unsigned int array_output_count = 0;
 	out << NiInterpolator::asString();
 	out << "  Unknown Short:  " << unknownShort << endl;
 	out << "  Look At:  " << lookAt << endl;
-	out << "  Unknown Float:  " << unknownFloat << endl;
+	out << "  Target:  " << target << endl;
 	out << "  Translation:  " << translation << endl;
 	out << "  Rotation:  " << rotation << endl;
 	out << "  Scale:  " << scale << endl;
@@ -137,15 +172,15 @@ std::string NiLookAtInterpolator::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 }
 
-void NiLookAtInterpolator::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info ) {
+void NiLookAtInterpolator::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info ) {
 	//--BEGIN PRE-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiInterpolator::FixLinks( objects, link_stack, info );
-	lookAt = FixLink<NiNode>( objects, link_stack, info );
-	unknownLink1 = FixLink<NiPoint3Interpolator>( objects, link_stack, info );
-	unknownLink2 = FixLink<NiFloatInterpolator>( objects, link_stack, info );
-	unknownLink3 = FixLink<NiFloatInterpolator>( objects, link_stack, info );
+	NiInterpolator::FixLinks( objects, link_stack, missing_link_stack, info );
+	lookAt = FixLink<NiNode>( objects, link_stack, missing_link_stack, info );
+	unknownLink1 = FixLink<NiPoint3Interpolator>( objects, link_stack, missing_link_stack, info );
+	unknownLink2 = FixLink<NiFloatInterpolator>( objects, link_stack, missing_link_stack, info );
+	unknownLink3 = FixLink<NiFloatInterpolator>( objects, link_stack, missing_link_stack, info );
 
 	//--BEGIN POST-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
@@ -154,8 +189,6 @@ void NiLookAtInterpolator::FixLinks( const map<unsigned int,NiObjectRef> & objec
 std::list<NiObjectRef> NiLookAtInterpolator::GetRefs() const {
 	list<Ref<NiObject> > refs;
 	refs = NiInterpolator::GetRefs();
-	if ( lookAt != NULL )
-		refs.push_back(StaticCast<NiObject>(lookAt));
 	if ( unknownLink1 != NULL )
 		refs.push_back(StaticCast<NiObject>(unknownLink1));
 	if ( unknownLink2 != NULL )
@@ -163,6 +196,14 @@ std::list<NiObjectRef> NiLookAtInterpolator::GetRefs() const {
 	if ( unknownLink3 != NULL )
 		refs.push_back(StaticCast<NiObject>(unknownLink3));
 	return refs;
+}
+
+std::list<NiObject *> NiLookAtInterpolator::GetPtrs() const {
+	list<NiObject *> ptrs;
+	ptrs = NiInterpolator::GetPtrs();
+	if ( lookAt != NULL )
+		ptrs.push_back((NiObject *)(lookAt));
+	return ptrs;
 }
 
 //--BEGIN MISC CUSTOM CODE--//

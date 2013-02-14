@@ -47,11 +47,11 @@ void NiBoolTimelineInterpolator::Read( istream& in, list<unsigned int> & link_st
 	//--END CUSTOM CODE--//
 }
 
-void NiBoolTimelineInterpolator::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const {
+void NiBoolTimelineInterpolator::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const {
 	//--BEGIN PRE-WRITE CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiBoolInterpolator::Write( out, link_map, info );
+	NiBoolInterpolator::Write( out, link_map, missing_link_stack, info );
 
 	//--BEGIN POST-WRITE CUSTOM CODE--//
 	//--END CUSTOM CODE--//
@@ -62,7 +62,6 @@ std::string NiBoolTimelineInterpolator::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 
 	stringstream out;
-	unsigned int array_output_count = 0;
 	out << NiBoolInterpolator::asString();
 	return out.str();
 
@@ -70,11 +69,11 @@ std::string NiBoolTimelineInterpolator::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 }
 
-void NiBoolTimelineInterpolator::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info ) {
+void NiBoolTimelineInterpolator::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info ) {
 	//--BEGIN PRE-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiBoolInterpolator::FixLinks( objects, link_stack, info );
+	NiBoolInterpolator::FixLinks( objects, link_stack, missing_link_stack, info );
 
 	//--BEGIN POST-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
@@ -84,6 +83,12 @@ std::list<NiObjectRef> NiBoolTimelineInterpolator::GetRefs() const {
 	list<Ref<NiObject> > refs;
 	refs = NiBoolInterpolator::GetRefs();
 	return refs;
+}
+
+std::list<NiObject *> NiBoolTimelineInterpolator::GetPtrs() const {
+	list<NiObject *> ptrs;
+	ptrs = NiBoolInterpolator::GetPtrs();
+	return ptrs;
 }
 
 //--BEGIN MISC CUSTOM CODE--//

@@ -51,18 +51,26 @@ void BSKeyframeController::Read( istream& in, list<unsigned int> & link_stack, c
 	//--END CUSTOM CODE--//
 }
 
-void BSKeyframeController::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const {
+void BSKeyframeController::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const {
 	//--BEGIN PRE-WRITE CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiKeyframeController::Write( out, link_map, info );
+	NiKeyframeController::Write( out, link_map, missing_link_stack, info );
 	if ( info.version < VER_3_3_0_13 ) {
-		NifStream( (unsigned int)&(*data2), out, info );
+		WritePtr32( &(*data2), out );
 	} else {
 		if ( data2 != NULL ) {
-			NifStream( link_map.find( StaticCast<NiObject>(data2) )->second, out, info );
+			map<NiObjectRef,unsigned int>::const_iterator it = link_map.find( StaticCast<NiObject>(data2) );
+			if (it != link_map.end()) {
+				NifStream( it->second, out, info );
+				missing_link_stack.push_back( NULL );
+			} else {
+				NifStream( 0xFFFFFFFF, out, info );
+				missing_link_stack.push_back( data2 );
+			}
 		} else {
 			NifStream( 0xFFFFFFFF, out, info );
+			missing_link_stack.push_back( NULL );
 		}
 	}
 
@@ -75,7 +83,6 @@ std::string BSKeyframeController::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 
 	stringstream out;
-	unsigned int array_output_count = 0;
 	out << NiKeyframeController::asString();
 	out << "  Data 2:  " << data2 << endl;
 	return out.str();
@@ -84,12 +91,12 @@ std::string BSKeyframeController::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 }
 
-void BSKeyframeController::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info ) {
+void BSKeyframeController::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info ) {
 	//--BEGIN PRE-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiKeyframeController::FixLinks( objects, link_stack, info );
-	data2 = FixLink<NiKeyframeData>( objects, link_stack, info );
+	NiKeyframeController::FixLinks( objects, link_stack, missing_link_stack, info );
+	data2 = FixLink<NiKeyframeData>( objects, link_stack, missing_link_stack, info );
 
 	//--BEGIN POST-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
@@ -101,6 +108,12 @@ std::list<NiObjectRef> BSKeyframeController::GetRefs() const {
 	if ( data2 != NULL )
 		refs.push_back(StaticCast<NiObject>(data2));
 	return refs;
+}
+
+std::list<NiObject *> BSKeyframeController::GetPtrs() const {
+	list<NiObject *> ptrs;
+	ptrs = NiKeyframeController::GetPtrs();
+	return ptrs;
 }
 
 //--BEGIN MISC CUSTOM CODE--//

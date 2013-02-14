@@ -60,11 +60,11 @@ void NiRangeLODData::Read( istream& in, list<unsigned int> & link_stack, const N
 	//--END CUSTOM CODE--//
 }
 
-void NiRangeLODData::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const {
+void NiRangeLODData::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const {
 	//--BEGIN PRE-WRITE CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiLODData::Write( out, link_map, info );
+	NiLODData::Write( out, link_map, missing_link_stack, info );
 	numLodLevels = (unsigned int)(lodLevels.size());
 	NifStream( lodCenter, out, info );
 	NifStream( numLodLevels, out, info );
@@ -119,11 +119,11 @@ std::string NiRangeLODData::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 }
 
-void NiRangeLODData::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info ) {
+void NiRangeLODData::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info ) {
 	//--BEGIN PRE-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiLODData::FixLinks( objects, link_stack, info );
+	NiLODData::FixLinks( objects, link_stack, missing_link_stack, info );
 
 	//--BEGIN POST-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
@@ -133,6 +133,12 @@ std::list<NiObjectRef> NiRangeLODData::GetRefs() const {
 	list<Ref<NiObject> > refs;
 	refs = NiLODData::GetRefs();
 	return refs;
+}
+
+std::list<NiObject *> NiRangeLODData::GetPtrs() const {
+	list<NiObject *> ptrs;
+	ptrs = NiLODData::GetPtrs();
+	return ptrs;
 }
 
 //--BEGIN MISC CUSTOM CODE--//

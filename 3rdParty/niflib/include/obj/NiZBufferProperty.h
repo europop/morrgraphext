@@ -70,13 +70,13 @@ public:
 	 * Used to get the current depth buffer (Z-Buffer) test function, which determine whether a pixel is drawn based on the value of the depth buffer at the same location.
 	 * \return The current depth buffer test function.
 	 */
-	NIFLIB_API CompareMode GetDepthFunction() const;
+	NIFLIB_API ZCompareMode GetDepthFunction() const;
 
 	/*!
 	 * Used to set the depth buffer (Z-Buffer) test function, which determine whether a pixel is drawn based on the value of the depth buffer at the same location.
 	 * \param[in] value The new depth buffer test function.
 	 */
-	NIFLIB_API void SetDepthFunction(CompareMode value);
+	NIFLIB_API void SetDepthFunction(ZCompareMode value);
 
 	//--END CUSTOM CODE--//
 protected:
@@ -86,17 +86,19 @@ protected:
 	 * (1)
 	 */
 	unsigned short flags;
-	/*! Z-Test function (see: glDepthFunc) */
-	CompareMode function;
+	/*! Z-Test function (see: glDepthFunc). In Flags from 20.1.0.3 on. */
+	ZCompareMode function;
 public:
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
 	NIFLIB_HIDDEN virtual void Read( istream& in, list<unsigned int> & link_stack, const NifInfo & info );
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
-	NIFLIB_HIDDEN virtual void Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const;
+	NIFLIB_HIDDEN virtual void Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const;
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
-	NIFLIB_HIDDEN virtual void FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info );
+	NIFLIB_HIDDEN virtual void FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info );
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
 	NIFLIB_HIDDEN virtual list<NiObjectRef> GetRefs() const;
+	/*! NIFLIB_HIDDEN function.  For internal use only. */
+	NIFLIB_HIDDEN virtual list<NiObject *> GetPtrs() const;
 };
 
 //--BEGIN FILE FOOT CUSTOM CODE--//

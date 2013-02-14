@@ -50,11 +50,11 @@ void NiPointLight::Read( istream& in, list<unsigned int> & link_stack, const Nif
 	//--END CUSTOM CODE--//
 }
 
-void NiPointLight::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const {
+void NiPointLight::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const {
 	//--BEGIN PRE-WRITE CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiLight::Write( out, link_map, info );
+	NiLight::Write( out, link_map, missing_link_stack, info );
 	NifStream( constantAttenuation, out, info );
 	NifStream( linearAttenuation, out, info );
 	NifStream( quadraticAttenuation, out, info );
@@ -68,7 +68,6 @@ std::string NiPointLight::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 
 	stringstream out;
-	unsigned int array_output_count = 0;
 	out << NiLight::asString();
 	out << "  Constant Attenuation:  " << constantAttenuation << endl;
 	out << "  Linear Attenuation:  " << linearAttenuation << endl;
@@ -79,11 +78,11 @@ std::string NiPointLight::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 }
 
-void NiPointLight::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info ) {
+void NiPointLight::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info ) {
 	//--BEGIN PRE-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiLight::FixLinks( objects, link_stack, info );
+	NiLight::FixLinks( objects, link_stack, missing_link_stack, info );
 
 	//--BEGIN POST-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
@@ -93,6 +92,12 @@ std::list<NiObjectRef> NiPointLight::GetRefs() const {
 	list<Ref<NiObject> > refs;
 	refs = NiLight::GetRefs();
 	return refs;
+}
+
+std::list<NiObject *> NiPointLight::GetPtrs() const {
+	list<NiObject *> ptrs;
+	ptrs = NiLight::GetPtrs();
+	return ptrs;
 }
 
 //--BEGIN MISC CUSTOM CODE--//

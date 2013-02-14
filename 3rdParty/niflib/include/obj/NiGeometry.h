@@ -12,6 +12,7 @@ All rights reserved.  Please see niflib.h for license. */
 
 //--BEGIN FILE HEAD CUSTOM CODE--//
 #include "../gen/SkinWeight.h"
+#include "../obj/NiGeometryData.h"
 //--END CUSTOM CODE--//
 
 #include "NiAVObject.h"
@@ -23,7 +24,7 @@ namespace Niflib {
 // Forward define of referenced NIF objects
 class NiGeometryData;
 class NiSkinInstance;
-class NiObject;
+class NiProperty;
 class NiGeometry;
 typedef Ref<NiGeometry> NiGeometryRef;
 
@@ -70,7 +71,14 @@ public:
 	 * NiSkinInstance and NiSkinData class. The bones must have a common
 	 * ancestor in the scenegraph.  This becomes the skeleton root.
 	 */
-	NIFLIB_API void BindSkin( vector< Ref<NiNode> > bone_nodes );
+	NIFLIB_API void BindSkin( vector< Ref<NiNode> >& bone_nodes );
+
+   /*!
+    * Binds this geometry to a list of bones.  Creates and attatches a
+    * NiSkinInstance and NiSkinData class. The bones must have a common
+    * ancestor in the scenegraph.  This becomes the skeleton root.
+    */
+   NIFLIB_API void BindSkinWith( vector< Ref<NiNode> >& bone_nodes,  NiObject * (*SkinInstConstructor)() );
 
 	/*!
 	 * Unbinds this geometry from the bones.  This removes the NiSkinInstance and NiSkinData objects and causes this geometry to stop behaving as a skin.
@@ -89,6 +97,12 @@ public:
 	 * \return The NiSkinInstance object used by this geometry node, or NULL if none is used.
 	 */
 	NIFLIB_API Ref<NiSkinInstance> GetSkinInstance() const;
+	
+	/*!
+	 * Sets the NiSkinInstance object used by this geometry node.
+	 * \param[in] skin The NiSkinInstance object to be used by this geometry node, or NULL if none is to be used.
+	 */
+	NIFLIB_API void SetSkinInstance(Ref<NiSkinInstance> skin);
 
 	/*!
 	 * Retrieves the geometry data object used by this geometry node, if any.  This contains the vertices, normals, etc. and can be shared among several geometry nodes.
@@ -103,25 +117,13 @@ public:
 	NIFLIB_API void SetData( NiGeometryData * n );
 
 	/*!
-	 * Retrieves the object pointed to by the unknown link in this geometry node, if any.
-	 * \return The target of the unknown link, or NULL if there is none.
-	 */
-	NIFLIB_API Ref<NiObject> GetUnknownLink() const;
-
-	/*!
-	 * Sets the object pointed to by the unknown link in this geometry node.
-	 * \param[in] n The new object to be pointed to by the unknown link, or NULL to clear the current one.
-	 */
-	NIFLIB_API void SetUnknownLink( const Ref<NiObject> & n );
-
-	/*!
-	 * Retrieves the name of the shader used by this geometry node.  The allowable values are game-dependant.
+	 * Retrieves the name of the shader used by this geometry node.  The allowable values are game-dependent.
 	 * \return The shader name.
 	 */
 	NIFLIB_API string GetShader() const;
 
 	/*!
-	 * Sets the name of the shader used by this geometry node.  The allowable values are game-dependant.
+	 * Sets the name of the shader used by this geometry node.  The allowable values are game-dependent.
 	 * \param[in] n The new shader name.
 	 */
 	NIFLIB_API void SetShader( const string & n );
@@ -158,27 +160,79 @@ public:
 	 */
 	NIFLIB_API bool IsSkin();
 
+   // Active Material.
+   // \return The current value.
+   NIFLIB_API int GetActiveMaterial() const;
+
+   // Active Material.
+   // \param[in] value The new value.
+   NIFLIB_API void SetActiveMaterial( int value );
+
+   // Shader.
+   // \return The current value.
+   NIFLIB_API bool HasShader() const;
+
+   // BSProperty
+   // \param[in] index Index of property to be retrieved.
+   // \return The propterty.
+   NIFLIB_API Ref<NiProperty> GetBSProperty(short index);
+
+   // BSProperty
+   // \param[in] index Index of property to be set.
+   // \param[in] index Property to be set.
+   NIFLIB_API void SetBSProperty(short index, Ref<NiProperty> value);
+
+   /*
+	 * Returns the array of the only 2 properties that are specific to Bethesda
+	 * \return Returns the array of the 2 properties
+	 */
+   NIFLIB_API array<2,Ref<NiProperty > > GetBSProperties();
+
+   /*
+	 * Sets the array of the only 2 properties that are specific to Bethesda
+	 * \param[in] The new array of properties
+	 */
+   NIFLIB_API void SetBSProperties( array<2, Ref<NiProperty> > value);
+
 	//--END CUSTOM CODE--//
 protected:
 	/*! Data index (NiTriShapeData/NiTriStripData). */
 	Ref<NiGeometryData > data;
 	/*! Skin instance index. */
 	Ref<NiSkinInstance > skinInstance;
+	/*! Num Materials */
+	mutable unsigned int numMaterials;
+	/*! Unknown string.  Shader? */
+	vector<IndexString > materialName;
+	/*! Unknown integer; often -1. (Is this a link, array index?) */
+	vector<int > materialExtraData;
+	/*! Active Material; often -1. (Is this a link, array index?) */
+	int activeMaterial;
 	/*! Shader. */
 	bool hasShader;
 	/*! The shader name. */
-	string shaderName;
-	/*! Unknown link, usually -1. */
-	Ref<NiObject > unknownLink;
+	IndexString shaderName;
+	/*! Unknown value, usually -1. (Not a link) */
+	int unknownInteger;
+	/*! Cyanide extension (only in version 10.2.0.0?). */
+	byte unknownByte;
+	/*! Unknown. */
+	int unknownInteger2;
+	/*! Dirty Flag? */
+	bool dirtyFlag;
+	/*! Two property links, used by Bethesda. */
+	array<2,Ref<NiProperty > > bsProperties;
 public:
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
 	NIFLIB_HIDDEN virtual void Read( istream& in, list<unsigned int> & link_stack, const NifInfo & info );
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
-	NIFLIB_HIDDEN virtual void Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const;
+	NIFLIB_HIDDEN virtual void Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const;
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
-	NIFLIB_HIDDEN virtual void FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info );
+	NIFLIB_HIDDEN virtual void FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info );
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
 	NIFLIB_HIDDEN virtual list<NiObjectRef> GetRefs() const;
+	/*! NIFLIB_HIDDEN function.  For internal use only. */
+	NIFLIB_HIDDEN virtual list<NiObject *> GetPtrs() const;
 };
 
 //--BEGIN FILE FOOT CUSTOM CODE--//

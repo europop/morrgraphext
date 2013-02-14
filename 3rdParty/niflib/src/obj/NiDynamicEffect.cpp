@@ -44,7 +44,7 @@ void NiDynamicEffect::Read( istream& in, list<unsigned int> & link_stack, const 
 
 	unsigned int block_num;
 	NiAVObject::Read( in, link_stack, info );
-	if ( info.version >= 0x0A020000 ) {
+	if ( info.version >= 0x0A01006A ) {
 		NifStream( switchState, in, info );
 	};
 	if ( info.version <= 0x04000002 ) {
@@ -71,14 +71,14 @@ void NiDynamicEffect::Read( istream& in, list<unsigned int> & link_stack, const 
 	//--END CUSTOM CODE--//
 }
 
-void NiDynamicEffect::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const {
+void NiDynamicEffect::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const {
 	//--BEGIN PRE-WRITE CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiAVObject::Write( out, link_map, info );
+	NiAVObject::Write( out, link_map, missing_link_stack, info );
 	numAffectedNodes = (unsigned int)(affectedNodes.size());
 	numAffectedNodeListPointers = (unsigned int)(affectedNodeListPointers.size());
-	if ( info.version >= 0x0A020000 ) {
+	if ( info.version >= 0x0A01006A ) {
 		NifStream( switchState, out, info );
 	};
 	if ( info.version <= 0x04000002 ) {
@@ -95,12 +95,20 @@ void NiDynamicEffect::Write( ostream& out, const map<NiObjectRef,unsigned int> &
 	if ( info.version >= 0x0A010000 ) {
 		for (unsigned int i2 = 0; i2 < affectedNodes.size(); i2++) {
 			if ( info.version < VER_3_3_0_13 ) {
-				NifStream( (unsigned int)&(*affectedNodes[i2]), out, info );
+				WritePtr32( &(*affectedNodes[i2]), out );
 			} else {
 				if ( affectedNodes[i2] != NULL ) {
-					NifStream( link_map.find( StaticCast<NiObject>(affectedNodes[i2]) )->second, out, info );
+					map<NiObjectRef,unsigned int>::const_iterator it = link_map.find( StaticCast<NiObject>(affectedNodes[i2]) );
+					if (it != link_map.end()) {
+						NifStream( it->second, out, info );
+						missing_link_stack.push_back( NULL );
+					} else {
+						NifStream( 0xFFFFFFFF, out, info );
+						missing_link_stack.push_back( affectedNodes[i2] );
+					}
 				} else {
 					NifStream( 0xFFFFFFFF, out, info );
+					missing_link_stack.push_back( NULL );
 				}
 			}
 		};
@@ -152,14 +160,14 @@ std::string NiDynamicEffect::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 }
 
-void NiDynamicEffect::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info ) {
+void NiDynamicEffect::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info ) {
 	//--BEGIN PRE-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiAVObject::FixLinks( objects, link_stack, info );
+	NiAVObject::FixLinks( objects, link_stack, missing_link_stack, info );
 	if ( info.version >= 0x0A010000 ) {
 		for (unsigned int i2 = 0; i2 < affectedNodes.size(); i2++) {
-			affectedNodes[i2] = FixLink<NiAVObject>( objects, link_stack, info );
+			affectedNodes[i2] = FixLink<NiAVObject>( objects, link_stack, missing_link_stack, info );
 		};
 	};
 
@@ -175,6 +183,14 @@ std::list<NiObjectRef> NiDynamicEffect::GetRefs() const {
 			refs.push_back(StaticCast<NiObject>(affectedNodes[i1]));
 	};
 	return refs;
+}
+
+std::list<NiObject *> NiDynamicEffect::GetPtrs() const {
+	list<NiObject *> ptrs;
+	ptrs = NiAVObject::GetPtrs();
+	for (unsigned int i1 = 0; i1 < affectedNodes.size(); i1++) {
+	};
+	return ptrs;
 }
 
 //--BEGIN MISC CUSTOM CODE--//

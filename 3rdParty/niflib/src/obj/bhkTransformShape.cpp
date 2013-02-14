@@ -20,7 +20,7 @@ using namespace Niflib;
 //Definition of TYPE constant
 const Type bhkTransformShape::TYPE("bhkTransformShape", &bhkShape::TYPE );
 
-bhkTransformShape::bhkTransformShape() : shape(NULL), unknownFloat1(0.0f) {
+bhkTransformShape::bhkTransformShape() : shape(NULL), material((HavokMaterial)0), skyrimMaterial((SkyrimHavokMaterial)0), unknownFloat1(0.0f) {
 	//--BEGIN CONSTRUCTOR CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 }
@@ -46,7 +46,12 @@ void bhkTransformShape::Read( istream& in, list<unsigned int> & link_stack, cons
 	bhkShape::Read( in, link_stack, info );
 	NifStream( block_num, in, info );
 	link_stack.push_back( block_num );
-	NifStream( material, in, info );
+	if ( (info.userVersion < 12) ) {
+		NifStream( material, in, info );
+	};
+	if ( (info.userVersion >= 12) ) {
+		NifStream( skyrimMaterial, in, info );
+	};
 	NifStream( unknownFloat1, in, info );
 	for (unsigned int i1 = 0; i1 < 8; i1++) {
 		NifStream( unknown8Bytes[i1], in, info );
@@ -57,21 +62,34 @@ void bhkTransformShape::Read( istream& in, list<unsigned int> & link_stack, cons
 	//--END CUSTOM CODE--//
 }
 
-void bhkTransformShape::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const {
+void bhkTransformShape::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const {
 	//--BEGIN PRE-WRITE CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	bhkShape::Write( out, link_map, info );
+	bhkShape::Write( out, link_map, missing_link_stack, info );
 	if ( info.version < VER_3_3_0_13 ) {
-		NifStream( (unsigned int)&(*shape), out, info );
+		WritePtr32( &(*shape), out );
 	} else {
 		if ( shape != NULL ) {
-			NifStream( link_map.find( StaticCast<NiObject>(shape) )->second, out, info );
+			map<NiObjectRef,unsigned int>::const_iterator it = link_map.find( StaticCast<NiObject>(shape) );
+			if (it != link_map.end()) {
+				NifStream( it->second, out, info );
+				missing_link_stack.push_back( NULL );
+			} else {
+				NifStream( 0xFFFFFFFF, out, info );
+				missing_link_stack.push_back( shape );
+			}
 		} else {
 			NifStream( 0xFFFFFFFF, out, info );
+			missing_link_stack.push_back( NULL );
 		}
 	}
-	NifStream( material, out, info );
+	if ( (info.userVersion < 12) ) {
+		NifStream( material, out, info );
+	};
+	if ( (info.userVersion >= 12) ) {
+		NifStream( skyrimMaterial, out, info );
+	};
 	NifStream( unknownFloat1, out, info );
 	for (unsigned int i1 = 0; i1 < 8; i1++) {
 		NifStream( unknown8Bytes[i1], out, info );
@@ -91,6 +109,7 @@ std::string bhkTransformShape::asString( bool verbose ) const {
 	out << bhkShape::asString();
 	out << "  Shape:  " << shape << endl;
 	out << "  Material:  " << material << endl;
+	out << "  Skyrim Material:  " << skyrimMaterial << endl;
 	out << "  Unknown Float 1:  " << unknownFloat1 << endl;
 	array_output_count = 0;
 	for (unsigned int i1 = 0; i1 < 8; i1++) {
@@ -111,12 +130,12 @@ std::string bhkTransformShape::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 }
 
-void bhkTransformShape::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info ) {
+void bhkTransformShape::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info ) {
 	//--BEGIN PRE-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	bhkShape::FixLinks( objects, link_stack, info );
-	shape = FixLink<bhkShape>( objects, link_stack, info );
+	bhkShape::FixLinks( objects, link_stack, missing_link_stack, info );
+	shape = FixLink<bhkShape>( objects, link_stack, missing_link_stack, info );
 
 	//--BEGIN POST-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
@@ -128,6 +147,12 @@ std::list<NiObjectRef> bhkTransformShape::GetRefs() const {
 	if ( shape != NULL )
 		refs.push_back(StaticCast<NiObject>(shape));
 	return refs;
+}
+
+std::list<NiObject *> bhkTransformShape::GetPtrs() const {
+	list<NiObject *> ptrs;
+	ptrs = bhkShape::GetPtrs();
+	return ptrs;
 }
 
 //--BEGIN MISC CUSTOM CODE--//
@@ -156,4 +181,20 @@ void bhkTransformShape::SetTransform(const Matrix44 & value ) {
 	transform = value;
 }
 
+void bhkTransformShape::CalcMassProperties(float density, bool solid, float &mass, float &volume, Vector3 &center, InertiaMatrix& inertia)
+{
+	center = transform.GetTranslation();
+	mass = 0.0f, volume = 0.0f;
+	inertia = InertiaMatrix::IDENTITY;
+	if (shape != NULL)
+	{
+		Matrix44 transform_transposed = transform.Transpose();
+		shape->CalcMassProperties(density, solid, mass, volume, center, inertia);
+		center = transform * center;
+
+		Matrix44 tm(inertia.Submatrix(0, 0));
+		Matrix44 im = transform_transposed * tm * transform;
+		inertia = InertiaMatrix(im.GetRotation());
+	}
+}
 //--END CUSTOM CODE--//

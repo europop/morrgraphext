@@ -71,29 +71,80 @@ public:
 	 */
 	NIFLIB_API void SetData( hkPackedNiTriStripsData * n );
 
+	/*!
+	* Retrieves the subshape data object used by this geometry node, if any.
+	* \return The subshape data object.
+	*/
+	NIFLIB_API vector<OblivionSubShape> GetSubShapes() const;
+
+	/*!
+	* Sets the subshape data object used by this geometry node. 
+	* \param[in] value The subshape data.
+	*/
+	NIFLIB_API void SetSubShapes( vector<OblivionSubShape>& value );	
+
+	/*!
+	 * Gets the scale. Usually (1.0, 1.0, 1.0).
+	 * \return The scale.
+	 */
+	NIFLIB_API Vector3 GetScale() const;
+
+	/*!
+	 * Sets the scale. Usually (1.0, 1.0, 1.0).
+	 * \param[in] n The new scale.
+	 */
+	NIFLIB_API void SetScale( const Vector3 & n );
+
+	/*! Helper routine for calculating mass properties.
+	 *  \param[in]  density Uniform density of object
+	 *  \param[in]  solid Determines whether the object is assumed to be solid or not
+	 *  \param[out] mass Calculated mass of the object
+	 *  \param[out] center Center of mass
+	 *  \param[out] inertia Mass Inertia Tensor
+	 *  \return Return mass, center, and inertia tensor.
+	 */
+	NIFLIB_API virtual void CalcMassProperties(float density, bool solid, float &mass, float &volume, Vector3 &center, InertiaMatrix& inertia);
+
 	//--END CUSTOM CODE--//
 protected:
 	/*! Number of subparts. */
 	mutable unsigned short numSubShapes;
 	/*! The subparts. */
 	vector<OblivionSubShape > subShapes;
-	/*! Unknown. A rotation matrix? */
-	array<9,float > unknownFloats;
+	/*! Unknown. */
+	unsigned int unknownInt1;
+	/*! Unknown. Looks like a memory pointer and may be garbage. */
+	unsigned int unknownInt2;
+	/*! Unknown. Same as Unknown Float 3 */
+	float unknownFloat1;
+	/*!
+	 * Unknown. Sometimes 0.0f or -1. but sometimes really large number.  Suspect its
+	 * garbage.
+	 */
+	unsigned int unknownInt3;
+	/*! Unknown. Same as scale below? */
+	Vector3 scaleCopy_;
+	/*! Unknown. Usually 0.0 but sometimes 1.0.  Same as Unknown Float 4 */
+	float unknownFloat2;
+	/*! Unknown. Same as Unknown Float 1 */
+	float unknownFloat3;
 	/*! Scale. */
-	float scale;
-	/*! Unknown. Translation? */
-	array<3,float > unknownFloats2;
+	Vector3 scale;
+	/*! Unknown. Usually 0.0 but sometimes 1.0.  Same as Unknown Float 2 */
+	float unknownFloat4;
 	/*! A link to the shape's NiTriStripsData. */
 	Ref<hkPackedNiTriStripsData > data;
 public:
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
 	NIFLIB_HIDDEN virtual void Read( istream& in, list<unsigned int> & link_stack, const NifInfo & info );
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
-	NIFLIB_HIDDEN virtual void Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const;
+	NIFLIB_HIDDEN virtual void Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const;
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
-	NIFLIB_HIDDEN virtual void FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info );
+	NIFLIB_HIDDEN virtual void FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info );
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
 	NIFLIB_HIDDEN virtual list<NiObjectRef> GetRefs() const;
+	/*! NIFLIB_HIDDEN function.  For internal use only. */
+	NIFLIB_HIDDEN virtual list<NiObject *> GetPtrs() const;
 };
 
 //--BEGIN FILE FOOT CUSTOM CODE--//

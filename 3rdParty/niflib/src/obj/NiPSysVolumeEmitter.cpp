@@ -53,19 +53,27 @@ void NiPSysVolumeEmitter::Read( istream& in, list<unsigned int> & link_stack, co
 	//--END CUSTOM CODE--//
 }
 
-void NiPSysVolumeEmitter::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const {
+void NiPSysVolumeEmitter::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const {
 	//--BEGIN PRE-WRITE CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiPSysEmitter::Write( out, link_map, info );
+	NiPSysEmitter::Write( out, link_map, missing_link_stack, info );
 	if ( info.version >= 0x0A010000 ) {
 		if ( info.version < VER_3_3_0_13 ) {
-			NifStream( (unsigned int)&(*emitterObject), out, info );
+			WritePtr32( &(*emitterObject), out );
 		} else {
 			if ( emitterObject != NULL ) {
-				NifStream( link_map.find( StaticCast<NiObject>(emitterObject) )->second, out, info );
+				map<NiObjectRef,unsigned int>::const_iterator it = link_map.find( StaticCast<NiObject>(emitterObject) );
+				if (it != link_map.end()) {
+					NifStream( it->second, out, info );
+					missing_link_stack.push_back( NULL );
+				} else {
+					NifStream( 0xFFFFFFFF, out, info );
+					missing_link_stack.push_back( emitterObject );
+				}
 			} else {
 				NifStream( 0xFFFFFFFF, out, info );
+				missing_link_stack.push_back( NULL );
 			}
 		}
 	};
@@ -79,7 +87,6 @@ std::string NiPSysVolumeEmitter::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 
 	stringstream out;
-	unsigned int array_output_count = 0;
 	out << NiPSysEmitter::asString();
 	out << "  Emitter Object:  " << emitterObject << endl;
 	return out.str();
@@ -88,13 +95,13 @@ std::string NiPSysVolumeEmitter::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 }
 
-void NiPSysVolumeEmitter::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info ) {
+void NiPSysVolumeEmitter::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info ) {
 	//--BEGIN PRE-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiPSysEmitter::FixLinks( objects, link_stack, info );
+	NiPSysEmitter::FixLinks( objects, link_stack, missing_link_stack, info );
 	if ( info.version >= 0x0A010000 ) {
-		emitterObject = FixLink<NiNode>( objects, link_stack, info );
+		emitterObject = FixLink<NiNode>( objects, link_stack, missing_link_stack, info );
 	};
 
 	//--BEGIN POST-FIXLINKS CUSTOM CODE--//
@@ -105,6 +112,14 @@ std::list<NiObjectRef> NiPSysVolumeEmitter::GetRefs() const {
 	list<Ref<NiObject> > refs;
 	refs = NiPSysEmitter::GetRefs();
 	return refs;
+}
+
+std::list<NiObject *> NiPSysVolumeEmitter::GetPtrs() const {
+	list<NiObject *> ptrs;
+	ptrs = NiPSysEmitter::GetPtrs();
+	if ( emitterObject != NULL )
+		ptrs.push_back((NiObject *)(emitterObject));
+	return ptrs;
 }
 
 //--BEGIN MISC CUSTOM CODE--//

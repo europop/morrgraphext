@@ -19,7 +19,7 @@ namespace Niflib {
 class NiPSysEmitter;
 typedef Ref<NiPSysEmitter> NiPSysEmitterRef;
 
-/*! A particle emitter modifier? */
+/*! A particle emitter? */
 class NiPSysEmitter : public NiPSysModifier {
 public:
 	/*! Constructor */
@@ -55,37 +55,39 @@ public:
 	//--BEGIN MISC CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 protected:
-	/*! Unknown. */
+	/*! Speed / Inertia of particle movement. */
 	float speed;
-	/*! Unknown. */
+	/*! Adds an amount of randomness to Speed. */
 	float speedVariation;
-	/*! Unknown. */
+	/*! Declination / First axis. */
 	float declination;
-	/*! Unknown. */
+	/*! Declination randomness / First axis. */
 	float declinationVariation;
-	/*! Unknown. */
+	/*! Planar Angle / Second axis. */
 	float planarAngle;
-	/*! Unknown. */
+	/*! Planar Angle randomness / Second axis . */
 	float planarAngleVariation;
-	/*! Unknown. */
+	/*! Defines color of a birthed particle. */
 	Color4 initialColor;
-	/*! Unknown. */
+	/*! Size of a birthed particle. */
 	float initialRadius;
-	/*! Unknown. */
+	/*! Particle Radius randomness. */
 	float radiusVariation;
-	/*! Unknown. */
+	/*! Duration until a particle dies. */
 	float lifeSpan;
-	/*! Unknown. */
+	/*! Adds randomness to Life Span. */
 	float lifeSpanVariation;
 public:
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
 	NIFLIB_HIDDEN virtual void Read( istream& in, list<unsigned int> & link_stack, const NifInfo & info );
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
-	NIFLIB_HIDDEN virtual void Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const;
+	NIFLIB_HIDDEN virtual void Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const;
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
-	NIFLIB_HIDDEN virtual void FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info );
+	NIFLIB_HIDDEN virtual void FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info );
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
 	NIFLIB_HIDDEN virtual list<NiObjectRef> GetRefs() const;
+	/*! NIFLIB_HIDDEN function.  For internal use only. */
+	NIFLIB_HIDDEN virtual list<NiObject *> GetPtrs() const;
 };
 
 //--BEGIN FILE FOOT CUSTOM CODE--//

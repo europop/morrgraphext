@@ -47,11 +47,11 @@ void NiBSplineCompPoint3Interpolator::Read( istream& in, list<unsigned int> & li
 	//--END CUSTOM CODE--//
 }
 
-void NiBSplineCompPoint3Interpolator::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const {
+void NiBSplineCompPoint3Interpolator::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const {
 	//--BEGIN PRE-WRITE CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiBSplinePoint3Interpolator::Write( out, link_map, info );
+	NiBSplinePoint3Interpolator::Write( out, link_map, missing_link_stack, info );
 
 	//--BEGIN POST-WRITE CUSTOM CODE--//
 	//--END CUSTOM CODE--//
@@ -62,7 +62,6 @@ std::string NiBSplineCompPoint3Interpolator::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 
 	stringstream out;
-	unsigned int array_output_count = 0;
 	out << NiBSplinePoint3Interpolator::asString();
 	return out.str();
 
@@ -70,11 +69,11 @@ std::string NiBSplineCompPoint3Interpolator::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 }
 
-void NiBSplineCompPoint3Interpolator::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info ) {
+void NiBSplineCompPoint3Interpolator::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info ) {
 	//--BEGIN PRE-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiBSplinePoint3Interpolator::FixLinks( objects, link_stack, info );
+	NiBSplinePoint3Interpolator::FixLinks( objects, link_stack, missing_link_stack, info );
 
 	//--BEGIN POST-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
@@ -84,6 +83,12 @@ std::list<NiObjectRef> NiBSplineCompPoint3Interpolator::GetRefs() const {
 	list<Ref<NiObject> > refs;
 	refs = NiBSplinePoint3Interpolator::GetRefs();
 	return refs;
+}
+
+std::list<NiObject *> NiBSplineCompPoint3Interpolator::GetPtrs() const {
+	list<NiObject *> ptrs;
+	ptrs = NiBSplinePoint3Interpolator::GetPtrs();
+	return ptrs;
 }
 
 //--BEGIN MISC CUSTOM CODE--//

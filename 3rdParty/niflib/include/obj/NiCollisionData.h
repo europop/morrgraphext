@@ -14,6 +14,9 @@ All rights reserved.  Please see niflib.h for license. */
 //--END CUSTOM CODE--//
 
 #include "NiCollisionObject.h"
+
+// Include structures
+#include "../gen/BoundingVolume.h"
 namespace Niflib {
 
 class NiCollisionData;
@@ -55,29 +58,25 @@ public:
 	//--BEGIN MISC CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 protected:
-	/*! Unknown. */
-	unsigned int unknownInt1;
-	/*! Unknown. */
-	unsigned int unknownInt2;
-	/*! Unknown. */
-	byte unknownByte;
-	/*! Type of collision data. */
-	unsigned int collisionType;
-	/*! Unknown (can be negative, so not necessarily a radius). */
-	Vector3 unknownVector;
-	/*! Unknown. */
-	array<8,float > unknownFloat1;
-	/*! Unknown. */
-	array<15,float > unknownFloat2;
+	/*! Propagation Mode */
+	PropagationMode propagationMode;
+	/*! Collision Mode */
+	CollisionMode collisionMode;
+	/*! Use Alternate Bounding Volume. */
+	byte useAbv;
+	/*! Collision data. */
+	BoundingVolume boundingVolume;
 public:
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
 	NIFLIB_HIDDEN virtual void Read( istream& in, list<unsigned int> & link_stack, const NifInfo & info );
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
-	NIFLIB_HIDDEN virtual void Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const;
+	NIFLIB_HIDDEN virtual void Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const;
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
-	NIFLIB_HIDDEN virtual void FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info );
+	NIFLIB_HIDDEN virtual void FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info );
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
 	NIFLIB_HIDDEN virtual list<NiObjectRef> GetRefs() const;
+	/*! NIFLIB_HIDDEN function.  For internal use only. */
+	NIFLIB_HIDDEN virtual list<NiObject *> GetPtrs() const;
 };
 
 //--BEGIN FILE FOOT CUSTOM CODE--//

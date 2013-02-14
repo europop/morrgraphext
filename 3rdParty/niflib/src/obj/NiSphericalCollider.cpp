@@ -58,11 +58,11 @@ void NiSphericalCollider::Read( istream& in, list<unsigned int> & link_stack, co
 	//--END CUSTOM CODE--//
 }
 
-void NiSphericalCollider::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const {
+void NiSphericalCollider::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const {
 	//--BEGIN PRE-WRITE CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiParticleModifier::Write( out, link_map, info );
+	NiParticleModifier::Write( out, link_map, missing_link_stack, info );
 	NifStream( unknownFloat1, out, info );
 	NifStream( unknownShort1, out, info );
 	NifStream( unknownFloat2, out, info );
@@ -84,7 +84,6 @@ std::string NiSphericalCollider::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 
 	stringstream out;
-	unsigned int array_output_count = 0;
 	out << NiParticleModifier::asString();
 	out << "  Unknown Float 1:  " << unknownFloat1 << endl;
 	out << "  Unknown Short 1:  " << unknownShort1 << endl;
@@ -99,11 +98,11 @@ std::string NiSphericalCollider::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 }
 
-void NiSphericalCollider::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info ) {
+void NiSphericalCollider::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info ) {
 	//--BEGIN PRE-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiParticleModifier::FixLinks( objects, link_stack, info );
+	NiParticleModifier::FixLinks( objects, link_stack, missing_link_stack, info );
 
 	//--BEGIN POST-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
@@ -113,6 +112,12 @@ std::list<NiObjectRef> NiSphericalCollider::GetRefs() const {
 	list<Ref<NiObject> > refs;
 	refs = NiParticleModifier::GetRefs();
 	return refs;
+}
+
+std::list<NiObject *> NiSphericalCollider::GetPtrs() const {
+	list<NiObject *> ptrs;
+	ptrs = NiParticleModifier::GetPtrs();
+	return ptrs;
 }
 
 //--BEGIN MISC CUSTOM CODE--//

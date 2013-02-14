@@ -47,11 +47,11 @@ void bhkPCollisionObject::Read( istream& in, list<unsigned int> & link_stack, co
 	//--END CUSTOM CODE--//
 }
 
-void bhkPCollisionObject::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const {
+void bhkPCollisionObject::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const {
 	//--BEGIN PRE-WRITE CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	bhkNiCollisionObject::Write( out, link_map, info );
+	bhkNiCollisionObject::Write( out, link_map, missing_link_stack, info );
 
 	//--BEGIN POST-WRITE CUSTOM CODE--//
 	//--END CUSTOM CODE--//
@@ -62,7 +62,6 @@ std::string bhkPCollisionObject::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 
 	stringstream out;
-	unsigned int array_output_count = 0;
 	out << bhkNiCollisionObject::asString();
 	return out.str();
 
@@ -70,11 +69,11 @@ std::string bhkPCollisionObject::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 }
 
-void bhkPCollisionObject::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info ) {
+void bhkPCollisionObject::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info ) {
 	//--BEGIN PRE-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	bhkNiCollisionObject::FixLinks( objects, link_stack, info );
+	bhkNiCollisionObject::FixLinks( objects, link_stack, missing_link_stack, info );
 
 	//--BEGIN POST-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
@@ -84,6 +83,12 @@ std::list<NiObjectRef> bhkPCollisionObject::GetRefs() const {
 	list<Ref<NiObject> > refs;
 	refs = bhkNiCollisionObject::GetRefs();
 	return refs;
+}
+
+std::list<NiObject *> bhkPCollisionObject::GetPtrs() const {
+	list<NiObject *> ptrs;
+	ptrs = bhkNiCollisionObject::GetPtrs();
+	return ptrs;
 }
 
 //--BEGIN MISC CUSTOM CODE--//

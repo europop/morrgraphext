@@ -51,11 +51,11 @@ void NiPSysPlanarCollider::Read( istream& in, list<unsigned int> & link_stack, c
 	//--END CUSTOM CODE--//
 }
 
-void NiPSysPlanarCollider::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const {
+void NiPSysPlanarCollider::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const {
 	//--BEGIN PRE-WRITE CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiPSysCollider::Write( out, link_map, info );
+	NiPSysCollider::Write( out, link_map, missing_link_stack, info );
 	NifStream( width, out, info );
 	NifStream( height, out, info );
 	NifStream( xAxis, out, info );
@@ -70,7 +70,6 @@ std::string NiPSysPlanarCollider::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 
 	stringstream out;
-	unsigned int array_output_count = 0;
 	out << NiPSysCollider::asString();
 	out << "  Width:  " << width << endl;
 	out << "  Height:  " << height << endl;
@@ -82,11 +81,11 @@ std::string NiPSysPlanarCollider::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 }
 
-void NiPSysPlanarCollider::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info ) {
+void NiPSysPlanarCollider::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info ) {
 	//--BEGIN PRE-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiPSysCollider::FixLinks( objects, link_stack, info );
+	NiPSysCollider::FixLinks( objects, link_stack, missing_link_stack, info );
 
 	//--BEGIN POST-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
@@ -96,6 +95,12 @@ std::list<NiObjectRef> NiPSysPlanarCollider::GetRefs() const {
 	list<Ref<NiObject> > refs;
 	refs = NiPSysCollider::GetRefs();
 	return refs;
+}
+
+std::list<NiObject *> NiPSysPlanarCollider::GetPtrs() const {
+	list<NiObject *> ptrs;
+	ptrs = NiPSysCollider::GetPtrs();
+	return ptrs;
 }
 
 //--BEGIN MISC CUSTOM CODE--//

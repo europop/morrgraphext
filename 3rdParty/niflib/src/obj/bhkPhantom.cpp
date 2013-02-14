@@ -47,11 +47,11 @@ void bhkPhantom::Read( istream& in, list<unsigned int> & link_stack, const NifIn
 	//--END CUSTOM CODE--//
 }
 
-void bhkPhantom::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const {
+void bhkPhantom::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const {
 	//--BEGIN PRE-WRITE CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	bhkWorldObject::Write( out, link_map, info );
+	bhkWorldObject::Write( out, link_map, missing_link_stack, info );
 
 	//--BEGIN POST-WRITE CUSTOM CODE--//
 	//--END CUSTOM CODE--//
@@ -62,7 +62,6 @@ std::string bhkPhantom::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 
 	stringstream out;
-	unsigned int array_output_count = 0;
 	out << bhkWorldObject::asString();
 	return out.str();
 
@@ -70,11 +69,11 @@ std::string bhkPhantom::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 }
 
-void bhkPhantom::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info ) {
+void bhkPhantom::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info ) {
 	//--BEGIN PRE-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	bhkWorldObject::FixLinks( objects, link_stack, info );
+	bhkWorldObject::FixLinks( objects, link_stack, missing_link_stack, info );
 
 	//--BEGIN POST-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
@@ -84,6 +83,12 @@ std::list<NiObjectRef> bhkPhantom::GetRefs() const {
 	list<Ref<NiObject> > refs;
 	refs = bhkWorldObject::GetRefs();
 	return refs;
+}
+
+std::list<NiObject *> bhkPhantom::GetPtrs() const {
+	list<NiObject *> ptrs;
+	ptrs = bhkWorldObject::GetPtrs();
+	return ptrs;
 }
 
 //--BEGIN MISC CUSTOM CODE--//

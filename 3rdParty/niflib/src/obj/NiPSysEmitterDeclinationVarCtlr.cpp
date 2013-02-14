@@ -47,11 +47,11 @@ void NiPSysEmitterDeclinationVarCtlr::Read( istream& in, list<unsigned int> & li
 	//--END CUSTOM CODE--//
 }
 
-void NiPSysEmitterDeclinationVarCtlr::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const {
+void NiPSysEmitterDeclinationVarCtlr::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const {
 	//--BEGIN PRE-WRITE CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiPSysModifierFloatCtlr::Write( out, link_map, info );
+	NiPSysModifierFloatCtlr::Write( out, link_map, missing_link_stack, info );
 
 	//--BEGIN POST-WRITE CUSTOM CODE--//
 	//--END CUSTOM CODE--//
@@ -62,7 +62,6 @@ std::string NiPSysEmitterDeclinationVarCtlr::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 
 	stringstream out;
-	unsigned int array_output_count = 0;
 	out << NiPSysModifierFloatCtlr::asString();
 	return out.str();
 
@@ -70,11 +69,11 @@ std::string NiPSysEmitterDeclinationVarCtlr::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 }
 
-void NiPSysEmitterDeclinationVarCtlr::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info ) {
+void NiPSysEmitterDeclinationVarCtlr::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info ) {
 	//--BEGIN PRE-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiPSysModifierFloatCtlr::FixLinks( objects, link_stack, info );
+	NiPSysModifierFloatCtlr::FixLinks( objects, link_stack, missing_link_stack, info );
 
 	//--BEGIN POST-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
@@ -84,6 +83,12 @@ std::list<NiObjectRef> NiPSysEmitterDeclinationVarCtlr::GetRefs() const {
 	list<Ref<NiObject> > refs;
 	refs = NiPSysModifierFloatCtlr::GetRefs();
 	return refs;
+}
+
+std::list<NiObject *> NiPSysEmitterDeclinationVarCtlr::GetPtrs() const {
+	list<NiObject *> ptrs;
+	ptrs = NiPSysModifierFloatCtlr::GetPtrs();
+	return ptrs;
 }
 
 //--BEGIN MISC CUSTOM CODE--//

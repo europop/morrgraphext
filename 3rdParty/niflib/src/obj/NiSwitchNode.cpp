@@ -19,7 +19,7 @@ using namespace Niflib;
 //Definition of TYPE constant
 const Type NiSwitchNode::TYPE("NiSwitchNode", &NiNode::TYPE );
 
-NiSwitchNode::NiSwitchNode() {
+NiSwitchNode::NiSwitchNode() : unknownFlags1((unsigned short)0), unknownInt1((int)0) {
 	//--BEGIN CONSTRUCTOR CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 }
@@ -42,16 +42,24 @@ void NiSwitchNode::Read( istream& in, list<unsigned int> & link_stack, const Nif
 	//--END CUSTOM CODE--//
 
 	NiNode::Read( in, link_stack, info );
+	if ( info.version >= 0x0A010000 ) {
+		NifStream( unknownFlags1, in, info );
+	};
+	NifStream( unknownInt1, in, info );
 
 	//--BEGIN POST-READ CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 }
 
-void NiSwitchNode::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const {
+void NiSwitchNode::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const {
 	//--BEGIN PRE-WRITE CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiNode::Write( out, link_map, info );
+	NiNode::Write( out, link_map, missing_link_stack, info );
+	if ( info.version >= 0x0A010000 ) {
+		NifStream( unknownFlags1, out, info );
+	};
+	NifStream( unknownInt1, out, info );
 
 	//--BEGIN POST-WRITE CUSTOM CODE--//
 	//--END CUSTOM CODE--//
@@ -62,19 +70,20 @@ std::string NiSwitchNode::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 
 	stringstream out;
-	unsigned int array_output_count = 0;
 	out << NiNode::asString();
+	out << "  Unknown Flags 1:  " << unknownFlags1 << endl;
+	out << "  Unknown Int 1:  " << unknownInt1 << endl;
 	return out.str();
 
 	//--BEGIN POST-STRING CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 }
 
-void NiSwitchNode::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info ) {
+void NiSwitchNode::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info ) {
 	//--BEGIN PRE-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiNode::FixLinks( objects, link_stack, info );
+	NiNode::FixLinks( objects, link_stack, missing_link_stack, info );
 
 	//--BEGIN POST-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
@@ -84,6 +93,12 @@ std::list<NiObjectRef> NiSwitchNode::GetRefs() const {
 	list<Ref<NiObject> > refs;
 	refs = NiNode::GetRefs();
 	return refs;
+}
+
+std::list<NiObject *> NiSwitchNode::GetPtrs() const {
+	list<NiObject *> ptrs;
+	ptrs = NiNode::GetPtrs();
+	return ptrs;
 }
 
 //--BEGIN MISC CUSTOM CODE--//

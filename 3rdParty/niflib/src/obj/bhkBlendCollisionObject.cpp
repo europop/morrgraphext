@@ -49,11 +49,11 @@ void bhkBlendCollisionObject::Read( istream& in, list<unsigned int> & link_stack
 	//--END CUSTOM CODE--//
 }
 
-void bhkBlendCollisionObject::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const {
+void bhkBlendCollisionObject::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const {
 	//--BEGIN PRE-WRITE CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	bhkCollisionObject::Write( out, link_map, info );
+	bhkCollisionObject::Write( out, link_map, missing_link_stack, info );
 	NifStream( unknownFloat1, out, info );
 	NifStream( unknownFloat2, out, info );
 
@@ -66,7 +66,6 @@ std::string bhkBlendCollisionObject::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 
 	stringstream out;
-	unsigned int array_output_count = 0;
 	out << bhkCollisionObject::asString();
 	out << "  Unknown Float 1:  " << unknownFloat1 << endl;
 	out << "  Unknown Float 2:  " << unknownFloat2 << endl;
@@ -76,11 +75,11 @@ std::string bhkBlendCollisionObject::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 }
 
-void bhkBlendCollisionObject::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info ) {
+void bhkBlendCollisionObject::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info ) {
 	//--BEGIN PRE-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	bhkCollisionObject::FixLinks( objects, link_stack, info );
+	bhkCollisionObject::FixLinks( objects, link_stack, missing_link_stack, info );
 
 	//--BEGIN POST-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
@@ -90,6 +89,12 @@ std::list<NiObjectRef> bhkBlendCollisionObject::GetRefs() const {
 	list<Ref<NiObject> > refs;
 	refs = bhkCollisionObject::GetRefs();
 	return refs;
+}
+
+std::list<NiObject *> bhkBlendCollisionObject::GetPtrs() const {
+	list<NiObject *> ptrs;
+	ptrs = bhkCollisionObject::GetPtrs();
+	return ptrs;
 }
 
 //--BEGIN MISC CUSTOM CODE--//

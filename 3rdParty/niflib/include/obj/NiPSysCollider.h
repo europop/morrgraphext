@@ -62,11 +62,11 @@ public:
 	//--BEGIN MISC CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 protected:
-	/*! Unknown. */
+	/*! Defines amount of bounce the collider object has. */
 	float bounce;
 	/*! Unknown. */
 	bool spawnOnCollide;
-	/*! Unknown. */
+	/*! Kill particles on impact if set to yes. */
 	bool dieOnCollide;
 	/*! Link to NiPSysSpawnModifier object? */
 	Ref<NiPSysSpawnModifier > spawnModifier;
@@ -74,17 +74,22 @@ protected:
 	NiObject * parent;
 	/*! The next collider. */
 	Ref<NiObject > nextCollider;
-	/*! Link to a NiNode? */
-	Ref<NiNode > colliderObject;
+	/*!
+	 * Links to a NiNode that will define where in object space the collider is
+	 * located/oriented.
+	 */
+	NiNode * colliderObject;
 public:
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
 	NIFLIB_HIDDEN virtual void Read( istream& in, list<unsigned int> & link_stack, const NifInfo & info );
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
-	NIFLIB_HIDDEN virtual void Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const;
+	NIFLIB_HIDDEN virtual void Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const;
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
-	NIFLIB_HIDDEN virtual void FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info );
+	NIFLIB_HIDDEN virtual void FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info );
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
 	NIFLIB_HIDDEN virtual list<NiObjectRef> GetRefs() const;
+	/*! NIFLIB_HIDDEN function.  For internal use only. */
+	NIFLIB_HIDDEN virtual list<NiObject *> GetPtrs() const;
 };
 
 //--BEGIN FILE FOOT CUSTOM CODE--//

@@ -52,19 +52,27 @@ void NiUVController::Read( istream& in, list<unsigned int> & link_stack, const N
 	//--END CUSTOM CODE--//
 }
 
-void NiUVController::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const {
+void NiUVController::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const {
 	//--BEGIN PRE-WRITE CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiTimeController::Write( out, link_map, info );
+	NiTimeController::Write( out, link_map, missing_link_stack, info );
 	NifStream( unknownShort, out, info );
 	if ( info.version < VER_3_3_0_13 ) {
-		NifStream( (unsigned int)&(*data), out, info );
+		WritePtr32( &(*data), out );
 	} else {
 		if ( data != NULL ) {
-			NifStream( link_map.find( StaticCast<NiObject>(data) )->second, out, info );
+			map<NiObjectRef,unsigned int>::const_iterator it = link_map.find( StaticCast<NiObject>(data) );
+			if (it != link_map.end()) {
+				NifStream( it->second, out, info );
+				missing_link_stack.push_back( NULL );
+			} else {
+				NifStream( 0xFFFFFFFF, out, info );
+				missing_link_stack.push_back( data );
+			}
 		} else {
 			NifStream( 0xFFFFFFFF, out, info );
+			missing_link_stack.push_back( NULL );
 		}
 	}
 
@@ -77,7 +85,6 @@ std::string NiUVController::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 
 	stringstream out;
-	unsigned int array_output_count = 0;
 	out << NiTimeController::asString();
 	out << "  Unknown Short:  " << unknownShort << endl;
 	out << "  Data:  " << data << endl;
@@ -87,12 +94,12 @@ std::string NiUVController::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 }
 
-void NiUVController::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info ) {
+void NiUVController::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info ) {
 	//--BEGIN PRE-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiTimeController::FixLinks( objects, link_stack, info );
-	data = FixLink<NiUVData>( objects, link_stack, info );
+	NiTimeController::FixLinks( objects, link_stack, missing_link_stack, info );
+	data = FixLink<NiUVData>( objects, link_stack, missing_link_stack, info );
 
 	//--BEGIN POST-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
@@ -104,6 +111,12 @@ std::list<NiObjectRef> NiUVController::GetRefs() const {
 	if ( data != NULL )
 		refs.push_back(StaticCast<NiObject>(data));
 	return refs;
+}
+
+std::list<NiObject *> NiUVController::GetPtrs() const {
+	list<NiObject *> ptrs;
+	ptrs = NiTimeController::GetPtrs();
+	return ptrs;
 }
 
 //--BEGIN MISC CUSTOM CODE--//

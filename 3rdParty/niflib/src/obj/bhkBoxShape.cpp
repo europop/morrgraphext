@@ -8,6 +8,7 @@ All rights reserved.  Please see niflib.h for license. */
 //-----------------------------------NOTICE----------------------------------//
 
 //--BEGIN FILE HEAD CUSTOM CODE--//
+#include "../../include/Inertia.h"
 //--END CUSTOM CODE--//
 
 #include "../../include/FixLink.h"
@@ -19,7 +20,7 @@ using namespace Niflib;
 //Definition of TYPE constant
 const Type bhkBoxShape::TYPE("bhkBoxShape", &bhkConvexShape::TYPE );
 
-bhkBoxShape::bhkBoxShape() : unknownShort1((unsigned short)0), unknownShort2((unsigned short)0), unknownShort3((unsigned short)0), unknownShort4((unsigned short)0), min_Size(0.0f) {
+bhkBoxShape::bhkBoxShape() : minimumSize(0.0f) {
 	//--BEGIN CONSTRUCTOR CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 }
@@ -42,28 +43,26 @@ void bhkBoxShape::Read( istream& in, list<unsigned int> & link_stack, const NifI
 	//--END CUSTOM CODE--//
 
 	bhkConvexShape::Read( in, link_stack, info );
-	NifStream( unknownShort1, in, info );
-	NifStream( unknownShort2, in, info );
-	NifStream( unknownShort3, in, info );
-	NifStream( unknownShort4, in, info );
+	for (unsigned int i1 = 0; i1 < 8; i1++) {
+		NifStream( unknown8Bytes[i1], in, info );
+	};
 	NifStream( dimensions, in, info );
-	NifStream( min_Size, in, info );
+	NifStream( minimumSize, in, info );
 
 	//--BEGIN POST-READ CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 }
 
-void bhkBoxShape::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const {
+void bhkBoxShape::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const {
 	//--BEGIN PRE-WRITE CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	bhkConvexShape::Write( out, link_map, info );
-	NifStream( unknownShort1, out, info );
-	NifStream( unknownShort2, out, info );
-	NifStream( unknownShort3, out, info );
-	NifStream( unknownShort4, out, info );
+	bhkConvexShape::Write( out, link_map, missing_link_stack, info );
+	for (unsigned int i1 = 0; i1 < 8; i1++) {
+		NifStream( unknown8Bytes[i1], out, info );
+	};
 	NifStream( dimensions, out, info );
-	NifStream( min_Size, out, info );
+	NifStream( minimumSize, out, info );
 
 	//--BEGIN POST-WRITE CUSTOM CODE--//
 	//--END CUSTOM CODE--//
@@ -76,23 +75,31 @@ std::string bhkBoxShape::asString( bool verbose ) const {
 	stringstream out;
 	unsigned int array_output_count = 0;
 	out << bhkConvexShape::asString();
-	out << "  Unknown Short 1:  " << unknownShort1 << endl;
-	out << "  Unknown Short 2:  " << unknownShort2 << endl;
-	out << "  Unknown Short 3:  " << unknownShort3 << endl;
-	out << "  Unknown Short 4:  " << unknownShort4 << endl;
+	array_output_count = 0;
+	for (unsigned int i1 = 0; i1 < 8; i1++) {
+		if ( !verbose && ( array_output_count > MAXARRAYDUMP ) ) {
+			out << "<Data Truncated. Use verbose mode to see complete listing.>" << endl;
+			break;
+		};
+		if ( !verbose && ( array_output_count > MAXARRAYDUMP ) ) {
+			break;
+		};
+		out << "    Unknown 8 Bytes[" << i1 << "]:  " << unknown8Bytes[i1] << endl;
+		array_output_count++;
+	};
 	out << "  Dimensions:  " << dimensions << endl;
-	out << "  Min. size:  " << min_Size << endl;
+	out << "  Minimum Size:  " << minimumSize << endl;
 	return out.str();
 
 	//--BEGIN POST-STRING CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 }
 
-void bhkBoxShape::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info ) {
+void bhkBoxShape::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info ) {
 	//--BEGIN PRE-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	bhkConvexShape::FixLinks( objects, link_stack, info );
+	bhkConvexShape::FixLinks( objects, link_stack, missing_link_stack, info );
 
 	//--BEGIN POST-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
@@ -104,6 +111,12 @@ std::list<NiObjectRef> bhkBoxShape::GetRefs() const {
 	return refs;
 }
 
+std::list<NiObject *> bhkBoxShape::GetPtrs() const {
+	list<NiObject *> ptrs;
+	ptrs = bhkConvexShape::GetPtrs();
+	return ptrs;
+}
+
 //--BEGIN MISC CUSTOM CODE--//
 
 Vector3 bhkBoxShape::GetDimensions() const {
@@ -112,6 +125,11 @@ Vector3 bhkBoxShape::GetDimensions() const {
 
 void bhkBoxShape::SetDimensions(const Vector3 &value) {
 	dimensions = value;
+	minimumSize = min( min(value.x, value.y), value.z );
 }
 
+void bhkBoxShape::CalcMassProperties( float density, bool solid, float &mass, float &volume, Vector3 &center, InertiaMatrix& inertia )
+{
+	Inertia::CalcMassPropertiesBox( dimensions, density, solid, mass, volume, center, inertia ); 
+}
 //--END CUSTOM CODE--//

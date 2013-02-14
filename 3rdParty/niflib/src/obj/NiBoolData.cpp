@@ -56,11 +56,11 @@ void NiBoolData::Read( istream& in, list<unsigned int> & link_stack, const NifIn
 	//--END CUSTOM CODE--//
 }
 
-void NiBoolData::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const {
+void NiBoolData::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const {
 	//--BEGIN PRE-WRITE CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiObject::Write( out, link_map, info );
+	NiObject::Write( out, link_map, missing_link_stack, info );
 	data.numKeys = (unsigned int)(data.keys.size());
 	NifStream( data.numKeys, out, info );
 	if ( (data.numKeys != 0) ) {
@@ -104,11 +104,11 @@ std::string NiBoolData::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 }
 
-void NiBoolData::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info ) {
+void NiBoolData::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info ) {
 	//--BEGIN PRE-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiObject::FixLinks( objects, link_stack, info );
+	NiObject::FixLinks( objects, link_stack, missing_link_stack, info );
 
 	//--BEGIN POST-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
@@ -118,6 +118,12 @@ std::list<NiObjectRef> NiBoolData::GetRefs() const {
 	list<Ref<NiObject> > refs;
 	refs = NiObject::GetRefs();
 	return refs;
+}
+
+std::list<NiObject *> NiBoolData::GetPtrs() const {
+	list<NiObject *> ptrs;
+	ptrs = NiObject::GetPtrs();
+	return ptrs;
 }
 
 //--BEGIN MISC CUSTOM CODE--//

@@ -8,6 +8,7 @@ All rights reserved.  Please see niflib.h for license. */
 //-----------------------------------NOTICE----------------------------------//
 
 //--BEGIN FILE HEAD CUSTOM CODE--//
+#include "../../include/Inertia.h"
 //--END CUSTOM CODE--//
 
 #include "../../include/FixLink.h"
@@ -47,11 +48,11 @@ void bhkSphereShape::Read( istream& in, list<unsigned int> & link_stack, const N
 	//--END CUSTOM CODE--//
 }
 
-void bhkSphereShape::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const {
+void bhkSphereShape::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const {
 	//--BEGIN PRE-WRITE CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	bhkConvexShape::Write( out, link_map, info );
+	bhkConvexShape::Write( out, link_map, missing_link_stack, info );
 
 	//--BEGIN POST-WRITE CUSTOM CODE--//
 	//--END CUSTOM CODE--//
@@ -62,7 +63,6 @@ std::string bhkSphereShape::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 
 	stringstream out;
-	unsigned int array_output_count = 0;
 	out << bhkConvexShape::asString();
 	return out.str();
 
@@ -70,11 +70,11 @@ std::string bhkSphereShape::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 }
 
-void bhkSphereShape::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info ) {
+void bhkSphereShape::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info ) {
 	//--BEGIN PRE-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	bhkConvexShape::FixLinks( objects, link_stack, info );
+	bhkConvexShape::FixLinks( objects, link_stack, missing_link_stack, info );
 
 	//--BEGIN POST-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
@@ -84,6 +84,12 @@ std::list<NiObjectRef> bhkSphereShape::GetRefs() const {
 	list<Ref<NiObject> > refs;
 	refs = bhkConvexShape::GetRefs();
 	return refs;
+}
+
+std::list<NiObject *> bhkSphereShape::GetPtrs() const {
+	list<NiObject *> ptrs;
+	ptrs = bhkConvexShape::GetPtrs();
+	return ptrs;
 }
 
 //--BEGIN MISC CUSTOM CODE--//
@@ -96,4 +102,11 @@ void bhkSphereShape::SetRadius( float value ) {
 	radius = value;
 }
 
+void bhkSphereShape::CalcMassProperties(float density, bool solid, float &mass, float &volume, Vector3 &center, InertiaMatrix& inertia)
+{
+	center = Vector3(0,0,0);
+	mass = 0.0f, volume = 0.0f;
+	inertia = InertiaMatrix::IDENTITY;
+	Inertia::CalcMassPropertiesSphere(radius, density, solid, mass, volume, center, inertia);
+}
 //--END CUSTOM CODE--//

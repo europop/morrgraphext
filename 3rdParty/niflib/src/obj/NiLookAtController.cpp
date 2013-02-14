@@ -54,21 +54,29 @@ void NiLookAtController::Read( istream& in, list<unsigned int> & link_stack, con
 	//--END CUSTOM CODE--//
 }
 
-void NiLookAtController::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const {
+void NiLookAtController::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const {
 	//--BEGIN PRE-WRITE CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiTimeController::Write( out, link_map, info );
+	NiTimeController::Write( out, link_map, missing_link_stack, info );
 	if ( info.version >= 0x0A010000 ) {
 		NifStream( unknown1, out, info );
 	};
 	if ( info.version < VER_3_3_0_13 ) {
-		NifStream( (unsigned int)&(*lookAtNode), out, info );
+		WritePtr32( &(*lookAtNode), out );
 	} else {
 		if ( lookAtNode != NULL ) {
-			NifStream( link_map.find( StaticCast<NiObject>(lookAtNode) )->second, out, info );
+			map<NiObjectRef,unsigned int>::const_iterator it = link_map.find( StaticCast<NiObject>(lookAtNode) );
+			if (it != link_map.end()) {
+				NifStream( it->second, out, info );
+				missing_link_stack.push_back( NULL );
+			} else {
+				NifStream( 0xFFFFFFFF, out, info );
+				missing_link_stack.push_back( lookAtNode );
+			}
 		} else {
 			NifStream( 0xFFFFFFFF, out, info );
+			missing_link_stack.push_back( NULL );
 		}
 	}
 
@@ -81,7 +89,6 @@ std::string NiLookAtController::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 
 	stringstream out;
-	unsigned int array_output_count = 0;
 	out << NiTimeController::asString();
 	out << "  Unknown1:  " << unknown1 << endl;
 	out << "  Look At Node:  " << lookAtNode << endl;
@@ -91,12 +98,12 @@ std::string NiLookAtController::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 }
 
-void NiLookAtController::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info ) {
+void NiLookAtController::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info ) {
 	//--BEGIN PRE-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiTimeController::FixLinks( objects, link_stack, info );
-	lookAtNode = FixLink<NiNode>( objects, link_stack, info );
+	NiTimeController::FixLinks( objects, link_stack, missing_link_stack, info );
+	lookAtNode = FixLink<NiNode>( objects, link_stack, missing_link_stack, info );
 
 	//--BEGIN POST-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
@@ -105,9 +112,15 @@ void NiLookAtController::FixLinks( const map<unsigned int,NiObjectRef> & objects
 std::list<NiObjectRef> NiLookAtController::GetRefs() const {
 	list<Ref<NiObject> > refs;
 	refs = NiTimeController::GetRefs();
-	if ( lookAtNode != NULL )
-		refs.push_back(StaticCast<NiObject>(lookAtNode));
 	return refs;
+}
+
+std::list<NiObject *> NiLookAtController::GetPtrs() const {
+	list<NiObject *> ptrs;
+	ptrs = NiTimeController::GetPtrs();
+	if ( lookAtNode != NULL )
+		ptrs.push_back((NiObject *)(lookAtNode));
+	return ptrs;
 }
 
 //--BEGIN MISC CUSTOM CODE--//

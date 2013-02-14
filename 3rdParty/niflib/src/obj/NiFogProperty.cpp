@@ -50,11 +50,11 @@ void NiFogProperty::Read( istream& in, list<unsigned int> & link_stack, const Ni
 	//--END CUSTOM CODE--//
 }
 
-void NiFogProperty::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const {
+void NiFogProperty::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const {
 	//--BEGIN PRE-WRITE CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiProperty::Write( out, link_map, info );
+	NiProperty::Write( out, link_map, missing_link_stack, info );
 	NifStream( flags, out, info );
 	NifStream( fogDepth, out, info );
 	NifStream( fogColor, out, info );
@@ -68,7 +68,6 @@ std::string NiFogProperty::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 
 	stringstream out;
-	unsigned int array_output_count = 0;
 	out << NiProperty::asString();
 	out << "  Flags:  " << flags << endl;
 	out << "  Fog Depth:  " << fogDepth << endl;
@@ -79,11 +78,11 @@ std::string NiFogProperty::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 }
 
-void NiFogProperty::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info ) {
+void NiFogProperty::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info ) {
 	//--BEGIN PRE-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiProperty::FixLinks( objects, link_stack, info );
+	NiProperty::FixLinks( objects, link_stack, missing_link_stack, info );
 
 	//--BEGIN POST-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
@@ -93,6 +92,12 @@ std::list<NiObjectRef> NiFogProperty::GetRefs() const {
 	list<Ref<NiObject> > refs;
 	refs = NiProperty::GetRefs();
 	return refs;
+}
+
+std::list<NiObject *> NiFogProperty::GetPtrs() const {
+	list<NiObject *> ptrs;
+	ptrs = NiProperty::GetPtrs();
+	return ptrs;
 }
 
 //--BEGIN MISC CUSTOM CODE--//

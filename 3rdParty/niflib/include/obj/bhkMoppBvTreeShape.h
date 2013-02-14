@@ -83,33 +83,114 @@ public:
 	 */
 	NIFLIB_API void SetMaterial( HavokMaterial value );
 
+	/*!
+	* Get the shape's bounding volume code.  The code is specific to the Havok Physics engine.
+	* \return A byte vector containing the code representing the MOPP.
+	*/
+	NIFLIB_API vector<byte> GetMoppCode() const;
+
+	/*!
+	* Sets the shape's bounding volume code.  The code is specific to the Havok Physics engine.
+	* \param[in] value A byte vector containing the code representing the MOPP.
+	*/
+	NIFLIB_API void SetMoppCode( vector<byte> & value );
+
+	/*!
+	* Get the origin for the shape's mopp code in mopp coordinates. This is the minimum of all vertices in
+	* the packed shape along each axis, minus 0.1.
+	* \return The origin value in mopp coordinates.
+	*/
+	NIFLIB_API Vector3 GetMoppOrigin() const;
+
+	/*!
+	* Sets the origin for the shape's mopp code in mopp coordinates. This is the minimum of all vertices in
+	* the packed shape along each axis, minus 0.1.
+	* \param[in] value The origin in mopp coordinates.
+	*/
+	NIFLIB_API void SetMoppOrigin( Vector3 value );
+
+
+	/*!
+	* Gets the scale for the shape's mopp code in mopp coordinates. 
+	*   The scaling factor to quantize the MOPP: the quantization factor is equal to
+	*   256*256 divided by this number. In Oblivion files, scale is taken equal to
+	*   256*256*254 / (size + 0.2) where size is the largest dimension of the bounding
+	*   box of the packed shape.	
+	* \return The scale value in mopp coordinates.
+	*/
+	NIFLIB_API float GetMoppScale() const;
+
+	/*!
+	* Sets the scale for the shape's mopp code in mopp coordinates. 
+	*   The scaling factor to quantize the MOPP: the quantization factor is equal to
+	*   256*256 divided by this number. In Oblivion files, scale is taken equal to
+	*   256*256*254 / (size + 0.2) where size is the largest dimension of the bounding
+	*   box of the packed shape.	
+	* \param[in] value The scale in mopp coordinates.
+	*/
+	NIFLIB_API void SetMoppScale( float value );
+
+	/*! Helper routine for calculating mass properties.
+	 *  \param[in]  density Uniform density of object
+	 *  \param[in]  solid Determines whether the object is assumed to be solid or not
+	 *  \param[out] mass Calculated mass of the object
+	 *  \param[out] center Center of mass
+	 *  \param[out] inertia Mass Inertia Tensor
+	 *  \return Return mass, center, and inertia tensor.
+	 */
+	NIFLIB_API virtual void CalcMassProperties(float density, bool solid, float &mass, float &volume, Vector3 &center, InertiaMatrix& inertia);
+
+private:
+	unsigned int moppDataSizeCalc(const NifInfo & info) const {
+		return (unsigned int)((info.version <= 0x0A000100) ? (oldMoppData.size() + 1) : moppData.size());
+	};
+
 	//--END CUSTOM CODE--//
 protected:
 	/*! The shape. */
 	Ref<bhkShape > shape;
 	/*! The shape's material. */
 	HavokMaterial material;
-	/*! Unknown bytes, probably MOPP Header. */
+	/*! The shape's material. */
+	SkyrimHavokMaterial skyrimMaterial;
+	/*! Unknown bytes. */
 	array<8,byte > unknown8Bytes;
 	/*! Unknown float, might be scale. */
 	float unknownFloat;
 	/*! Number of bytes for MOPP data. */
 	mutable unsigned int moppDataSize;
-	/*! Corner of the object with min. coordinates. */
-	Vector3 objectCorner;
-	/*! The scaling factor to quantize the MOPP. Determined by 255*255*255 / size. */
-	float scalingFactor;
+	/*!
+	 * Origin of the object in mopp coordinates. This is the minimum of all vertices in
+	 * the packed shape along each axis, minus 0.1.
+	 */
+	Vector3 origin;
+	/*!
+	 * The scaling factor to quantize the MOPP: the quantization factor is equal to
+	 * 256*256 divided by this number. In Oblivion files, scale is taken equal to
+	 * 256*256*254 / (size + 0.2) where size is the largest dimension of the bounding
+	 * box of the packed shape.
+	 */
+	float scale;
+	/*!
+	 * The tree of bounding volume data (old style, contains more than just the mopp
+	 * script).
+	 */
+	vector<byte > oldMoppData;
 	/*! The tree of bounding volume data. */
 	vector<byte > moppData;
+	/*! Unknown */
+	byte unknownByte1;
 public:
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
 	NIFLIB_HIDDEN virtual void Read( istream& in, list<unsigned int> & link_stack, const NifInfo & info );
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
-	NIFLIB_HIDDEN virtual void Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const;
+	NIFLIB_HIDDEN virtual void Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const;
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
-	NIFLIB_HIDDEN virtual void FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info );
+	NIFLIB_HIDDEN virtual void FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info );
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
 	NIFLIB_HIDDEN virtual list<NiObjectRef> GetRefs() const;
+	/*! NIFLIB_HIDDEN function.  For internal use only. */
+	NIFLIB_HIDDEN virtual list<NiObject *> GetPtrs() const;
 };
 
 //--BEGIN FILE FOOT CUSTOM CODE--//

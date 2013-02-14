@@ -52,11 +52,11 @@ void NiIntegersExtraData::Read( istream& in, list<unsigned int> & link_stack, co
 	//--END CUSTOM CODE--//
 }
 
-void NiIntegersExtraData::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const {
+void NiIntegersExtraData::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const {
 	//--BEGIN PRE-WRITE CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiExtraData::Write( out, link_map, info );
+	NiExtraData::Write( out, link_map, missing_link_stack, info );
 	numIntegers = (unsigned int)(data.size());
 	NifStream( numIntegers, out, info );
 	for (unsigned int i1 = 0; i1 < data.size(); i1++) {
@@ -94,11 +94,11 @@ std::string NiIntegersExtraData::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 }
 
-void NiIntegersExtraData::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info ) {
+void NiIntegersExtraData::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info ) {
 	//--BEGIN PRE-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiExtraData::FixLinks( objects, link_stack, info );
+	NiExtraData::FixLinks( objects, link_stack, missing_link_stack, info );
 
 	//--BEGIN POST-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
@@ -108,6 +108,12 @@ std::list<NiObjectRef> NiIntegersExtraData::GetRefs() const {
 	list<Ref<NiObject> > refs;
 	refs = NiExtraData::GetRefs();
 	return refs;
+}
+
+std::list<NiObject *> NiIntegersExtraData::GetPtrs() const {
+	list<NiObject *> ptrs;
+	ptrs = NiExtraData::GetPtrs();
+	return ptrs;
 }
 
 //--BEGIN MISC CUSTOM CODE--//

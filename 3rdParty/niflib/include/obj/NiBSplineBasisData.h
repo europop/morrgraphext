@@ -19,7 +19,7 @@ namespace Niflib {
 class NiBSplineBasisData;
 typedef Ref<NiBSplineBasisData> NiBSplineBasisDataRef;
 
-/*! Unknown. */
+/*! Stores the number of control points of a B-spline. */
 class NiBSplineBasisData : public NiObject {
 public:
 	/*! Constructor */
@@ -58,27 +58,32 @@ public:
 	 * Retrives the current number of spline control points.  This is usually the number of frames for animation.
 	 * \return The number of spline control points.
 	 */
-	NIFLIB_API unsigned int GetNumControlPt() const;
+	NIFLIB_API unsigned int GetNumControlPoints() const;
 
 	/*!
 	 * Sets the number of spline control points.  This is usually the number of frames for animation.
 	 * \param[in] value The new number of spline control points.
 	 */
-	NIFLIB_API void SetNumControlPt( unsigned int value );
+	NIFLIB_API void SetNumControlPoints( unsigned int value );
 
 	//--END CUSTOM CODE--//
 protected:
-	/*! The number of control points (Usually number of frames for animation). */
-	unsigned int numControlPt;
+	/*!
+	 * The number of control points of the B-spline (number of frames of animation plus
+	 * degree of B-spline minus one).
+	 */
+	unsigned int numControlPoints;
 public:
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
 	NIFLIB_HIDDEN virtual void Read( istream& in, list<unsigned int> & link_stack, const NifInfo & info );
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
-	NIFLIB_HIDDEN virtual void Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const;
+	NIFLIB_HIDDEN virtual void Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const;
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
-	NIFLIB_HIDDEN virtual void FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info );
+	NIFLIB_HIDDEN virtual void FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info );
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
 	NIFLIB_HIDDEN virtual list<NiObjectRef> GetRefs() const;
+	/*! NIFLIB_HIDDEN function.  For internal use only. */
+	NIFLIB_HIDDEN virtual list<NiObject *> GetPtrs() const;
 };
 
 //--BEGIN FILE FOOT CUSTOM CODE--//

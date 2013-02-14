@@ -14,6 +14,9 @@ All rights reserved.  Please see niflib.h for license. */
 //--END CUSTOM CODE--//
 
 #include "NiRotatingParticlesData.h"
+
+// Include structures
+#include "../gen/ParticleDesc.h"
 namespace Niflib {
 
 class NiPSysData;
@@ -56,32 +59,44 @@ public:
 	//--END CUSTOM CODE--//
 protected:
 	/*! Unknown. */
-	vector< array<10,float > > unknownFloats2;
+	vector<ParticleDesc > particleDescriptions;
 	/*! Unknown. */
 	bool hasUnknownFloats3;
+	/*! Unknown. */
+	vector<float > unknownFloats3;
+	/*! Unknown. */
+	unsigned short unknownShort1;
+	/*! Unknown. */
+	unsigned short unknownShort2;
+	/*! Boolean for Num Subtexture Offset UVs */
+	bool hasSubtextureOffsetUvs;
+	/*! How many quads to use in BSPSysSubTexModifier for texture atlasing */
+	mutable unsigned int numSubtextureOffsetUvs;
+	/*! Sets aspect ratio for Subtexture Offset UV quads */
+	float aspectRatio;
+	/*! Defines UV offsets */
+	vector<Vector4 > subtextureOffsetUvs;
 	/*! Unknown */
-	vector<float > unknownFloats1;
-	/*! Unknown. */
-	bool hasUnknownFloats4;
-	/*! Unknown. */
-	vector< array<4,float > > unknownFloats4;
-	/*! Unknown. */
-	vector< array<7,float > > unknownFloats5;
-	/*! Unknown. */
-	bool hasUnknownFloats6;
-	/*! Unknown. */
-	vector<float > unknownFloats6;
-	/*! Unknown. */
-	unsigned int unknownInt1;
+	unsigned int unknownInt4;
+	/*! Unknown */
+	unsigned int unknownInt5;
+	/*! Unknown */
+	unsigned int unknownInt6;
+	/*! Unknown */
+	unsigned short unknownShort3;
+	/*! Unknown */
+	byte unknownByte4;
 public:
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
 	NIFLIB_HIDDEN virtual void Read( istream& in, list<unsigned int> & link_stack, const NifInfo & info );
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
-	NIFLIB_HIDDEN virtual void Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const;
+	NIFLIB_HIDDEN virtual void Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const;
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
-	NIFLIB_HIDDEN virtual void FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info );
+	NIFLIB_HIDDEN virtual void FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info );
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
 	NIFLIB_HIDDEN virtual list<NiObjectRef> GetRefs() const;
+	/*! NIFLIB_HIDDEN function.  For internal use only. */
+	NIFLIB_HIDDEN virtual list<NiObject *> GetPtrs() const;
 };
 
 //--BEGIN FILE FOOT CUSTOM CODE--//

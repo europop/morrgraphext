@@ -21,7 +21,7 @@ using namespace Niflib;
 //Definition of TYPE constant
 const Type NiTextureTransformController::TYPE("NiTextureTransformController", &NiFloatInterpController::TYPE );
 
-NiTextureTransformController::NiTextureTransformController() : unknown2((byte)0), data(NULL) {
+NiTextureTransformController::NiTextureTransformController() : unknown2((byte)0), textureSlot((TexType)0), operation((TexTransform)0), data(NULL) {
 	//--BEGIN CONSTRUCTOR CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 }
@@ -57,22 +57,30 @@ void NiTextureTransformController::Read( istream& in, list<unsigned int> & link_
 	//--END CUSTOM CODE--//
 }
 
-void NiTextureTransformController::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const {
+void NiTextureTransformController::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const {
 	//--BEGIN PRE-WRITE CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiFloatInterpController::Write( out, link_map, info );
+	NiFloatInterpController::Write( out, link_map, missing_link_stack, info );
 	NifStream( unknown2, out, info );
 	NifStream( textureSlot, out, info );
 	NifStream( operation, out, info );
 	if ( info.version <= 0x0A010000 ) {
 		if ( info.version < VER_3_3_0_13 ) {
-			NifStream( (unsigned int)&(*data), out, info );
+			WritePtr32( &(*data), out );
 		} else {
 			if ( data != NULL ) {
-				NifStream( link_map.find( StaticCast<NiObject>(data) )->second, out, info );
+				map<NiObjectRef,unsigned int>::const_iterator it = link_map.find( StaticCast<NiObject>(data) );
+				if (it != link_map.end()) {
+					NifStream( it->second, out, info );
+					missing_link_stack.push_back( NULL );
+				} else {
+					NifStream( 0xFFFFFFFF, out, info );
+					missing_link_stack.push_back( data );
+				}
 			} else {
 				NifStream( 0xFFFFFFFF, out, info );
+				missing_link_stack.push_back( NULL );
 			}
 		}
 	};
@@ -86,7 +94,6 @@ std::string NiTextureTransformController::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 
 	stringstream out;
-	unsigned int array_output_count = 0;
 	out << NiFloatInterpController::asString();
 	out << "  Unknown2:  " << unknown2 << endl;
 	out << "  Texture Slot:  " << textureSlot << endl;
@@ -98,13 +105,13 @@ std::string NiTextureTransformController::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 }
 
-void NiTextureTransformController::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info ) {
+void NiTextureTransformController::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info ) {
 	//--BEGIN PRE-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiFloatInterpController::FixLinks( objects, link_stack, info );
+	NiFloatInterpController::FixLinks( objects, link_stack, missing_link_stack, info );
 	if ( info.version <= 0x0A010000 ) {
-		data = FixLink<NiFloatData>( objects, link_stack, info );
+		data = FixLink<NiFloatData>( objects, link_stack, missing_link_stack, info );
 	};
 
 	//--BEGIN POST-FIXLINKS CUSTOM CODE--//
@@ -117,6 +124,12 @@ std::list<NiObjectRef> NiTextureTransformController::GetRefs() const {
 	if ( data != NULL )
 		refs.push_back(StaticCast<NiObject>(data));
 	return refs;
+}
+
+std::list<NiObject *> NiTextureTransformController::GetPtrs() const {
+	list<NiObject *> ptrs;
+	ptrs = NiFloatInterpController::GetPtrs();
+	return ptrs;
 }
 
 //--BEGIN MISC CUSTOM CODE--//

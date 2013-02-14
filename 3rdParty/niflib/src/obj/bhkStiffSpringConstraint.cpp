@@ -50,11 +50,11 @@ void bhkStiffSpringConstraint::Read( istream& in, list<unsigned int> & link_stac
 	//--END CUSTOM CODE--//
 }
 
-void bhkStiffSpringConstraint::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const {
+void bhkStiffSpringConstraint::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const {
 	//--BEGIN PRE-WRITE CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	bhkConstraint::Write( out, link_map, info );
+	bhkConstraint::Write( out, link_map, missing_link_stack, info );
 	NifStream( pivotA, out, info );
 	NifStream( pivotB, out, info );
 	NifStream( length, out, info );
@@ -68,7 +68,6 @@ std::string bhkStiffSpringConstraint::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 
 	stringstream out;
-	unsigned int array_output_count = 0;
 	out << bhkConstraint::asString();
 	out << "  Pivot A:  " << pivotA << endl;
 	out << "  Pivot B:  " << pivotB << endl;
@@ -79,11 +78,11 @@ std::string bhkStiffSpringConstraint::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 }
 
-void bhkStiffSpringConstraint::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info ) {
+void bhkStiffSpringConstraint::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info ) {
 	//--BEGIN PRE-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	bhkConstraint::FixLinks( objects, link_stack, info );
+	bhkConstraint::FixLinks( objects, link_stack, missing_link_stack, info );
 
 	//--BEGIN POST-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
@@ -93,6 +92,12 @@ std::list<NiObjectRef> bhkStiffSpringConstraint::GetRefs() const {
 	list<Ref<NiObject> > refs;
 	refs = bhkConstraint::GetRefs();
 	return refs;
+}
+
+std::list<NiObject *> bhkStiffSpringConstraint::GetPtrs() const {
+	list<NiObject *> ptrs;
+	ptrs = bhkConstraint::GetPtrs();
+	return ptrs;
 }
 
 //--BEGIN MISC CUSTOM CODE--//

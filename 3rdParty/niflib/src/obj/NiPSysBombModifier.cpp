@@ -20,7 +20,7 @@ using namespace Niflib;
 //Definition of TYPE constant
 const Type NiPSysBombModifier::TYPE("NiPSysBombModifier", &NiPSysModifier::TYPE );
 
-NiPSysBombModifier::NiPSysBombModifier() : bombObject(NULL), decay(0.0f), deltaV(0.0f) {
+NiPSysBombModifier::NiPSysBombModifier() : bombObject(NULL), decay(0.0f), deltaV(0.0f), decayType((DecayType)0), symmetryType((SymmetryType)0) {
 	//--BEGIN CONSTRUCTOR CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 }
@@ -56,18 +56,26 @@ void NiPSysBombModifier::Read( istream& in, list<unsigned int> & link_stack, con
 	//--END CUSTOM CODE--//
 }
 
-void NiPSysBombModifier::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const {
+void NiPSysBombModifier::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const {
 	//--BEGIN PRE-WRITE CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiPSysModifier::Write( out, link_map, info );
+	NiPSysModifier::Write( out, link_map, missing_link_stack, info );
 	if ( info.version < VER_3_3_0_13 ) {
-		NifStream( (unsigned int)&(*bombObject), out, info );
+		WritePtr32( &(*bombObject), out );
 	} else {
 		if ( bombObject != NULL ) {
-			NifStream( link_map.find( StaticCast<NiObject>(bombObject) )->second, out, info );
+			map<NiObjectRef,unsigned int>::const_iterator it = link_map.find( StaticCast<NiObject>(bombObject) );
+			if (it != link_map.end()) {
+				NifStream( it->second, out, info );
+				missing_link_stack.push_back( NULL );
+			} else {
+				NifStream( 0xFFFFFFFF, out, info );
+				missing_link_stack.push_back( bombObject );
+			}
 		} else {
 			NifStream( 0xFFFFFFFF, out, info );
+			missing_link_stack.push_back( NULL );
 		}
 	}
 	NifStream( bombAxis, out, info );
@@ -85,7 +93,6 @@ std::string NiPSysBombModifier::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 
 	stringstream out;
-	unsigned int array_output_count = 0;
 	out << NiPSysModifier::asString();
 	out << "  Bomb Object:  " << bombObject << endl;
 	out << "  Bomb Axis:  " << bombAxis << endl;
@@ -99,12 +106,12 @@ std::string NiPSysBombModifier::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 }
 
-void NiPSysBombModifier::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info ) {
+void NiPSysBombModifier::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info ) {
 	//--BEGIN PRE-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiPSysModifier::FixLinks( objects, link_stack, info );
-	bombObject = FixLink<NiNode>( objects, link_stack, info );
+	NiPSysModifier::FixLinks( objects, link_stack, missing_link_stack, info );
+	bombObject = FixLink<NiNode>( objects, link_stack, missing_link_stack, info );
 
 	//--BEGIN POST-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
@@ -114,6 +121,14 @@ std::list<NiObjectRef> NiPSysBombModifier::GetRefs() const {
 	list<Ref<NiObject> > refs;
 	refs = NiPSysModifier::GetRefs();
 	return refs;
+}
+
+std::list<NiObject *> NiPSysBombModifier::GetPtrs() const {
+	list<NiObject *> ptrs;
+	ptrs = NiPSysModifier::GetPtrs();
+	if ( bombObject != NULL )
+		ptrs.push_back((NiObject *)(bombObject));
+	return ptrs;
 }
 
 //--BEGIN MISC CUSTOM CODE--//

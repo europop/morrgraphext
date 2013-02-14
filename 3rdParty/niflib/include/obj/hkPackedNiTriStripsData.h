@@ -17,6 +17,7 @@ All rights reserved.  Please see niflib.h for license. */
 
 // Include structures
 #include "../gen/hkTriangle.h"
+#include "../gen/OblivionSubShape.h"
 namespace Niflib {
 
 class hkPackedNiTriStripsData;
@@ -63,6 +64,13 @@ public:
 	 * \sa hkPackedNiTriStripsData::SetTriangles
 	 */
 	NIFLIB_API virtual vector<Triangle> GetTriangles() const;
+	
+	/*!
+	 * Returns the triangle data that make up this mesh.
+	 * \return A vector containing the triangle data that make up this mesh.
+	 * \sa hkPackedNiTriStripsData::SetTriangles
+	 */
+	NIFLIB_API virtual vector<hkTriangle> GetHavokTriangles() const;
 
 	/*! 
 	 * Returns the number of vertices that make up this mesh.  This is also the number of normals, colors, and UV coordinates if these are used.
@@ -82,6 +90,50 @@ public:
 	 */
 	NIFLIB_API vector<Vector3> GetNormals() const;
 
+	/*! Returns the number of vertices that make up this mesh.
+	* \return The number of faces that make up this mesh.
+	*/
+	NIFLIB_API virtual int GetNumFace( ) const;
+
+	/*! Returns the number of vertices that make up this mesh.
+	* \param value The number of faces that make up this mesh.
+	*/
+	NIFLIB_API virtual void SetNumFaces( int value );
+
+	/*! Replaces the triangle face data in this mesh with new data.
+	* \param in A vector containing the new face data.  Maximum size is 65,535.
+	* \sa ITriShapeData::GetTriangles
+	*/
+	NIFLIB_API virtual void SetTriangles( const vector<Triangle> & in );
+	
+	/*! Replaces the triangle face data in this mesh with new data.
+	* \param in A vector containing the new face data.  Maximum size is 65,535.
+	* \sa ITriShapeData::GetHavokTriangles
+	*/
+	NIFLIB_API virtual void SetHavokTriangles( const vector<hkTriangle> & in );
+
+	/*! Replaces the face normal data in this mesh with new data.
+	* \param in A vector containing the new face normal data.
+	*/
+	NIFLIB_API virtual void SetNormals( const vector<Vector3> & in );
+
+	/*! Replaces the vertex data in this mesh with new data.
+	* \param in A vector containing the new vertex data.
+	*/
+	NIFLIB_API virtual void SetVertices( const vector<Vector3> & in );
+
+	/*!
+	* Retrieves the subshape data object used by this geometry node, if any.
+	* \return The subshape data object.
+	*/
+	NIFLIB_API vector<OblivionSubShape> GetSubShapes() const;
+
+	/*!
+	* Sets the subshape data object used by this geometry node. 
+	* \param[in] value The subshape data.
+	*/
+	NIFLIB_API void SetSubShapes( vector<OblivionSubShape>& value );	
+
 	//--END CUSTOM CODE--//
 protected:
 	/*! Number of triangles? */
@@ -90,17 +142,25 @@ protected:
 	vector<hkTriangle > triangles;
 	/*! Number of vertices. */
 	mutable unsigned int numVertices;
+	/*! Unknown. */
+	byte unknownByte1;
 	/*! The vertices? */
 	vector<Vector3 > vertices;
+	/*! Number of subparts. */
+	mutable unsigned short numSubShapes;
+	/*! The subparts. */
+	vector<OblivionSubShape > subShapes;
 public:
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
 	NIFLIB_HIDDEN virtual void Read( istream& in, list<unsigned int> & link_stack, const NifInfo & info );
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
-	NIFLIB_HIDDEN virtual void Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const;
+	NIFLIB_HIDDEN virtual void Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const;
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
-	NIFLIB_HIDDEN virtual void FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info );
+	NIFLIB_HIDDEN virtual void FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info );
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
 	NIFLIB_HIDDEN virtual list<NiObjectRef> GetRefs() const;
+	/*! NIFLIB_HIDDEN function.  For internal use only. */
+	NIFLIB_HIDDEN virtual list<NiObject *> GetPtrs() const;
 };
 
 //--BEGIN FILE FOOT CUSTOM CODE--//

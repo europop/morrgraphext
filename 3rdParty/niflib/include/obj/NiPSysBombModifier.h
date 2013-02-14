@@ -21,7 +21,10 @@ class NiNode;
 class NiPSysBombModifier;
 typedef Ref<NiPSysBombModifier> NiPSysBombModifierRef;
 
-/*! Unknown. */
+/*!
+ * Particle modifier that uses a NiNode to use as a "Bomb Object" to alter the path
+ * of particles.
+ */
 class NiPSysBombModifier : public NiPSysModifier {
 public:
 	/*! Constructor */
@@ -57,27 +60,29 @@ public:
 	//--BEGIN MISC CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 protected:
-	/*! Link to a node.  Exact function unknown. */
+	/*! Link to a NiNode for bomb to function. */
 	NiNode * bombObject;
-	/*! Unknown. */
+	/*! Orientation of bomb object. */
 	Vector3 bombAxis;
-	/*! Unknown. */
+	/*! Falloff rate of the bomb object. */
 	float decay;
-	/*! Unknown. */
+	/*! DeltaV /  Strength? */
 	float deltaV;
-	/*! Unknown. */
+	/*! Decay type */
 	DecayType decayType;
-	/*! Unknown. */
+	/*! Shape/symmetry of the bomb object. */
 	SymmetryType symmetryType;
 public:
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
 	NIFLIB_HIDDEN virtual void Read( istream& in, list<unsigned int> & link_stack, const NifInfo & info );
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
-	NIFLIB_HIDDEN virtual void Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const;
+	NIFLIB_HIDDEN virtual void Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const;
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
-	NIFLIB_HIDDEN virtual void FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info );
+	NIFLIB_HIDDEN virtual void FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info );
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
 	NIFLIB_HIDDEN virtual list<NiObjectRef> GetRefs() const;
+	/*! NIFLIB_HIDDEN function.  For internal use only. */
+	NIFLIB_HIDDEN virtual list<NiObject *> GetPtrs() const;
 };
 
 //--BEGIN FILE FOOT CUSTOM CODE--//

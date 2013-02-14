@@ -19,7 +19,7 @@ namespace Niflib {
 class NiPSysRotationModifier;
 typedef Ref<NiPSysRotationModifier> NiPSysRotationModifierRef;
 
-/*! Unknown particle system modifier. */
+/*! Particle modifier that adds rotations to particles. */
 class NiPSysRotationModifier : public NiPSysModifier {
 public:
 	/*! Constructor */
@@ -55,13 +55,13 @@ public:
 	//--BEGIN MISC CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 protected:
-	/*! Unknown. */
+	/*! The initial speed of rotation. */
 	float initialRotationSpeed;
-	/*! Unknown */
+	/*! Adds a ranged randomness to rotation speed. */
 	float initialRotationSpeedVariation;
-	/*! Unknown. */
+	/*! Sets the intial angle for particles to be birthed in. */
 	float initialRotationAngle;
-	/*! Unknown. */
+	/*! Adds a random range to Initial angle. */
 	float initialRotationAngleVariation;
 	/*! Unknown */
 	bool randomRotSpeedSign;
@@ -73,11 +73,13 @@ public:
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
 	NIFLIB_HIDDEN virtual void Read( istream& in, list<unsigned int> & link_stack, const NifInfo & info );
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
-	NIFLIB_HIDDEN virtual void Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const;
+	NIFLIB_HIDDEN virtual void Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const;
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
-	NIFLIB_HIDDEN virtual void FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info );
+	NIFLIB_HIDDEN virtual void FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info );
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
 	NIFLIB_HIDDEN virtual list<NiObjectRef> GetRefs() const;
+	/*! NIFLIB_HIDDEN function.  For internal use only. */
+	NIFLIB_HIDDEN virtual list<NiObject *> GetPtrs() const;
 };
 
 //--BEGIN FILE FOOT CUSTOM CODE--//

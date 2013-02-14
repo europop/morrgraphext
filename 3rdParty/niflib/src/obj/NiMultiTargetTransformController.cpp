@@ -15,7 +15,7 @@ All rights reserved.  Please see niflib.h for license. */
 #include "../../include/ObjectRegistry.h"
 #include "../../include/NIF_IO.h"
 #include "../../include/obj/NiMultiTargetTransformController.h"
-#include "../../include/obj/NiNode.h"
+#include "../../include/obj/NiAVObject.h"
 using namespace Niflib;
 
 //Definition of TYPE constant
@@ -56,21 +56,29 @@ void NiMultiTargetTransformController::Read( istream& in, list<unsigned int> & l
 	//--END CUSTOM CODE--//
 }
 
-void NiMultiTargetTransformController::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const {
+void NiMultiTargetTransformController::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const {
 	//--BEGIN PRE-WRITE CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiInterpController::Write( out, link_map, info );
+	NiInterpController::Write( out, link_map, missing_link_stack, info );
 	numExtraTargets = (unsigned short)(extraTargets.size());
 	NifStream( numExtraTargets, out, info );
 	for (unsigned int i1 = 0; i1 < extraTargets.size(); i1++) {
 		if ( info.version < VER_3_3_0_13 ) {
-			NifStream( (unsigned int)&(*extraTargets[i1]), out, info );
+			WritePtr32( &(*extraTargets[i1]), out );
 		} else {
 			if ( extraTargets[i1] != NULL ) {
-				NifStream( link_map.find( StaticCast<NiObject>(extraTargets[i1]) )->second, out, info );
+				map<NiObjectRef,unsigned int>::const_iterator it = link_map.find( StaticCast<NiObject>(extraTargets[i1]) );
+				if (it != link_map.end()) {
+					NifStream( it->second, out, info );
+					missing_link_stack.push_back( NULL );
+				} else {
+					NifStream( 0xFFFFFFFF, out, info );
+					missing_link_stack.push_back( extraTargets[i1] );
+				}
 			} else {
 				NifStream( 0xFFFFFFFF, out, info );
+				missing_link_stack.push_back( NULL );
 			}
 		}
 	};
@@ -106,13 +114,13 @@ std::string NiMultiTargetTransformController::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 }
 
-void NiMultiTargetTransformController::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info ) {
+void NiMultiTargetTransformController::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info ) {
 	//--BEGIN PRE-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiInterpController::FixLinks( objects, link_stack, info );
+	NiInterpController::FixLinks( objects, link_stack, missing_link_stack, info );
 	for (unsigned int i1 = 0; i1 < extraTargets.size(); i1++) {
-		extraTargets[i1] = FixLink<NiNode>( objects, link_stack, info );
+		extraTargets[i1] = FixLink<NiAVObject>( objects, link_stack, missing_link_stack, info );
 	};
 
 	//--BEGIN POST-FIXLINKS CUSTOM CODE--//
@@ -127,24 +135,73 @@ std::list<NiObjectRef> NiMultiTargetTransformController::GetRefs() const {
 	return refs;
 }
 
+std::list<NiObject *> NiMultiTargetTransformController::GetPtrs() const {
+	list<NiObject *> ptrs;
+	ptrs = NiInterpController::GetPtrs();
+	for (unsigned int i1 = 0; i1 < extraTargets.size(); i1++) {
+		if ( extraTargets[i1] != NULL )
+			ptrs.push_back((NiObject *)(extraTargets[i1]));
+	};
+	return ptrs;
+}
+
 //--BEGIN MISC CUSTOM CODE--//
 
-vector<NiNodeRef> NiMultiTargetTransformController::GetExtraTargets() const {
-   vector<NiNodeRef> retval;
+vector<NiAVObjectRef> NiMultiTargetTransformController::GetExtraTargets() const {
+   vector<NiAVObjectRef> retval;
    size_t n = extraTargets.size();
    retval.reserve(n);
    for (size_t i=0; i<n; ++i)
-      retval.push_back( NiNodeRef(extraTargets[i]) );
+      retval.push_back( NiAVObjectRef(extraTargets[i]) );
 	return retval;
 }
 
-void NiMultiTargetTransformController::SetExtraTargets( const vector< Ref<NiNode> > & value ) {
+void NiMultiTargetTransformController::SetExtraTargets( const vector< Ref<NiAVObject> > & value ) {
    extraTargets.clear();
    size_t n = value.size();
    extraTargets.reserve(n);
    for (size_t i=0; i<n; ++i)
       extraTargets.push_back( value[i] );
-   extraTargets.erase(std::remove(extraTargets.begin(), extraTargets.end(), (NiNode*)NULL), extraTargets.end());
+   extraTargets.erase(std::remove(extraTargets.begin(), extraTargets.end(), (NiAVObject*)NULL), extraTargets.end());
 }
+
+bool NiMultiTargetTransformController::AddExtraTarget( NiAVObject *target ) {
+  vector<NiAVObject *>& targets = extraTargets;
+  vector<NiAVObject *>::iterator itr = std::find(targets.begin(), targets.end(), target);
+  if (itr == targets.end()) {
+    targets.push_back(target);
+    numExtraTargets++;
+
+    return true;
+  }
+
+  return false;
+}
+
+bool NiMultiTargetTransformController::RemoveExtraTarget( NiAVObject *target ) {
+  vector<NiAVObject *>& targets = extraTargets;
+  vector<NiAVObject *>::iterator itr = std::find(targets.begin(), targets.end(), target);
+  if (itr == targets.end()) {
+    targets.erase(itr);
+    numExtraTargets--;
+
+    return true;
+  }
+
+  return false;
+}
+
+bool NiMultiTargetTransformController::ReplaceExtraTarget( NiAVObject *newtarget, NiAVObject *oldtarget ) {
+  vector<NiAVObject *>& targets = extraTargets;
+  vector<NiAVObject *>::iterator itr = std::find(targets.begin(), targets.end(), oldtarget);
+  if (itr != targets.end()) {
+    *itr = newtarget;
+
+    return true;
+  }
+
+  return false;
+}
+
 
 //--END CUSTOM CODE--//

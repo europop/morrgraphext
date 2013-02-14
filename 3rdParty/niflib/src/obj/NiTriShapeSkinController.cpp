@@ -69,11 +69,11 @@ void NiTriShapeSkinController::Read( istream& in, list<unsigned int> & link_stac
 	//--END CUSTOM CODE--//
 }
 
-void NiTriShapeSkinController::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const {
+void NiTriShapeSkinController::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const {
 	//--BEGIN PRE-WRITE CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiTimeController::Write( out, link_map, info );
+	NiTimeController::Write( out, link_map, missing_link_stack, info );
 	for (unsigned int i1 = 0; i1 < boneData.size(); i1++)
 		vertexCounts[i1] = (unsigned int)(boneData[i1].size());
 	numBones = (unsigned int)(vertexCounts.size());
@@ -83,12 +83,20 @@ void NiTriShapeSkinController::Write( ostream& out, const map<NiObjectRef,unsign
 	};
 	for (unsigned int i1 = 0; i1 < bones.size(); i1++) {
 		if ( info.version < VER_3_3_0_13 ) {
-			NifStream( (unsigned int)&(*bones[i1]), out, info );
+			WritePtr32( &(*bones[i1]), out );
 		} else {
 			if ( bones[i1] != NULL ) {
-				NifStream( link_map.find( StaticCast<NiObject>(bones[i1]) )->second, out, info );
+				map<NiObjectRef,unsigned int>::const_iterator it = link_map.find( StaticCast<NiObject>(bones[i1]) );
+				if (it != link_map.end()) {
+					NifStream( it->second, out, info );
+					missing_link_stack.push_back( NULL );
+				} else {
+					NifStream( 0xFFFFFFFF, out, info );
+					missing_link_stack.push_back( bones[i1] );
+				}
 			} else {
 				NifStream( 0xFFFFFFFF, out, info );
+				missing_link_stack.push_back( NULL );
 			}
 		}
 	};
@@ -157,13 +165,13 @@ std::string NiTriShapeSkinController::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 }
 
-void NiTriShapeSkinController::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info ) {
+void NiTriShapeSkinController::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info ) {
 	//--BEGIN PRE-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiTimeController::FixLinks( objects, link_stack, info );
+	NiTimeController::FixLinks( objects, link_stack, missing_link_stack, info );
 	for (unsigned int i1 = 0; i1 < bones.size(); i1++) {
-		bones[i1] = FixLink<NiBone>( objects, link_stack, info );
+		bones[i1] = FixLink<NiBone>( objects, link_stack, missing_link_stack, info );
 	};
 
 	//--BEGIN POST-FIXLINKS CUSTOM CODE--//
@@ -176,6 +184,16 @@ std::list<NiObjectRef> NiTriShapeSkinController::GetRefs() const {
 	for (unsigned int i1 = 0; i1 < bones.size(); i1++) {
 	};
 	return refs;
+}
+
+std::list<NiObject *> NiTriShapeSkinController::GetPtrs() const {
+	list<NiObject *> ptrs;
+	ptrs = NiTimeController::GetPtrs();
+	for (unsigned int i1 = 0; i1 < bones.size(); i1++) {
+		if ( bones[i1] != NULL )
+			ptrs.push_back((NiObject *)(bones[i1]));
+	};
+	return ptrs;
 }
 
 //--BEGIN MISC CUSTOM CODE--//

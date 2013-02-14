@@ -17,7 +17,7 @@ All rights reserved.  Please see niflib.h for license. */
 namespace Niflib {
 
 // Forward define of referenced NIF objects
-class NiNode;
+class NiAVObject;
 class NiMultiTargetTransformController;
 typedef Ref<NiMultiTargetTransformController> NiMultiTargetTransformControllerRef;
 
@@ -57,32 +57,53 @@ public:
 	//--BEGIN MISC CUSTOM CODE--//
 
 	/*!
-	 * Retrives a list of the extra NiNode targets to be controlled.
-	 * \return The NiNode targets to be controlled.
+	 * Retrieves a list of the extra NiAVObject targets to be controlled.
+	 * \return The NiAVObject targets to be controlled.
 	 */
-	NIFLIB_API vector<Ref<NiNode> > GetExtraTargets() const;
+	NIFLIB_API vector<Ref<NiAVObject> > GetExtraTargets() const;
 
 	/*!
-	 * Sets the list of the extra NiNode targets to be controlled.
-	 * \param[in] value The new NiNode targets to be controlled.
+	 * Sets the list of the extra NiAVObject targets to be controlled.
+	 * \param[in] value The new NiAVObject targets to be controlled.
 	 */
-	NIFLIB_API void SetExtraTargets( const vector< Ref<NiNode> > & value );
+	NIFLIB_API void SetExtraTargets( const vector< Ref<NiAVObject> > & value );
+	
+	/*!
+	 * Adds a single extra target to the collection. The collection will expand if necessary.
+	 * \param[in] mesh The avobject to add to the collection.
+	 */
+	NIFLIB_API bool AddExtraTarget( NiAVObject* target );
+
+	/*!
+	 * Remove a single extra target from the collection.
+	 * \param[in] mesh The avobject remove from the collection.
+	 */
+	NIFLIB_API bool RemoveExtraTarget( NiAVObject* target );
+
+	/*!
+	 * Replace a single extra target by another in the specified extra target group.
+	 * \param[in] newmesh The avobject put into the collection.
+	 * \param[in] oldmesh The avobject remove from collection.
+	 */
+	NIFLIB_API bool ReplaceExtraTarget( NiAVObject* newtarget, NiAVObject* oldtarget );
 
 	//--END CUSTOM CODE--//
 protected:
 	/*! The number of target pointers that follow. */
 	mutable unsigned short numExtraTargets;
 	/*! NiNode Targets to be controlled. */
-	vector<NiNode * > extraTargets;
+	vector<NiAVObject * > extraTargets;
 public:
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
 	NIFLIB_HIDDEN virtual void Read( istream& in, list<unsigned int> & link_stack, const NifInfo & info );
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
-	NIFLIB_HIDDEN virtual void Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const;
+	NIFLIB_HIDDEN virtual void Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const;
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
-	NIFLIB_HIDDEN virtual void FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info );
+	NIFLIB_HIDDEN virtual void FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info );
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
 	NIFLIB_HIDDEN virtual list<NiObjectRef> GetRefs() const;
+	/*! NIFLIB_HIDDEN function.  For internal use only. */
+	NIFLIB_HIDDEN virtual list<NiObject *> GetPtrs() const;
 };
 
 //--BEGIN FILE FOOT CUSTOM CODE--//

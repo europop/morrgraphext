@@ -48,11 +48,11 @@ void NiPSysBoundUpdateModifier::Read( istream& in, list<unsigned int> & link_sta
 	//--END CUSTOM CODE--//
 }
 
-void NiPSysBoundUpdateModifier::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const {
+void NiPSysBoundUpdateModifier::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const {
 	//--BEGIN PRE-WRITE CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiPSysModifier::Write( out, link_map, info );
+	NiPSysModifier::Write( out, link_map, missing_link_stack, info );
 	NifStream( updateSkip, out, info );
 
 	//--BEGIN POST-WRITE CUSTOM CODE--//
@@ -64,7 +64,6 @@ std::string NiPSysBoundUpdateModifier::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 
 	stringstream out;
-	unsigned int array_output_count = 0;
 	out << NiPSysModifier::asString();
 	out << "  Update Skip:  " << updateSkip << endl;
 	return out.str();
@@ -73,11 +72,11 @@ std::string NiPSysBoundUpdateModifier::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 }
 
-void NiPSysBoundUpdateModifier::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info ) {
+void NiPSysBoundUpdateModifier::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info ) {
 	//--BEGIN PRE-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiPSysModifier::FixLinks( objects, link_stack, info );
+	NiPSysModifier::FixLinks( objects, link_stack, missing_link_stack, info );
 
 	//--BEGIN POST-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
@@ -87,6 +86,12 @@ std::list<NiObjectRef> NiPSysBoundUpdateModifier::GetRefs() const {
 	list<Ref<NiObject> > refs;
 	refs = NiPSysModifier::GetRefs();
 	return refs;
+}
+
+std::list<NiObject *> NiPSysBoundUpdateModifier::GetPtrs() const {
+	list<NiObject *> ptrs;
+	ptrs = NiPSysModifier::GetPtrs();
+	return ptrs;
 }
 
 //--BEGIN MISC CUSTOM CODE--//

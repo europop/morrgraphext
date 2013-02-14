@@ -60,29 +60,45 @@ void NiParticleModifier::Read( istream& in, list<unsigned int> & link_stack, con
 	//--END CUSTOM CODE--//
 }
 
-void NiParticleModifier::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const {
+void NiParticleModifier::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const {
 	//--BEGIN PRE-WRITE CUSTOM CODE--//
 
 	//--END CUSTOM CODE--//
 
-	NiObject::Write( out, link_map, info );
+	NiObject::Write( out, link_map, missing_link_stack, info );
 	if ( info.version < VER_3_3_0_13 ) {
-		NifStream( (unsigned int)&(*nextModifier), out, info );
+		WritePtr32( &(*nextModifier), out );
 	} else {
 		if ( nextModifier != NULL ) {
-			NifStream( link_map.find( StaticCast<NiObject>(nextModifier) )->second, out, info );
+			map<NiObjectRef,unsigned int>::const_iterator it = link_map.find( StaticCast<NiObject>(nextModifier) );
+			if (it != link_map.end()) {
+				NifStream( it->second, out, info );
+				missing_link_stack.push_back( NULL );
+			} else {
+				NifStream( 0xFFFFFFFF, out, info );
+				missing_link_stack.push_back( nextModifier );
+			}
 		} else {
 			NifStream( 0xFFFFFFFF, out, info );
+			missing_link_stack.push_back( NULL );
 		}
 	}
 	if ( info.version >= 0x04000002 ) {
 		if ( info.version < VER_3_3_0_13 ) {
-			NifStream( (unsigned int)&(*controller), out, info );
+			WritePtr32( &(*controller), out );
 		} else {
 			if ( controller != NULL ) {
-				NifStream( link_map.find( StaticCast<NiObject>(controller) )->second, out, info );
+				map<NiObjectRef,unsigned int>::const_iterator it = link_map.find( StaticCast<NiObject>(controller) );
+				if (it != link_map.end()) {
+					NifStream( it->second, out, info );
+					missing_link_stack.push_back( NULL );
+				} else {
+					NifStream( 0xFFFFFFFF, out, info );
+					missing_link_stack.push_back( controller );
+				}
 			} else {
 				NifStream( 0xFFFFFFFF, out, info );
+				missing_link_stack.push_back( NULL );
 			}
 		}
 	};
@@ -98,7 +114,6 @@ std::string NiParticleModifier::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 
 	stringstream out;
-	unsigned int array_output_count = 0;
 	out << NiObject::asString();
 	out << "  Next Modifier:  " << nextModifier << endl;
 	out << "  Controller:  " << controller << endl;
@@ -109,15 +124,15 @@ std::string NiParticleModifier::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 }
 
-void NiParticleModifier::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info ) {
+void NiParticleModifier::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info ) {
 	//--BEGIN PRE-FIXLINKS CUSTOM CODE--//
 
 	//--END CUSTOM CODE--//
 
-	NiObject::FixLinks( objects, link_stack, info );
-	nextModifier = FixLink<NiParticleModifier>( objects, link_stack, info );
+	NiObject::FixLinks( objects, link_stack, missing_link_stack, info );
+	nextModifier = FixLink<NiParticleModifier>( objects, link_stack, missing_link_stack, info );
 	if ( info.version >= 0x04000002 ) {
-		controller = FixLink<NiParticleSystemController>( objects, link_stack, info );
+		controller = FixLink<NiParticleSystemController>( objects, link_stack, missing_link_stack, info );
 	};
 
 	//--BEGIN POST-FIXLINKS CUSTOM CODE--//
@@ -131,6 +146,14 @@ std::list<NiObjectRef> NiParticleModifier::GetRefs() const {
 	if ( nextModifier != NULL )
 		refs.push_back(StaticCast<NiObject>(nextModifier));
 	return refs;
+}
+
+std::list<NiObject *> NiParticleModifier::GetPtrs() const {
+	list<NiObject *> ptrs;
+	ptrs = NiObject::GetPtrs();
+	if ( controller != NULL )
+		ptrs.push_back((NiObject *)(controller));
+	return ptrs;
 }
 
 //--BEGIN MISC CUSTOM CODE--//

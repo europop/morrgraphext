@@ -69,11 +69,11 @@ void NiPlanarCollider::Read( istream& in, list<unsigned int> & link_stack, const
 	//--END CUSTOM CODE--//
 }
 
-void NiPlanarCollider::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const {
+void NiPlanarCollider::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const {
 	//--BEGIN PRE-WRITE CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiParticleModifier::Write( out, link_map, info );
+	NiParticleModifier::Write( out, link_map, missing_link_stack, info );
 	if ( info.version >= 0x0A000100 ) {
 		NifStream( unknownShort, out, info );
 	};
@@ -106,7 +106,6 @@ std::string NiPlanarCollider::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 
 	stringstream out;
-	unsigned int array_output_count = 0;
 	out << NiParticleModifier::asString();
 	out << "  Unknown Short:  " << unknownShort << endl;
 	out << "  Unknown Float 1:  " << unknownFloat1 << endl;
@@ -132,11 +131,11 @@ std::string NiPlanarCollider::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 }
 
-void NiPlanarCollider::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info ) {
+void NiPlanarCollider::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info ) {
 	//--BEGIN PRE-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiParticleModifier::FixLinks( objects, link_stack, info );
+	NiParticleModifier::FixLinks( objects, link_stack, missing_link_stack, info );
 
 	//--BEGIN POST-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
@@ -146,6 +145,12 @@ std::list<NiObjectRef> NiPlanarCollider::GetRefs() const {
 	list<Ref<NiObject> > refs;
 	refs = NiParticleModifier::GetRefs();
 	return refs;
+}
+
+std::list<NiObject *> NiPlanarCollider::GetPtrs() const {
+	list<NiObject *> ptrs;
+	ptrs = NiParticleModifier::GetPtrs();
+	return ptrs;
 }
 
 //--BEGIN MISC CUSTOM CODE--//

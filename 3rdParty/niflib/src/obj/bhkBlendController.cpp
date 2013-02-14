@@ -48,11 +48,11 @@ void bhkBlendController::Read( istream& in, list<unsigned int> & link_stack, con
 	//--END CUSTOM CODE--//
 }
 
-void bhkBlendController::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const {
+void bhkBlendController::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const {
 	//--BEGIN PRE-WRITE CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiTimeController::Write( out, link_map, info );
+	NiTimeController::Write( out, link_map, missing_link_stack, info );
 	NifStream( unknownInt, out, info );
 
 	//--BEGIN POST-WRITE CUSTOM CODE--//
@@ -64,7 +64,6 @@ std::string bhkBlendController::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 
 	stringstream out;
-	unsigned int array_output_count = 0;
 	out << NiTimeController::asString();
 	out << "  Unknown Int:  " << unknownInt << endl;
 	return out.str();
@@ -73,11 +72,11 @@ std::string bhkBlendController::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 }
 
-void bhkBlendController::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info ) {
+void bhkBlendController::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info ) {
 	//--BEGIN PRE-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiTimeController::FixLinks( objects, link_stack, info );
+	NiTimeController::FixLinks( objects, link_stack, missing_link_stack, info );
 
 	//--BEGIN POST-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
@@ -87,6 +86,12 @@ std::list<NiObjectRef> bhkBlendController::GetRefs() const {
 	list<Ref<NiObject> > refs;
 	refs = NiTimeController::GetRefs();
 	return refs;
+}
+
+std::list<NiObject *> bhkBlendController::GetPtrs() const {
+	list<NiObject *> ptrs;
+	ptrs = NiTimeController::GetPtrs();
+	return ptrs;
 }
 
 //--BEGIN MISC CUSTOM CODE--//

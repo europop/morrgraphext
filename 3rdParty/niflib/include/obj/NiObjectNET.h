@@ -130,10 +130,34 @@ public:
 	 */
 	NIFLIB_API list< Ref<NiTimeController> > GetControllers() const;
 
+	/*!
+	* Gets the skyrim shader type
+	* \return The skyrim shader flag value
+	*/
+	NIFLIB_API BSLightingShaderPropertyShaderType GetSkyrimShaderType() const;
+
+	/*!
+	* Set the skyrim shader type
+	* \param[in] The new skyrim shader value
+	*/
+	NIFLIB_API void SetSkyrimShaderType(BSLightingShaderPropertyShaderType value);
+
 	//--END CUSTOM CODE--//
 protected:
+	/*! Configures the main shader path */
+	BSLightingShaderPropertyShaderType skyrimShaderType;
 	/*! Name of this controllable object, used to refer to the object in .kf files. */
-	string name;
+	IndexString name;
+	/*! Extra data for pre-3.0 versions. */
+	bool hasOldExtraData;
+	/*! (=NiStringExtraData) */
+	IndexString oldExtraPropName;
+	/*! ref */
+	unsigned int oldExtraInternalId;
+	/*! Extra string data. */
+	IndexString oldExtraString;
+	/*! Always 0. */
+	byte unknownByte;
 	/*! Extra data object index. (The first in a chain) */
 	Ref<NiExtraData > extraData;
 	/*! The number of Extra Data objects referenced through the list. */
@@ -146,11 +170,13 @@ public:
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
 	NIFLIB_HIDDEN virtual void Read( istream& in, list<unsigned int> & link_stack, const NifInfo & info );
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
-	NIFLIB_HIDDEN virtual void Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const;
+	NIFLIB_HIDDEN virtual void Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const;
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
-	NIFLIB_HIDDEN virtual void FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info );
+	NIFLIB_HIDDEN virtual void FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info );
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
 	NIFLIB_HIDDEN virtual list<NiObjectRef> GetRefs() const;
+	/*! NIFLIB_HIDDEN function.  For internal use only. */
+	NIFLIB_HIDDEN virtual list<NiObject *> GetPtrs() const;
 };
 
 //--BEGIN FILE FOOT CUSTOM CODE--//

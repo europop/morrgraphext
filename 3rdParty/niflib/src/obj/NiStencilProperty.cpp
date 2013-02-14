@@ -19,7 +19,7 @@ using namespace Niflib;
 //Definition of TYPE constant
 const Type NiStencilProperty::TYPE("NiStencilProperty", &NiProperty::TYPE );
 
-NiStencilProperty::NiStencilProperty() : flags((unsigned short)0), stencilEnabled((byte)0), stencilRef((unsigned int)0), stencilMask((unsigned int)4294967295) {
+NiStencilProperty::NiStencilProperty() : flags((unsigned short)0), stencilEnabled((byte)0), stencilFunction((StencilCompareMode)0), stencilRef((unsigned int)0), stencilMask((unsigned int)4294967295), failAction((StencilAction)0), zFailAction((StencilAction)0), passAction((StencilAction)0), drawMode((FaceDrawMode)DRAW_BOTH) {
 	//--BEGIN CONSTRUCTOR CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 }
@@ -45,35 +45,49 @@ void NiStencilProperty::Read( istream& in, list<unsigned int> & link_stack, cons
 	if ( info.version <= 0x0A000102 ) {
 		NifStream( flags, in, info );
 	};
-	NifStream( stencilEnabled, in, info );
-	NifStream( stencilFunction, in, info );
-	NifStream( stencilRef, in, info );
-	NifStream( stencilMask, in, info );
-	NifStream( failAction, in, info );
-	NifStream( zFailAction, in, info );
-	NifStream( passAction, in, info );
-	NifStream( drawMode, in, info );
+	if ( info.version <= 0x14000005 ) {
+		NifStream( stencilEnabled, in, info );
+		NifStream( stencilFunction, in, info );
+		NifStream( stencilRef, in, info );
+		NifStream( stencilMask, in, info );
+		NifStream( failAction, in, info );
+		NifStream( zFailAction, in, info );
+		NifStream( passAction, in, info );
+		NifStream( drawMode, in, info );
+	};
+	if ( info.version >= 0x14010003 ) {
+		NifStream( flags, in, info );
+		NifStream( stencilRef, in, info );
+		NifStream( stencilMask, in, info );
+	};
 
 	//--BEGIN POST-READ CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 }
 
-void NiStencilProperty::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const {
+void NiStencilProperty::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const {
 	//--BEGIN PRE-WRITE CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiProperty::Write( out, link_map, info );
+	NiProperty::Write( out, link_map, missing_link_stack, info );
 	if ( info.version <= 0x0A000102 ) {
 		NifStream( flags, out, info );
 	};
-	NifStream( stencilEnabled, out, info );
-	NifStream( stencilFunction, out, info );
-	NifStream( stencilRef, out, info );
-	NifStream( stencilMask, out, info );
-	NifStream( failAction, out, info );
-	NifStream( zFailAction, out, info );
-	NifStream( passAction, out, info );
-	NifStream( drawMode, out, info );
+	if ( info.version <= 0x14000005 ) {
+		NifStream( stencilEnabled, out, info );
+		NifStream( stencilFunction, out, info );
+		NifStream( stencilRef, out, info );
+		NifStream( stencilMask, out, info );
+		NifStream( failAction, out, info );
+		NifStream( zFailAction, out, info );
+		NifStream( passAction, out, info );
+		NifStream( drawMode, out, info );
+	};
+	if ( info.version >= 0x14010003 ) {
+		NifStream( flags, out, info );
+		NifStream( stencilRef, out, info );
+		NifStream( stencilMask, out, info );
+	};
 
 	//--BEGIN POST-WRITE CUSTOM CODE--//
 	//--END CUSTOM CODE--//
@@ -84,7 +98,6 @@ std::string NiStencilProperty::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 
 	stringstream out;
-	unsigned int array_output_count = 0;
 	out << NiProperty::asString();
 	out << "  Flags:  " << flags << endl;
 	out << "  Stencil Enabled:  " << stencilEnabled << endl;
@@ -101,11 +114,11 @@ std::string NiStencilProperty::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 }
 
-void NiStencilProperty::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info ) {
+void NiStencilProperty::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info ) {
 	//--BEGIN PRE-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiProperty::FixLinks( objects, link_stack, info );
+	NiProperty::FixLinks( objects, link_stack, missing_link_stack, info );
 
 	//--BEGIN POST-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
@@ -115,6 +128,12 @@ std::list<NiObjectRef> NiStencilProperty::GetRefs() const {
 	list<Ref<NiObject> > refs;
 	refs = NiProperty::GetRefs();
 	return refs;
+}
+
+std::list<NiObject *> NiStencilProperty::GetPtrs() const {
+	list<NiObject *> ptrs;
+	ptrs = NiProperty::GetPtrs();
+	return ptrs;
 }
 
 //--BEGIN MISC CUSTOM CODE--//
@@ -135,11 +154,11 @@ void NiStencilProperty::SetStencilState(bool value) {
    stencilEnabled = value;
 }
 
-CompareMode NiStencilProperty::GetStencilFunction() const {
+StencilCompareMode NiStencilProperty::GetStencilFunction() const {
    return stencilFunction;
 }
 
-void NiStencilProperty::SetStencilFunction(CompareMode value) {
+void NiStencilProperty::SetStencilFunction(StencilCompareMode value) {
    stencilFunction = value;
 }
 

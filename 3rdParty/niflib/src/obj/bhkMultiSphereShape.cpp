@@ -14,7 +14,7 @@ All rights reserved.  Please see niflib.h for license. */
 #include "../../include/ObjectRegistry.h"
 #include "../../include/NIF_IO.h"
 #include "../../include/obj/bhkMultiSphereShape.h"
-#include "../../include/gen/Sphere.h"
+#include "../../include/gen/SphereBV.h"
 using namespace Niflib;
 
 //Definition of TYPE constant
@@ -56,11 +56,11 @@ void bhkMultiSphereShape::Read( istream& in, list<unsigned int> & link_stack, co
 	//--END CUSTOM CODE--//
 }
 
-void bhkMultiSphereShape::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const {
+void bhkMultiSphereShape::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const {
 	//--BEGIN PRE-WRITE CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	bhkSphereRepShape::Write( out, link_map, info );
+	bhkSphereRepShape::Write( out, link_map, missing_link_stack, info );
 	numSpheres = (unsigned int)(spheres.size());
 	NifStream( unknownFloat1, out, info );
 	NifStream( unknownFloat2, out, info );
@@ -100,11 +100,11 @@ std::string bhkMultiSphereShape::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 }
 
-void bhkMultiSphereShape::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info ) {
+void bhkMultiSphereShape::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info ) {
 	//--BEGIN PRE-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	bhkSphereRepShape::FixLinks( objects, link_stack, info );
+	bhkSphereRepShape::FixLinks( objects, link_stack, missing_link_stack, info );
 
 	//--BEGIN POST-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
@@ -116,14 +116,27 @@ std::list<NiObjectRef> bhkMultiSphereShape::GetRefs() const {
 	return refs;
 }
 
+std::list<NiObject *> bhkMultiSphereShape::GetPtrs() const {
+	list<NiObject *> ptrs;
+	ptrs = bhkSphereRepShape::GetPtrs();
+	return ptrs;
+}
+
 //--BEGIN MISC CUSTOM CODE--//
 
-vector<Sphere > bhkMultiSphereShape::GetSpheres() const {
+vector<SphereBV > bhkMultiSphereShape::GetSpheres() const {
 	return spheres;
 }
 
-void bhkMultiSphereShape::SetSpheres( const vector<Sphere >& value ) {
+void bhkMultiSphereShape::SetSpheres( const vector<SphereBV >& value ) {
 	spheres = value;
 }
 
+void bhkMultiSphereShape::CalcMassProperties(float density, bool solid, float &mass, float &volume, Vector3 &center, InertiaMatrix& inertia)
+{
+	// TODO: Calculate this properly
+	center = Vector3(0,0,0);
+	mass = 0.0f, volume = 0.0f;
+	inertia = InertiaMatrix::IDENTITY;
+}
 //--END CUSTOM CODE--//

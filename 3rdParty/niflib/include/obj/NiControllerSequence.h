@@ -26,6 +26,7 @@ namespace Niflib {
 class NiTextKeyExtraData;
 class NiControllerManager;
 class NiStringPalette;
+class BSAnimNotes;
 class NiControllerSequence;
 typedef Ref<NiControllerSequence> NiControllerSequenceRef;
 
@@ -94,30 +95,64 @@ public:
 	/*! 
 	 * Attatches a controler to this KF file for a KF file of version 10.2.0.0 or below.  Versions above this use interpolators.
 	 * \param[in] obj A reference to the new NiTimeController to attach.
-	 * \sa NiControllerSequence::ClearChildren, NiControllersequence::AddInterpolator
+	 * \sa NiControllerSequence::ClearChildren, NiControllerSequence::AddInterpolator
 	 */
 	NIFLIB_API void AddController( NiTimeController * obj );
 
+	/*! 
+	* Attaches a controler to this KF file for a KF file of version 10.2.0.0 or below.  Versions above this use interpolators.
+	* \param[in] obj A reference to the new NiTimeController to attach.
+	* \sa NiControllerSequence::ClearChildren, NiControllerSequence::AddInterpolator
+	*/
+	NIFLIB_API void AddController( string const & targetName, NiTimeController * obj );
+
 	/*!
-	 * Attatches an interpolator to this KF file for a KF file of version greater than 10.2.0.0.  Versions below this use controllers.
+	 * Attaches an interpolator to this KF file for a KF file of version greater than 10.2.0.0.  Versions below this use controllers.
 	 * \param[in] obj A reference to the new controller which has an interpolator to attach.
 	 * \param[in] priority Used only in Oblivion to set the priority of one controller over another when the two are merged.
 	 * \sa NiControllerSequence::ClearChildren, NiControllerSequence::AddController
 	 */
 	NIFLIB_API void AddInterpolator( NiSingleInterpController * obj, byte priority = 0 );
 
+	/*!
+	 * Attaches an interpolator to this KF file for a KF file of version greater than 10.2.0.0.  Versions below this use controllers.
+	 * \param[in] obj A reference to the new controller which has an interpolator to attach.
+	 * \param[in] priority Used only in Oblivion to set the priority of one controller over another when the two are merged.
+	 * \param[in] include_string_pallete Indicates if the resulting ControllerLinks will hold reference to the NiStringPallete in the NiControllerSequence
+	 * \sa NiControllerSequence::ClearChildren, NiControllerSequence::AddController
+	 */
+	NIFLIB_API void AddInterpolator( NiSingleInterpController * obj, byte priority , bool include_string_pallete );
+
+	/*!
+	 * Attaches a generic interpolator to this KF file for a KF file of version greater than 10.2.0.0.  Versions below this use controllers.
+	 * \param[in] interpolator A reference to the new interpolator to insert into the controllersequence
+	 * \param[in] target The target object that the controller which held the interpolator would act on
+	 * \param[in] controller_type_name The name of the type of the controller that held the interpolator
+	 * \param[in] priority Used only in Oblivion to set the priority of one controller over another when the two are merged.
+	 * \param[in] include_string_pallete Indicates if the resulting ControllerLinks will hold reference to the NiStringPallete in the NiControllerSequence
+	 * \sa NiControllerSequence::ClearChildren, NiControllerSequence::AddController
+	 */
+	NIFLIB_API void AddGenericInterpolator( NiInterpolator * interpolator, NiObjectNET* target, string controller_type_name, byte priority = 0, bool include_string_pallete  = true);
+
 	/*! 
 	 * Removes all controllers and interpolators from this Kf file root object.
-	 * \sa NiControllerSequence::AddController, NiControllersequence::AddInterpolator
+	 * \sa NiControllerSequence::AddController, NiControllerSequence::AddInterpolator
 	 */
 	NIFLIB_API void ClearControllerData();
 
 	/*!
 	 * Retrieves the data for the controllers or interpolators which are attached to this controller sequence.
 	 * \return A vector containing the data for all controllers.
-	 * \sa NiControllerSequence::AddController, NiControllersequence::AddInterpolator, ClearKfChildren
+	 * \sa NiControllerSequence::AddController, NiControllerSequence::AddInterpolator, NiControllerSequence::SetContollerData
 	 */
 	NIFLIB_API vector<ControllerLink> GetControllerData() const;
+
+	/*!
+	* Retrieves the data for the controllers or interpolators which are attached to this controller sequence.
+	* \return A vector containing the data for all controllers.
+	* \sa NiControllerSequence::AddController, NiControllerSequence::AddInterpolator, NiControllerSequence::GetContollerData
+	*/
+	NIFLIB_API void SetControllerData(const vector<ControllerLink>& value);
 
 	/*!
 	 * Retrieves the text keys, which are tags associated with keyframe times that mark the start and stop of each sequence, among other things such as the triggering of sound effects.
@@ -220,6 +255,18 @@ public:
 	 */
 	NIFLIB_API void SetTargetName( const string & value );
 
+	/*!
+	* Gets the string palette for this controller.
+	* \return The string palette.
+	*/
+	NIFLIB_API Ref<NiStringPalette > GetStringPalette() const;
+
+	/*!
+	* Sets the string palette for this controller.
+	* \param[in] value The string palette.
+	*/
+	NIFLIB_API void SetStringPalette( const Ref<NiStringPalette >& value );
+
 protected:
    friend class NiControllerManager;
    NiControllerManager * GetParent() const;
@@ -242,27 +289,38 @@ protected:
 	float frequency;
 	/*! The controller sequence start time? */
 	float startTime;
-	/*! The controller sequence stop time? */
-	float stopTime;
 	/*! Unknown. */
 	float unknownFloat2;
+	/*! The controller sequence stop time? */
+	float stopTime;
 	/*! Unknown. */
 	byte unknownByte;
 	/*! Refers to NiControllerManager which references this object, if any. */
 	NiControllerManager * manager;
 	/*! Name of target node Controller acts on. */
-	string targetName;
+	IndexString targetName;
 	/*! Refers to NiStringPalette. */
 	Ref<NiStringPalette > stringPalette;
+	/*! Unknown */
+	Ref<BSAnimNotes > animNotes;
+	/*! Unknown */
+	short unknownShort1;
+	/*!
+	 * Unknown, found in some Lazeska and Krazy Rain .KFs (seems to be 64 when
+	 * present).
+	 */
+	unsigned int unknownInt3;
 public:
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
 	NIFLIB_HIDDEN virtual void Read( istream& in, list<unsigned int> & link_stack, const NifInfo & info );
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
-	NIFLIB_HIDDEN virtual void Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const;
+	NIFLIB_HIDDEN virtual void Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const;
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
-	NIFLIB_HIDDEN virtual void FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info );
+	NIFLIB_HIDDEN virtual void FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info );
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
 	NIFLIB_HIDDEN virtual list<NiObjectRef> GetRefs() const;
+	/*! NIFLIB_HIDDEN function.  For internal use only. */
+	NIFLIB_HIDDEN virtual list<NiObject *> GetPtrs() const;
 };
 
 //--BEGIN FILE FOOT CUSTOM CODE--//

@@ -24,7 +24,7 @@ class NiTriBasedGeom;
 class NiPSysMeshEmitter;
 typedef Ref<NiPSysMeshEmitter> NiPSysMeshEmitterRef;
 
-/*! Unknown. */
+/*! Particle emitter that uses points on a specified mesh to emit from. */
 class NiPSysMeshEmitter : public NiPSysEmitter {
 public:
 	/*! Constructor */
@@ -58,6 +58,26 @@ public:
 	NIFLIB_API virtual const Type & GetType() const;
 
 	//--BEGIN MISC CUSTOM CODE--//
+
+	/*!
+	 * Adds a single geometry to the collection. The collection will expand if necessary.
+	 * \param[in] mesh The shape to add to the collection.
+	 */
+	NIFLIB_API bool AddEmitterMesh( Ref<NiTriBasedGeom > mesh );
+
+	/*!
+	 * Remove a single geometry from the collection.
+	 * \param[in] mesh The shape remove from the collection.
+	 */
+	NIFLIB_API bool RemoveEmitterMesh( Ref<NiTriBasedGeom > mesh );
+
+	/*!
+	 * Replace a single geometry by another in the specified shape group.
+	 * \param[in] newmesh The geometry put into the collection.
+	 * \param[in] oldmesh The geometry remove from collection.
+	 */
+	NIFLIB_API bool ReplaceEmitterMesh( Ref<NiTriBasedGeom > newmesh, Ref<NiTriBasedGeom > oldmesh );
+
 	//--END CUSTOM CODE--//
 protected:
 	/*! The number of references to emitter meshes that follow. */
@@ -74,11 +94,13 @@ public:
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
 	NIFLIB_HIDDEN virtual void Read( istream& in, list<unsigned int> & link_stack, const NifInfo & info );
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
-	NIFLIB_HIDDEN virtual void Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const;
+	NIFLIB_HIDDEN virtual void Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const;
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
-	NIFLIB_HIDDEN virtual void FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info );
+	NIFLIB_HIDDEN virtual void FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info );
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
 	NIFLIB_HIDDEN virtual list<NiObjectRef> GetRefs() const;
+	/*! NIFLIB_HIDDEN function.  For internal use only. */
+	NIFLIB_HIDDEN virtual list<NiObject *> GetPtrs() const;
 };
 
 //--BEGIN FILE FOOT CUSTOM CODE--//

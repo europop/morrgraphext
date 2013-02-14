@@ -48,11 +48,11 @@ void NiPSysSphereEmitter::Read( istream& in, list<unsigned int> & link_stack, co
 	//--END CUSTOM CODE--//
 }
 
-void NiPSysSphereEmitter::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const {
+void NiPSysSphereEmitter::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const {
 	//--BEGIN PRE-WRITE CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiPSysVolumeEmitter::Write( out, link_map, info );
+	NiPSysVolumeEmitter::Write( out, link_map, missing_link_stack, info );
 	NifStream( radius, out, info );
 
 	//--BEGIN POST-WRITE CUSTOM CODE--//
@@ -64,7 +64,6 @@ std::string NiPSysSphereEmitter::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 
 	stringstream out;
-	unsigned int array_output_count = 0;
 	out << NiPSysVolumeEmitter::asString();
 	out << "  Radius:  " << radius << endl;
 	return out.str();
@@ -73,11 +72,11 @@ std::string NiPSysSphereEmitter::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 }
 
-void NiPSysSphereEmitter::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info ) {
+void NiPSysSphereEmitter::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info ) {
 	//--BEGIN PRE-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiPSysVolumeEmitter::FixLinks( objects, link_stack, info );
+	NiPSysVolumeEmitter::FixLinks( objects, link_stack, missing_link_stack, info );
 
 	//--BEGIN POST-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
@@ -87,6 +86,12 @@ std::list<NiObjectRef> NiPSysSphereEmitter::GetRefs() const {
 	list<Ref<NiObject> > refs;
 	refs = NiPSysVolumeEmitter::GetRefs();
 	return refs;
+}
+
+std::list<NiObject *> NiPSysSphereEmitter::GetPtrs() const {
+	list<NiObject *> ptrs;
+	ptrs = NiPSysVolumeEmitter::GetPtrs();
+	return ptrs;
 }
 
 //--BEGIN MISC CUSTOM CODE--//

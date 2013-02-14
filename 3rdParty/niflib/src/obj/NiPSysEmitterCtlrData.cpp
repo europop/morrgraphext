@@ -61,11 +61,11 @@ void NiPSysEmitterCtlrData::Read( istream& in, list<unsigned int> & link_stack, 
 	//--END CUSTOM CODE--//
 }
 
-void NiPSysEmitterCtlrData::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const {
+void NiPSysEmitterCtlrData::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const {
 	//--BEGIN PRE-WRITE CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiObject::Write( out, link_map, info );
+	NiObject::Write( out, link_map, missing_link_stack, info );
 	numVisibilityKeys_ = (unsigned int)(visibilityKeys_.size());
 	floatKeys_.numKeys = (unsigned int)(floatKeys_.keys.size());
 	NifStream( floatKeys_.numKeys, out, info );
@@ -128,11 +128,11 @@ std::string NiPSysEmitterCtlrData::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 }
 
-void NiPSysEmitterCtlrData::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info ) {
+void NiPSysEmitterCtlrData::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info ) {
 	//--BEGIN PRE-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiObject::FixLinks( objects, link_stack, info );
+	NiObject::FixLinks( objects, link_stack, missing_link_stack, info );
 
 	//--BEGIN POST-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
@@ -142,6 +142,12 @@ std::list<NiObjectRef> NiPSysEmitterCtlrData::GetRefs() const {
 	list<Ref<NiObject> > refs;
 	refs = NiObject::GetRefs();
 	return refs;
+}
+
+std::list<NiObject *> NiPSysEmitterCtlrData::GetPtrs() const {
+	list<NiObject *> ptrs;
+	ptrs = NiObject::GetPtrs();
+	return ptrs;
 }
 
 //--BEGIN MISC CUSTOM CODE--//

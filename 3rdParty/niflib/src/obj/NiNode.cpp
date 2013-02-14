@@ -78,34 +78,50 @@ void NiNode::Read( istream& in, list<unsigned int> & link_stack, const NifInfo &
 	//--END CUSTOM CODE--//
 }
 
-void NiNode::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const {
+void NiNode::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const {
 	//--BEGIN PRE-WRITE CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiAVObject::Write( out, link_map, info );
+	NiAVObject::Write( out, link_map, missing_link_stack, info );
 	numEffects = (unsigned int)(effects.size());
 	numChildren = (unsigned int)(children.size());
 	NifStream( numChildren, out, info );
 	for (unsigned int i1 = 0; i1 < children.size(); i1++) {
 		if ( info.version < VER_3_3_0_13 ) {
-			NifStream( (unsigned int)&(*children[i1]), out, info );
+			WritePtr32( &(*children[i1]), out );
 		} else {
 			if ( children[i1] != NULL ) {
-				NifStream( link_map.find( StaticCast<NiObject>(children[i1]) )->second, out, info );
+				map<NiObjectRef,unsigned int>::const_iterator it = link_map.find( StaticCast<NiObject>(children[i1]) );
+				if (it != link_map.end()) {
+					NifStream( it->second, out, info );
+					missing_link_stack.push_back( NULL );
+				} else {
+					NifStream( 0xFFFFFFFF, out, info );
+					missing_link_stack.push_back( children[i1] );
+				}
 			} else {
 				NifStream( 0xFFFFFFFF, out, info );
+				missing_link_stack.push_back( NULL );
 			}
 		}
 	};
 	NifStream( numEffects, out, info );
 	for (unsigned int i1 = 0; i1 < effects.size(); i1++) {
 		if ( info.version < VER_3_3_0_13 ) {
-			NifStream( (unsigned int)&(*effects[i1]), out, info );
+			WritePtr32( &(*effects[i1]), out );
 		} else {
 			if ( effects[i1] != NULL ) {
-				NifStream( link_map.find( StaticCast<NiObject>(effects[i1]) )->second, out, info );
+				map<NiObjectRef,unsigned int>::const_iterator it = link_map.find( StaticCast<NiObject>(effects[i1]) );
+				if (it != link_map.end()) {
+					NifStream( it->second, out, info );
+					missing_link_stack.push_back( NULL );
+				} else {
+					NifStream( 0xFFFFFFFF, out, info );
+					missing_link_stack.push_back( effects[i1] );
+				}
 			} else {
 				NifStream( 0xFFFFFFFF, out, info );
+				missing_link_stack.push_back( NULL );
 			}
 		}
 	};
@@ -155,16 +171,16 @@ std::string NiNode::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 }
 
-void NiNode::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info ) {
+void NiNode::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info ) {
 	//--BEGIN PRE-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiAVObject::FixLinks( objects, link_stack, info );
+	NiAVObject::FixLinks( objects, link_stack, missing_link_stack, info );
 	for (unsigned int i1 = 0; i1 < children.size(); i1++) {
-		children[i1] = FixLink<NiAVObject>( objects, link_stack, info );
+		children[i1] = FixLink<NiAVObject>( objects, link_stack, missing_link_stack, info );
 	};
 	for (unsigned int i1 = 0; i1 < effects.size(); i1++) {
-		effects[i1] = FixLink<NiDynamicEffect>( objects, link_stack, info );
+		effects[i1] = FixLink<NiDynamicEffect>( objects, link_stack, missing_link_stack, info );
 	};
 
 	//--BEGIN POST-FIXLINKS CUSTOM CODE--//
@@ -196,9 +212,19 @@ std::list<NiObjectRef> NiNode::GetRefs() const {
 	return refs;
 }
 
+std::list<NiObject *> NiNode::GetPtrs() const {
+	list<NiObject *> ptrs;
+	ptrs = NiAVObject::GetPtrs();
+	for (unsigned int i1 = 0; i1 < children.size(); i1++) {
+	};
+	for (unsigned int i1 = 0; i1 < effects.size(); i1++) {
+	};
+	return ptrs;
+}
+
 //--BEGIN MISC CUSTOM CODE--//
 
-void NiNode::AddChild( NiAVObject * obj ) {
+void NiNode::AddChild( Ref<NiAVObject> obj ) {
 	if ( obj->GetParent() != NULL ) {
 		throw runtime_error( "You have attempted to add a child to a NiNode which already is the child of another NiNode." );
 	}
@@ -224,15 +250,10 @@ void NiNode::AddChild( NiAVObject * obj ) {
 	}
 }
 
-void NiNode::RemoveChild( NiAVObject * obj ) {
+void NiNode::RemoveChild( Ref<NiAVObject> obj ) {
 	//Search child list for the one to remove
 	for ( vector< NiAVObjectRef >::iterator it = children.begin(); it != children.end(); ) {
 		if ( *it == obj ) {
-			//Ensure that this child is not a skin influence
-			NiNodeRef niNode = DynamicCast<NiNode>((*it));
-			if ( niNode != NULL && niNode->IsSkinInfluence() == true ) {
-				throw runtime_error("You cannot remove a node child that is a skin influence.  Detatch the skin first.");
-			}
 			(*it)->SetParent(NULL);
 			it = children.erase( it );
 		} else {

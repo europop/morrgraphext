@@ -114,16 +114,20 @@ public:
 	 */
 	NIFLIB_API void SetRadius2( float value );
 
+	/*! Helper routine for calculating mass properties.
+	*  \param[in]  density Uniform density of object
+	*  \param[in]  solid Determines whether the object is assumed to be solid or not
+	*  \param[out] mass Calculated mass of the object
+	*  \param[out] center Center of mass
+	*  \param[out] inertia Mass Inertia Tensor
+	*  \return Return mass, center, and inertia tensor.
+	*/
+	NIFLIB_API virtual void CalcMassProperties(float density, bool solid, float &mass, float &volume, Vector3 &center, InertiaMatrix& inertia);
+
 	//--END CUSTOM CODE--//
 protected:
 	/*! Unknown. */
-	unsigned short unknownShort1;
-	/*! Unknown. */
-	unsigned short unknownShort2;
-	/*! Unknown. */
-	unsigned short unknownShort3;
-	/*! Unknown. */
-	unsigned short unknownShort4;
+	array<8,byte > unknown8Bytes;
 	/*! First point on the capsule's axis. */
 	Vector3 firstPoint;
 	/*! Matches first capsule radius. */
@@ -136,11 +140,13 @@ public:
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
 	NIFLIB_HIDDEN virtual void Read( istream& in, list<unsigned int> & link_stack, const NifInfo & info );
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
-	NIFLIB_HIDDEN virtual void Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const;
+	NIFLIB_HIDDEN virtual void Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const;
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
-	NIFLIB_HIDDEN virtual void FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info );
+	NIFLIB_HIDDEN virtual void FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info );
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
 	NIFLIB_HIDDEN virtual list<NiObjectRef> GetRefs() const;
+	/*! NIFLIB_HIDDEN function.  For internal use only. */
+	NIFLIB_HIDDEN virtual list<NiObject *> GetPtrs() const;
 };
 
 //--BEGIN FILE FOOT CUSTOM CODE--//

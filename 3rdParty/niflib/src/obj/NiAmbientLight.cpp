@@ -47,11 +47,11 @@ void NiAmbientLight::Read( istream& in, list<unsigned int> & link_stack, const N
 	//--END CUSTOM CODE--//
 }
 
-void NiAmbientLight::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const {
+void NiAmbientLight::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const {
 	//--BEGIN PRE-WRITE CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiLight::Write( out, link_map, info );
+	NiLight::Write( out, link_map, missing_link_stack, info );
 
 	//--BEGIN POST-WRITE CUSTOM CODE--//
 	//--END CUSTOM CODE--//
@@ -62,7 +62,6 @@ std::string NiAmbientLight::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 
 	stringstream out;
-	unsigned int array_output_count = 0;
 	out << NiLight::asString();
 	return out.str();
 
@@ -70,11 +69,11 @@ std::string NiAmbientLight::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 }
 
-void NiAmbientLight::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info ) {
+void NiAmbientLight::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info ) {
 	//--BEGIN PRE-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiLight::FixLinks( objects, link_stack, info );
+	NiLight::FixLinks( objects, link_stack, missing_link_stack, info );
 
 	//--BEGIN POST-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
@@ -84,6 +83,12 @@ std::list<NiObjectRef> NiAmbientLight::GetRefs() const {
 	list<Ref<NiObject> > refs;
 	refs = NiLight::GetRefs();
 	return refs;
+}
+
+std::list<NiObject *> NiAmbientLight::GetPtrs() const {
+	list<NiObject *> ptrs;
+	ptrs = NiLight::GetPtrs();
+	return ptrs;
 }
 
 //--BEGIN MISC CUSTOM CODE--//

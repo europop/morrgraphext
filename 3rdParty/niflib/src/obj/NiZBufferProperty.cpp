@@ -19,7 +19,7 @@ using namespace Niflib;
 //Definition of TYPE constant
 const Type NiZBufferProperty::TYPE("NiZBufferProperty", &NiProperty::TYPE );
 
-NiZBufferProperty::NiZBufferProperty() : flags((unsigned short)3), function((CompareMode)3) {
+NiZBufferProperty::NiZBufferProperty() : flags((unsigned short)3), function((ZCompareMode)ZCOMP_LESS_EQUAL) {
 	//--BEGIN CONSTRUCTOR CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 }
@@ -43,7 +43,7 @@ void NiZBufferProperty::Read( istream& in, list<unsigned int> & link_stack, cons
 
 	NiProperty::Read( in, link_stack, info );
 	NifStream( flags, in, info );
-	if ( info.version >= 0x0401000C ) {
+	if ( ( info.version >= 0x0401000C ) && ( info.version <= 0x14000005 ) ) {
 		NifStream( function, in, info );
 	};
 
@@ -51,13 +51,13 @@ void NiZBufferProperty::Read( istream& in, list<unsigned int> & link_stack, cons
 	//--END CUSTOM CODE--//
 }
 
-void NiZBufferProperty::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const {
+void NiZBufferProperty::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const {
 	//--BEGIN PRE-WRITE CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiProperty::Write( out, link_map, info );
+	NiProperty::Write( out, link_map, missing_link_stack, info );
 	NifStream( flags, out, info );
-	if ( info.version >= 0x0401000C ) {
+	if ( ( info.version >= 0x0401000C ) && ( info.version <= 0x14000005 ) ) {
 		NifStream( function, out, info );
 	};
 
@@ -70,7 +70,6 @@ std::string NiZBufferProperty::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 
 	stringstream out;
-	unsigned int array_output_count = 0;
 	out << NiProperty::asString();
 	out << "  Flags:  " << flags << endl;
 	out << "  Function:  " << function << endl;
@@ -80,11 +79,11 @@ std::string NiZBufferProperty::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 }
 
-void NiZBufferProperty::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info ) {
+void NiZBufferProperty::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info ) {
 	//--BEGIN PRE-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiProperty::FixLinks( objects, link_stack, info );
+	NiProperty::FixLinks( objects, link_stack, missing_link_stack, info );
 
 	//--BEGIN POST-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
@@ -94,6 +93,12 @@ std::list<NiObjectRef> NiZBufferProperty::GetRefs() const {
 	list<Ref<NiObject> > refs;
 	refs = NiProperty::GetRefs();
 	return refs;
+}
+
+std::list<NiObject *> NiZBufferProperty::GetPtrs() const {
+	list<NiObject *> ptrs;
+	ptrs = NiProperty::GetPtrs();
+	return ptrs;
 }
 
 //--BEGIN MISC CUSTOM CODE--//
@@ -106,11 +111,11 @@ void NiZBufferProperty::SetFlags(unsigned short value) {
    flags = value;
 }
 
-CompareMode NiZBufferProperty::GetDepthFunction() const {
+ZCompareMode NiZBufferProperty::GetDepthFunction() const {
    return function;
 }
 
-void NiZBufferProperty::SetDepthFunction(CompareMode value) {
+void NiZBufferProperty::SetDepthFunction(ZCompareMode value) {
    function = value;
 }
 

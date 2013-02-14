@@ -21,7 +21,7 @@ using namespace Niflib;
 //Definition of TYPE constant
 const Type NiRawImageData::TYPE("NiRawImageData", &NiObject::TYPE );
 
-NiRawImageData::NiRawImageData() : width((unsigned int)0), height((unsigned int)0) {
+NiRawImageData::NiRawImageData() : width((unsigned int)0), height((unsigned int)0), imageType((ImageType)0) {
 	//--BEGIN CONSTRUCTOR CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 }
@@ -75,11 +75,11 @@ void NiRawImageData::Read( istream& in, list<unsigned int> & link_stack, const N
 	//--END CUSTOM CODE--//
 }
 
-void NiRawImageData::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const {
+void NiRawImageData::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const {
 	//--BEGIN PRE-WRITE CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiObject::Write( out, link_map, info );
+	NiObject::Write( out, link_map, missing_link_stack, info );
 	height = (unsigned int)((rgbImageData.size() > 0) ? rgbImageData[0].size() : 0);
 	width = (unsigned int)(rgbImageData.size());
 	NifStream( width, out, info );
@@ -156,11 +156,11 @@ std::string NiRawImageData::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 }
 
-void NiRawImageData::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info ) {
+void NiRawImageData::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info ) {
 	//--BEGIN PRE-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiObject::FixLinks( objects, link_stack, info );
+	NiObject::FixLinks( objects, link_stack, missing_link_stack, info );
 
 	//--BEGIN POST-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
@@ -170,6 +170,12 @@ std::list<NiObjectRef> NiRawImageData::GetRefs() const {
 	list<Ref<NiObject> > refs;
 	refs = NiObject::GetRefs();
 	return refs;
+}
+
+std::list<NiObject *> NiRawImageData::GetPtrs() const {
+	list<NiObject *> ptrs;
+	ptrs = NiObject::GetPtrs();
+	return ptrs;
 }
 
 //--BEGIN MISC CUSTOM CODE--//

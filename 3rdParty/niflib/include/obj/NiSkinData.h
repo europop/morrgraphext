@@ -19,6 +19,7 @@ namespace Niflib {
 #include "NiObject.h"
 
 // Include structures
+#include "../gen/SkinTransform.h"
 #include "../Ref.h"
 #include "../gen/SkinData.h"
 namespace Niflib {
@@ -106,6 +107,12 @@ public:
 	NIFLIB_API void SetBoneWeights( unsigned int bone_index, const vector<SkinWeight> & weights, Vector3 center, float radius );
 	
 	/*!
+	 * Sets the skin weights for a particular bone, without changing center and radius
+	 * \sa NiSkinData::SetBoneWeights
+	 */
+	NIFLIB_API void SetBoneWeights( unsigned int bone_index, const vector<SkinWeight> & weights );
+
+	/*!
 	 * Returns a reference to the hardware skin partition data object, if any.
 	 * \return The hardware skin partition data, or NULL if none is used.
 	 */
@@ -137,21 +144,8 @@ public:
 
 	//--END CUSTOM CODE--//
 protected:
-	/*!
-	 * The overall rotation offset of the skin from this bone in the bind position.
-	 *             (This is a guess, it has always been the identity matrix so far)
-	 */
-	Matrix33 rotation;
-	/*!
-	 * The overall translation offset of the skin from this bone in the bind position.
-	 * (This is a guess, it has always been (0.0, 0.0, 0.0) so far)
-	 */
-	Vector3 translation;
-	/*!
-	 * The scale offset of the skin from this bone in the bind position. (This is an
-	 * assumption - it has always been 1.0 so far)
-	 */
-	float scale;
+	/*! Offset of the skin from this bone in bind position. */
+	SkinTransform skinTransform;
 	/*! Number of bones. */
 	mutable unsigned int numBones;
 	/*! This optionally links a NiSkinPartition for hardware-acceleration information. */
@@ -164,11 +158,13 @@ public:
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
 	NIFLIB_HIDDEN virtual void Read( istream& in, list<unsigned int> & link_stack, const NifInfo & info );
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
-	NIFLIB_HIDDEN virtual void Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const;
+	NIFLIB_HIDDEN virtual void Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const;
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
-	NIFLIB_HIDDEN virtual void FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info );
+	NIFLIB_HIDDEN virtual void FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info );
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
 	NIFLIB_HIDDEN virtual list<NiObjectRef> GetRefs() const;
+	/*! NIFLIB_HIDDEN function.  For internal use only. */
+	NIFLIB_HIDDEN virtual list<NiObject *> GetPtrs() const;
 };
 
 //--BEGIN FILE FOOT CUSTOM CODE--//

@@ -47,11 +47,11 @@ void bhkConvexShape::Read( istream& in, list<unsigned int> & link_stack, const N
 	//--END CUSTOM CODE--//
 }
 
-void bhkConvexShape::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const {
+void bhkConvexShape::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const {
 	//--BEGIN PRE-WRITE CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	bhkSphereRepShape::Write( out, link_map, info );
+	bhkSphereRepShape::Write( out, link_map, missing_link_stack, info );
 
 	//--BEGIN POST-WRITE CUSTOM CODE--//
 	//--END CUSTOM CODE--//
@@ -62,7 +62,6 @@ std::string bhkConvexShape::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 
 	stringstream out;
-	unsigned int array_output_count = 0;
 	out << bhkSphereRepShape::asString();
 	return out.str();
 
@@ -70,11 +69,11 @@ std::string bhkConvexShape::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 }
 
-void bhkConvexShape::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info ) {
+void bhkConvexShape::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info ) {
 	//--BEGIN PRE-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	bhkSphereRepShape::FixLinks( objects, link_stack, info );
+	bhkSphereRepShape::FixLinks( objects, link_stack, missing_link_stack, info );
 
 	//--BEGIN POST-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
@@ -86,5 +85,19 @@ std::list<NiObjectRef> bhkConvexShape::GetRefs() const {
 	return refs;
 }
 
+std::list<NiObject *> bhkConvexShape::GetPtrs() const {
+	list<NiObject *> ptrs;
+	ptrs = bhkSphereRepShape::GetPtrs();
+	return ptrs;
+}
+
 //--BEGIN MISC CUSTOM CODE--//
+
+void bhkConvexShape::CalcMassProperties(float density, bool solid, float &mass, float &volume, Vector3 &center, InertiaMatrix& inertia)
+{
+	center = Vector3(0,0,0);
+	mass = 0.0f, volume = 0.0f;
+	inertia = InertiaMatrix::IDENTITY;
+}
+
 //--END CUSTOM CODE--//

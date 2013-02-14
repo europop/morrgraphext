@@ -20,7 +20,7 @@ All rights reserved.  Please see niflib.h for license. */
 namespace Niflib {
 
 // Forward define of referenced NIF objects
-class NiObject;
+class AbstractAdditionalGeometryData;
 class NiGeometryData;
 typedef Ref<NiGeometryData> NiGeometryDataRef;
 
@@ -58,6 +58,13 @@ public:
 	NIFLIB_API virtual const Type & GetType() const;
 
 	//--BEGIN MISC CUSTOM CODE--//
+protected:
+	/*! The mesh vertex indices. */
+	vector<int > vertexIndices;
+
+	/*! The mapping between Nif & Max UV sets. */
+	std::map<int, int>  uvSetMap; // first = Max index, second = Nif index
+public:
 
 	//--Counts--//
 
@@ -82,6 +89,13 @@ public:
 	 */
 	NIFLIB_API void SetUVSetCount(int n);
 
+	/*! 
+	 * Returns the number of vertec indices that make up this mesh.
+	 * \return The number of vertex indices that make up this mesh.
+	 * \sa IShapeData::SetVertexIndexCount
+	 */
+	NIFLIB_API int GetVertexIndexCount() const;
+
 	//--Getters--//
 
 	/*! 
@@ -96,6 +110,12 @@ public:
 	 * \return The radius of this mesh.
 	 */
 	NIFLIB_API float GetRadius() const;
+
+	/*! 
+	 * Assigns the center and radius of the spherical bound of this data.
+	 * \remark GeoMorpher controllers will alter the model bound.
+	 */
+	NIFLIB_API void SetBound(Vector3 const & center, float radius);
 
 	/*! 
 	 * Used to retrive the vertices used by this mesh.  The size of the vector will be the same as the vertex count retrieved with the IShapeData::GetVertexCount function.
@@ -126,6 +146,20 @@ public:
 	 */
 	NIFLIB_API vector<TexCoord> GetUVSet( int index ) const;
 	
+	/*! 
+	 * Used to retrive the vertex indices used by this mesh.  The size of the vector will be the same as the vertex count retrieved with the IShapeData::GetVertexIndexCount function.
+	 * \return A vector containing the vertex indices used by this mesh.
+	 * \sa IShapeData::SetVertexIndices, IShapeData::GetVertexIndexCount, IShapeData::SetVertexIndexCount.
+	 */
+	NIFLIB_API vector<int> GetVertexIndices() const;
+
+	/*! 
+	 * Used to retrive the the NIF index corresponding to the Max map channel. If there isn't one, -1 is returned.
+	 * \param maxMapChannel The max map channel of the desired UV set.
+	 * \return A int representing the NIF index of the UV se used.
+	 */
+	NIFLIB_API int GetUVSetIndex(int maxMapChannel) const;
+
 	//--Setters--//
 
 	/*! 
@@ -157,6 +191,19 @@ public:
 	 */
 	NIFLIB_API void SetUVSet( int index, const vector<TexCoord> & in );
 
+	/*! 
+	 * Used to set the vertex index data used by this mesh.  Calling this function will clear all other data in this object.
+	 * \param in A vector containing the vertex indices to replace those in the mesh with.  Note that there is no way to set vertices one at a time, they must be sent in one batch.
+	 * \sa IShapeData::GetVertexIndices, IShapeData::GetVertexIndexCount
+	 */
+	NIFLIB_API virtual void SetVertexIndices( const vector<int> & in );
+
+	/*! 
+	 * Used to set the UV set mapping data used by this mesh.  This info maps the Max map channel to the index used in the NIF.
+	 * \param in A map of UV set indices; first is the Max map channel and the second is the index used in the Nif mesh.
+	 */
+	NIFLIB_API virtual void SetUVSetMap( const std::map<int, int> & in );
+
 	/*!
 	 * Used to apply a transformation directly to all the vertices and normals in
 	 * this mesh.
@@ -164,25 +211,80 @@ public:
 	 */
 	NIFLIB_API void Transform( const Matrix44 & transform );
 
+	// Consistency Flags
+	// \return The current value.
+	NIFLIB_API ConsistencyType GetConsistencyFlags() const;
+
+	// Consistency Flags
+	// \param[in] value The new value.
+	NIFLIB_API void SetConsistencyFlags( const ConsistencyType & value );
+
+   // Methods for saving bitangents and tangents saved in upper byte.
+   // \return The current value.
+   NIFLIB_API byte GetTspaceFlag() const;
+
+   // Methods for saving bitangents and tangents saved in upper byte.
+   // \param[in] value The new value.
+   NIFLIB_API void SetTspaceFlag( byte value );
+
+   // Do we have lighting normals? These are essential for proper lighting: if not
+   // present, the model will only be influenced by ambient light.
+   // \return The current value.
+   NIFLIB_API bool GetHasNormals() const;
+
+   // Do we have lighting normals? These are essential for proper lighting: if not
+   // present, the model will only be influenced by ambient light.
+   // \param[in] value The new value.
+   NIFLIB_API void SetHasNormals( bool value );
+
+   // Unknown. Binormal & tangents? has_normals must be set as well for this field to
+   // be present.
+   // \return The current value.
+   NIFLIB_API vector<Vector3 > GetBitangents() const;
+
+   // Unknown. Binormal & tangents? has_normals must be set as well for this field to
+   // be present.
+   // \param[in] value The new value.
+   NIFLIB_API void SetBitangents( const vector<Vector3 >& value );
+
+   // Unknown. Binormal & tangents?
+   // \return The current value.
+   NIFLIB_API vector<Vector3 > GetTangents() const;
+
+   // Unknown. Binormal & tangents?
+   // \param[in] value The new value.
+   NIFLIB_API void SetTangents( const vector<Vector3 >& value );
+
+private:
+   unsigned short numUvSetsCalc(const NifInfo &) const;
+   unsigned short bsNumUvSetsCalc(const NifInfo &) const;
+
 	//--END CUSTOM CODE--//
 protected:
-	/*! Name of this object. */
-	string name;
-	/*! Number of vertices. For NiPSysData this is max particles. */
+	/*! Unknown identifier. Always 0. */
+	int unknownInt;
+	/*! Number of vertices. */
 	mutable unsigned short numVertices;
+	/*! Bethesda uses this for max number of particles in NiPSysData. */
+	unsigned short bsMaxVertices;
+	/*! Used with NiCollision objects when OBB or TRI is set. */
+	byte keepFlags;
 	/*! Unknown. */
-	unsigned short unknownShort1;
+	byte compressFlags;
 	/*! Is the vertex array present? (Always non-zero.) */
 	bool hasVertices;
 	/*! The mesh vertices. */
 	vector<Vector3 > vertices;
+	/*! Flag for tangents and bitangents in upper byte. Texture flags in lower byte. */
+	mutable unsigned short numUvSets;
 	/*!
-	 * The lower 6 (or less?) bits of this field represent the number of UV texture
-	 * sets. The other bits are probably flag bits.
+	 * Bethesda's version of this field for nif versions 20.2.0.7 and up. Only a single
+	 * bit denotes whether uv's are present. For example, see
+	 * meshes/architecture/megaton/megatonrampturn45sml.nif in Fallout 3.
 	 */
-	mutable byte numUvSets2;
-	/*! Unknown. If bit 4 is set then extra vectors are present after the normals. */
-	byte unknownByte1;
+	mutable unsigned short bsNumUvSets;
+	/*! Unknown, seen in Skyrim. */
+	unsigned int unknownInt2;
 	/*!
 	 * Do we have lighting normals? These are essential for proper lighting: if not
 	 * present, the model will only be influenced by ambient light.
@@ -190,13 +292,10 @@ protected:
 	bool hasNormals;
 	/*! The lighting normals. */
 	vector<Vector3 > normals;
-	/*!
-	 * Unknown. Binormal & tangents? has_normals must be set as well for this field to
-	 * be present.
-	 */
-	vector<Vector3 > unknownVectors1;
-	/*! Unknown. Binormal & tangents? */
-	vector<Vector3 > unknownVectors2;
+	/*! Tangent vectors. */
+	vector<Vector3 > tangents;
+	/*! Bitangent vectors. */
+	vector<Vector3 > bitangents;
 	/*!
 	 * Center of the bounding box (smallest box that contains all vertices) of the
 	 * mesh.
@@ -207,6 +306,8 @@ protected:
 	 * vertices.
 	 */
 	float radius;
+	/*! Unknown, always 0? */
+	array<13,short > unknown13Shorts;
 	/*!
 	 * Do we have vertex colors? These are usually used to fine-tune the lighting of
 	 * the model.
@@ -220,8 +321,6 @@ protected:
 	bool hasVertexColors;
 	/*! The vertex colors. */
 	vector<Color4 > vertexColors;
-	/*! Number of texture sets. */
-	mutable unsigned short numUvSets;
 	/*!
 	 * Do we have UV coordinates?
 	 * 
@@ -234,19 +333,21 @@ protected:
 	 * require you to flip the second coordinate.
 	 */
 	vector< vector<TexCoord > > uvSets;
-	/*! Unknown. Usually zero. */
-	unsigned short unknownShort2;
+	/*! Consistency Flags */
+	ConsistencyType consistencyFlags;
 	/*! Unknown. */
-	Ref<NiObject > unknownLink1;
+	Ref<AbstractAdditionalGeometryData > additionalData;
 public:
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
 	NIFLIB_HIDDEN virtual void Read( istream& in, list<unsigned int> & link_stack, const NifInfo & info );
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
-	NIFLIB_HIDDEN virtual void Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const;
+	NIFLIB_HIDDEN virtual void Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const;
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
-	NIFLIB_HIDDEN virtual void FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info );
+	NIFLIB_HIDDEN virtual void FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info );
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
 	NIFLIB_HIDDEN virtual list<NiObjectRef> GetRefs() const;
+	/*! NIFLIB_HIDDEN function.  For internal use only. */
+	NIFLIB_HIDDEN virtual list<NiObject *> GetPtrs() const;
 };
 
 //--BEGIN FILE FOOT CUSTOM CODE--//

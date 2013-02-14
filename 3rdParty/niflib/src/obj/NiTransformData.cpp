@@ -47,11 +47,11 @@ void NiTransformData::Read( istream& in, list<unsigned int> & link_stack, const 
 	//--END CUSTOM CODE--//
 }
 
-void NiTransformData::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const {
+void NiTransformData::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const {
 	//--BEGIN PRE-WRITE CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiKeyframeData::Write( out, link_map, info );
+	NiKeyframeData::Write( out, link_map, missing_link_stack, info );
 
 	//--BEGIN POST-WRITE CUSTOM CODE--//
 	//--END CUSTOM CODE--//
@@ -62,7 +62,6 @@ std::string NiTransformData::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 
 	stringstream out;
-	unsigned int array_output_count = 0;
 	out << NiKeyframeData::asString();
 	return out.str();
 
@@ -70,11 +69,11 @@ std::string NiTransformData::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 }
 
-void NiTransformData::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info ) {
+void NiTransformData::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info ) {
 	//--BEGIN PRE-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiKeyframeData::FixLinks( objects, link_stack, info );
+	NiKeyframeData::FixLinks( objects, link_stack, missing_link_stack, info );
 
 	//--BEGIN POST-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
@@ -84,6 +83,12 @@ std::list<NiObjectRef> NiTransformData::GetRefs() const {
 	list<Ref<NiObject> > refs;
 	refs = NiKeyframeData::GetRefs();
 	return refs;
+}
+
+std::list<NiObject *> NiTransformData::GetPtrs() const {
+	list<NiObject *> ptrs;
+	ptrs = NiKeyframeData::GetPtrs();
+	return ptrs;
 }
 
 //--BEGIN MISC CUSTOM CODE--//

@@ -50,11 +50,11 @@ void NiBSplinePoint3Interpolator::Read( istream& in, list<unsigned int> & link_s
 	//--END CUSTOM CODE--//
 }
 
-void NiBSplinePoint3Interpolator::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const {
+void NiBSplinePoint3Interpolator::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const {
 	//--BEGIN PRE-WRITE CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiBSplineInterpolator::Write( out, link_map, info );
+	NiBSplineInterpolator::Write( out, link_map, missing_link_stack, info );
 	for (unsigned int i1 = 0; i1 < 6; i1++) {
 		NifStream( unknownFloats[i1], out, info );
 	};
@@ -88,11 +88,11 @@ std::string NiBSplinePoint3Interpolator::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 }
 
-void NiBSplinePoint3Interpolator::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info ) {
+void NiBSplinePoint3Interpolator::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info ) {
 	//--BEGIN PRE-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiBSplineInterpolator::FixLinks( objects, link_stack, info );
+	NiBSplineInterpolator::FixLinks( objects, link_stack, missing_link_stack, info );
 
 	//--BEGIN POST-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
@@ -102,6 +102,12 @@ std::list<NiObjectRef> NiBSplinePoint3Interpolator::GetRefs() const {
 	list<Ref<NiObject> > refs;
 	refs = NiBSplineInterpolator::GetRefs();
 	return refs;
+}
+
+std::list<NiObject *> NiBSplinePoint3Interpolator::GetPtrs() const {
+	list<NiObject *> ptrs;
+	ptrs = NiBSplineInterpolator::GetPtrs();
+	return ptrs;
 }
 
 //--BEGIN MISC CUSTOM CODE--//

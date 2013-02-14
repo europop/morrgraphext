@@ -8,6 +8,7 @@ All rights reserved.  Please see niflib.h for license. */
 //-----------------------------------NOTICE----------------------------------//
 
 //--BEGIN FILE HEAD CUSTOM CODE--//
+#include <algorithm>
 //--END CUSTOM CODE--//
 
 #include "../../include/FixLink.h"
@@ -20,7 +21,7 @@ using namespace Niflib;
 //Definition of TYPE constant
 const Type NiPSysMeshEmitter::TYPE("NiPSysMeshEmitter", &NiPSysEmitter::TYPE );
 
-NiPSysMeshEmitter::NiPSysMeshEmitter() : numEmitterMeshes((unsigned int)0) {
+NiPSysMeshEmitter::NiPSysMeshEmitter() : numEmitterMeshes((unsigned int)0), initialVelocityType((VelocityType)0), emissionType((EmitFrom)0) {
 	//--BEGIN CONSTRUCTOR CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 }
@@ -58,21 +59,29 @@ void NiPSysMeshEmitter::Read( istream& in, list<unsigned int> & link_stack, cons
 	//--END CUSTOM CODE--//
 }
 
-void NiPSysMeshEmitter::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const {
+void NiPSysMeshEmitter::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const {
 	//--BEGIN PRE-WRITE CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiPSysEmitter::Write( out, link_map, info );
+	NiPSysEmitter::Write( out, link_map, missing_link_stack, info );
 	numEmitterMeshes = (unsigned int)(emitterMeshes.size());
 	NifStream( numEmitterMeshes, out, info );
 	for (unsigned int i1 = 0; i1 < emitterMeshes.size(); i1++) {
 		if ( info.version < VER_3_3_0_13 ) {
-			NifStream( (unsigned int)&(*emitterMeshes[i1]), out, info );
+			WritePtr32( &(*emitterMeshes[i1]), out );
 		} else {
 			if ( emitterMeshes[i1] != NULL ) {
-				NifStream( link_map.find( StaticCast<NiObject>(emitterMeshes[i1]) )->second, out, info );
+				map<NiObjectRef,unsigned int>::const_iterator it = link_map.find( StaticCast<NiObject>(emitterMeshes[i1]) );
+				if (it != link_map.end()) {
+					NifStream( it->second, out, info );
+					missing_link_stack.push_back( NULL );
+				} else {
+					NifStream( 0xFFFFFFFF, out, info );
+					missing_link_stack.push_back( emitterMeshes[i1] );
+				}
 			} else {
 				NifStream( 0xFFFFFFFF, out, info );
+				missing_link_stack.push_back( NULL );
 			}
 		}
 	};
@@ -114,13 +123,13 @@ std::string NiPSysMeshEmitter::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 }
 
-void NiPSysMeshEmitter::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info ) {
+void NiPSysMeshEmitter::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info ) {
 	//--BEGIN PRE-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiPSysEmitter::FixLinks( objects, link_stack, info );
+	NiPSysEmitter::FixLinks( objects, link_stack, missing_link_stack, info );
 	for (unsigned int i1 = 0; i1 < emitterMeshes.size(); i1++) {
-		emitterMeshes[i1] = FixLink<NiTriBasedGeom>( objects, link_stack, info );
+		emitterMeshes[i1] = FixLink<NiTriBasedGeom>( objects, link_stack, missing_link_stack, info );
 	};
 
 	//--BEGIN POST-FIXLINKS CUSTOM CODE--//
@@ -137,5 +146,52 @@ std::list<NiObjectRef> NiPSysMeshEmitter::GetRefs() const {
 	return refs;
 }
 
+std::list<NiObject *> NiPSysMeshEmitter::GetPtrs() const {
+	list<NiObject *> ptrs;
+	ptrs = NiPSysEmitter::GetPtrs();
+	for (unsigned int i1 = 0; i1 < emitterMeshes.size(); i1++) {
+	};
+	return ptrs;
+}
+
 //--BEGIN MISC CUSTOM CODE--//
+
+bool NiPSysMeshEmitter::AddEmitterMesh( Ref<NiTriBasedGeom > mesh ) {
+  vector<Ref<NiTriBasedGeom > >& meshes = emitterMeshes;
+  vector<Ref<NiTriBasedGeom > >::iterator itr = std::find(meshes.begin(), meshes.end(), mesh);
+  if (itr == meshes.end()) {
+    meshes.push_back(mesh);
+    numEmitterMeshes++;
+
+    return true;
+  }
+
+  return false;
+}
+
+bool NiPSysMeshEmitter::RemoveEmitterMesh( Ref<NiTriBasedGeom > mesh ) {
+  vector<Ref<NiTriBasedGeom > >& meshes = emitterMeshes;
+  vector<Ref<NiTriBasedGeom > >::iterator itr = std::find(meshes.begin(), meshes.end(), mesh);
+  if (itr == meshes.end()) {
+    meshes.erase(itr);
+    numEmitterMeshes--;
+
+    return true;
+  }
+
+  return false;
+}
+
+bool NiPSysMeshEmitter::ReplaceEmitterMesh( Ref<NiTriBasedGeom > newmesh, Ref<NiTriBasedGeom > oldmesh ) {
+  vector<Ref<NiTriBasedGeom > >& meshes = emitterMeshes;
+  vector<Ref<NiTriBasedGeom > >::iterator itr = std::find(meshes.begin(), meshes.end(), oldmesh);
+  if (itr != meshes.end()) {
+    *itr = newmesh;
+
+    return true;
+  }
+
+  return false;
+}
+
 //--END CUSTOM CODE--//

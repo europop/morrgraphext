@@ -80,6 +80,11 @@ public:
 	NIFLIB_API void DoMatchDetection();
 
 	/*!
+	 * Remove match detection data.
+	 */
+	NIFLIB_API void RemoveMatchData();
+
+	/*!
 	 * Used to determine whether current match detection data has been previously
 	 * generated.
 	 * \return true if there is current match data, false otherwise.
@@ -104,27 +109,34 @@ public:
 	 */
 	NIFLIB_API virtual void SetTriangles( const vector<Triangle> & in );
 
+private:
+	bool hasTrianglesCalc(const NifInfo & info) const {
+		return (triangles.size() > 0);
+	};
+
 	//--END CUSTOM CODE--//
 protected:
 	/*! Num Triangles times 3. */
 	unsigned int numTrianglePoints;
 	/*! Do we have triangle data? */
-	bool hasTriangles;
+	mutable bool hasTriangles;
 	/*! Triangle data. */
 	vector<Triangle > triangles;
-	/*! Number of vertex matching groups. */
+	/*! Number of shared normals groups. */
 	mutable unsigned short numMatchGroups;
-	/*! The matching vertex groups. */
+	/*! The shared normals. */
 	vector<MatchGroup > matchGroups;
 public:
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
 	NIFLIB_HIDDEN virtual void Read( istream& in, list<unsigned int> & link_stack, const NifInfo & info );
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
-	NIFLIB_HIDDEN virtual void Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const;
+	NIFLIB_HIDDEN virtual void Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const;
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
-	NIFLIB_HIDDEN virtual void FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info );
+	NIFLIB_HIDDEN virtual void FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info );
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
 	NIFLIB_HIDDEN virtual list<NiObjectRef> GetRefs() const;
+	/*! NIFLIB_HIDDEN function.  For internal use only. */
+	NIFLIB_HIDDEN virtual list<NiObject *> GetPtrs() const;
 };
 
 //--BEGIN FILE FOOT CUSTOM CODE--//

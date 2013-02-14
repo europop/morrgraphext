@@ -14,8 +14,8 @@ All rights reserved.  Please see niflib.h for license. */
 #include "../../include/ObjectRegistry.h"
 #include "../../include/NIF_IO.h"
 #include "../../include/obj/NiPathInterpolator.h"
-#include "../../include/obj/NiPosData.h"
 #include "../../include/obj/NiFloatData.h"
+#include "../../include/obj/NiPosData.h"
 using namespace Niflib;
 
 //Definition of TYPE constant
@@ -59,32 +59,48 @@ void NiPathInterpolator::Read( istream& in, list<unsigned int> & link_stack, con
 	//--END CUSTOM CODE--//
 }
 
-void NiPathInterpolator::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const {
+void NiPathInterpolator::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const {
 	//--BEGIN PRE-WRITE CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiKeyBasedInterpolator::Write( out, link_map, info );
+	NiKeyBasedInterpolator::Write( out, link_map, missing_link_stack, info );
 	NifStream( unknownShort, out, info );
 	NifStream( unknownInt, out, info );
 	NifStream( unknownFloat1, out, info );
 	NifStream( unknownFloat2, out, info );
 	NifStream( unknownShort2, out, info );
 	if ( info.version < VER_3_3_0_13 ) {
-		NifStream( (unsigned int)&(*posData), out, info );
+		WritePtr32( &(*posData), out );
 	} else {
 		if ( posData != NULL ) {
-			NifStream( link_map.find( StaticCast<NiObject>(posData) )->second, out, info );
+			map<NiObjectRef,unsigned int>::const_iterator it = link_map.find( StaticCast<NiObject>(posData) );
+			if (it != link_map.end()) {
+				NifStream( it->second, out, info );
+				missing_link_stack.push_back( NULL );
+			} else {
+				NifStream( 0xFFFFFFFF, out, info );
+				missing_link_stack.push_back( posData );
+			}
 		} else {
 			NifStream( 0xFFFFFFFF, out, info );
+			missing_link_stack.push_back( NULL );
 		}
 	}
 	if ( info.version < VER_3_3_0_13 ) {
-		NifStream( (unsigned int)&(*floatData), out, info );
+		WritePtr32( &(*floatData), out );
 	} else {
 		if ( floatData != NULL ) {
-			NifStream( link_map.find( StaticCast<NiObject>(floatData) )->second, out, info );
+			map<NiObjectRef,unsigned int>::const_iterator it = link_map.find( StaticCast<NiObject>(floatData) );
+			if (it != link_map.end()) {
+				NifStream( it->second, out, info );
+				missing_link_stack.push_back( NULL );
+			} else {
+				NifStream( 0xFFFFFFFF, out, info );
+				missing_link_stack.push_back( floatData );
+			}
 		} else {
 			NifStream( 0xFFFFFFFF, out, info );
+			missing_link_stack.push_back( NULL );
 		}
 	}
 
@@ -97,7 +113,6 @@ std::string NiPathInterpolator::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 
 	stringstream out;
-	unsigned int array_output_count = 0;
 	out << NiKeyBasedInterpolator::asString();
 	out << "  Unknown Short:  " << unknownShort << endl;
 	out << "  Unknown Int:  " << unknownInt << endl;
@@ -112,13 +127,13 @@ std::string NiPathInterpolator::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 }
 
-void NiPathInterpolator::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info ) {
+void NiPathInterpolator::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info ) {
 	//--BEGIN PRE-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiKeyBasedInterpolator::FixLinks( objects, link_stack, info );
-	posData = FixLink<NiPosData>( objects, link_stack, info );
-	floatData = FixLink<NiFloatData>( objects, link_stack, info );
+	NiKeyBasedInterpolator::FixLinks( objects, link_stack, missing_link_stack, info );
+	posData = FixLink<NiPosData>( objects, link_stack, missing_link_stack, info );
+	floatData = FixLink<NiFloatData>( objects, link_stack, missing_link_stack, info );
 
 	//--BEGIN POST-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
@@ -132,6 +147,12 @@ std::list<NiObjectRef> NiPathInterpolator::GetRefs() const {
 	if ( floatData != NULL )
 		refs.push_back(StaticCast<NiObject>(floatData));
 	return refs;
+}
+
+std::list<NiObject *> NiPathInterpolator::GetPtrs() const {
+	list<NiObject *> ptrs;
+	ptrs = NiKeyBasedInterpolator::GetPtrs();
+	return ptrs;
 }
 
 //--BEGIN MISC CUSTOM CODE--//

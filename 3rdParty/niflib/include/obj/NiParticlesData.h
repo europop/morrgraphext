@@ -14,8 +14,13 @@ All rights reserved.  Please see niflib.h for license. */
 //--END CUSTOM CODE--//
 
 #include "NiGeometryData.h"
+
+// Include structures
+#include "../Ref.h"
 namespace Niflib {
 
+// Forward define of referenced NIF objects
+class NiObject;
 class NiParticlesData;
 typedef Ref<NiParticlesData> NiParticlesDataRef;
 
@@ -58,35 +63,58 @@ protected:
 	/*! The maximum number of particles (matches the number of vertices). */
 	unsigned short numParticles;
 	/*! The particles' size. */
-	float size;
+	float particleRadius;
+	/*! Is the particle size array present? */
+	bool hasRadii;
+	/*! The individual particel sizes. */
+	vector<float > radii;
 	/*!
 	 * The number of active particles at the time the system was saved. This is also
 	 * the number of valid entries in the following arrays.
 	 */
 	unsigned short numActive;
-	/*! Unknown. */
-	unsigned short unknownShort;
 	/*! Is the particle size array present? */
 	bool hasSizes;
 	/*! The individual particel sizes. */
 	vector<float > sizes;
-	/*! Unknown */
-	bool hasUnknownFloats1;
-	/*! Unknown */
-	vector<float > unknownFloats1;
 	/*! Is the particle rotation array present? */
-	bool hasRotations1;
+	bool hasRotations;
 	/*! The individual particle rotations. */
-	vector<Quaternion > rotations1;
+	vector<Quaternion > rotations;
+	/*! Unknown, probably a boolean. */
+	byte unknownByte1;
+	/*! Unknown */
+	Ref<NiObject > unknownLink;
+	/*! Are the angles of rotation present? */
+	bool hasRotationAngles;
+	/*! Angles of rotation */
+	vector<float > rotationAngles;
+	/*! Are axes of rotation present? */
+	bool hasRotationAxes;
+	/*! Unknown */
+	vector<Vector3 > rotationAxes;
+	/*! if value is no, a single image rendered */
+	bool hasUvQuadrants;
+	/*!
+	 * 2,4,8,16,32,64 are potential values. If "Has" was no then this should be 256,
+	 * which represents a 16x16 framed image, which is invalid
+	 */
+	mutable byte numUvQuadrants;
+	/*! Unknown. */
+	vector<Vector4 > uvQuadrants;
+	/*! Unknown */
+	byte unknownByte2;
 public:
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
 	NIFLIB_HIDDEN virtual void Read( istream& in, list<unsigned int> & link_stack, const NifInfo & info );
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
-	NIFLIB_HIDDEN virtual void Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const;
+	NIFLIB_HIDDEN virtual void Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const;
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
-	NIFLIB_HIDDEN virtual void FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info );
+	NIFLIB_HIDDEN virtual void FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info );
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
 	NIFLIB_HIDDEN virtual list<NiObjectRef> GetRefs() const;
+	/*! NIFLIB_HIDDEN function.  For internal use only. */
+	NIFLIB_HIDDEN virtual list<NiObject *> GetPtrs() const;
 };
 
 //--BEGIN FILE FOOT CUSTOM CODE--//

@@ -68,6 +68,25 @@ public:
 	 * \return The new AV Objects to be stored in this palette.
 	 */
 	NIFLIB_API void SetObjs( const vector< Ref<NiAVObject> > & value );
+	
+	/*!
+	 * Adds a single object to the collection. The collection will expand if necessary.
+	 * \param[in] mesh The object to add to the collection.
+	 */
+	NIFLIB_API bool AddObj( Ref<NiAVObject> obj );
+
+	/*!
+	 * Remove a single object from the collection.
+	 * \param[in] mesh The object remove from the collection.
+	 */
+	NIFLIB_API bool RemoveObj( Ref<NiAVObject> obj );
+
+	/*!
+	 * Replace a single object by another in the collection.
+	 * \param[in] newobj The object put into the collection.
+	 * \param[in] oldobj The object remove from the collection.
+	 */
+	NIFLIB_API void ReplaceObj( const Ref<NiAVObject> newobj, const Ref<NiAVObject> oldobj );
 
 	//--END CUSTOM CODE--//
 protected:
@@ -81,11 +100,13 @@ public:
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
 	NIFLIB_HIDDEN virtual void Read( istream& in, list<unsigned int> & link_stack, const NifInfo & info );
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
-	NIFLIB_HIDDEN virtual void Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const;
+	NIFLIB_HIDDEN virtual void Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const;
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
-	NIFLIB_HIDDEN virtual void FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info );
+	NIFLIB_HIDDEN virtual void FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info );
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
 	NIFLIB_HIDDEN virtual list<NiObjectRef> GetRefs() const;
+	/*! NIFLIB_HIDDEN function.  For internal use only. */
+	NIFLIB_HIDDEN virtual list<NiObject *> GetPtrs() const;
 };
 
 //--BEGIN FILE FOOT CUSTOM CODE--//

@@ -19,7 +19,7 @@ using namespace Niflib;
 //Definition of TYPE constant
 const Type NiTextureModeProperty::TYPE("NiTextureModeProperty", &NiProperty::TYPE );
 
-NiTextureModeProperty::NiTextureModeProperty() : unknownShort((short)0) {
+NiTextureModeProperty::NiTextureModeProperty() : unknownShort((short)0), ps2L((short)0), ps2K((short)-75) {
 	//--BEGIN CONSTRUCTOR CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 }
@@ -42,27 +42,39 @@ void NiTextureModeProperty::Read( istream& in, list<unsigned int> & link_stack, 
 	//--END CUSTOM CODE--//
 
 	NiProperty::Read( in, link_stack, info );
-	NifStream( unknownShort, in, info );
-	if ( info.version >= 0x03010000 ) {
-		for (unsigned int i2 = 0; i2 < 2; i2++) {
-			NifStream( unknown2Shorts[i2], in, info );
+	if ( info.version <= 0x02030000 ) {
+		for (unsigned int i2 = 0; i2 < 3; i2++) {
+			NifStream( unknownInts[i2], in, info );
 		};
+	};
+	if ( info.version >= 0x03000000 ) {
+		NifStream( unknownShort, in, info );
+	};
+	if ( ( info.version >= 0x03010000 ) && ( info.version <= 0x0A020000 ) ) {
+		NifStream( ps2L, in, info );
+		NifStream( ps2K, in, info );
 	};
 
 	//--BEGIN POST-READ CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 }
 
-void NiTextureModeProperty::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const {
+void NiTextureModeProperty::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const {
 	//--BEGIN PRE-WRITE CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiProperty::Write( out, link_map, info );
-	NifStream( unknownShort, out, info );
-	if ( info.version >= 0x03010000 ) {
-		for (unsigned int i2 = 0; i2 < 2; i2++) {
-			NifStream( unknown2Shorts[i2], out, info );
+	NiProperty::Write( out, link_map, missing_link_stack, info );
+	if ( info.version <= 0x02030000 ) {
+		for (unsigned int i2 = 0; i2 < 3; i2++) {
+			NifStream( unknownInts[i2], out, info );
 		};
+	};
+	if ( info.version >= 0x03000000 ) {
+		NifStream( unknownShort, out, info );
+	};
+	if ( ( info.version >= 0x03010000 ) && ( info.version <= 0x0A020000 ) ) {
+		NifStream( ps2L, out, info );
+		NifStream( ps2K, out, info );
 	};
 
 	//--BEGIN POST-WRITE CUSTOM CODE--//
@@ -76,9 +88,8 @@ std::string NiTextureModeProperty::asString( bool verbose ) const {
 	stringstream out;
 	unsigned int array_output_count = 0;
 	out << NiProperty::asString();
-	out << "  Unknown Short:  " << unknownShort << endl;
 	array_output_count = 0;
-	for (unsigned int i1 = 0; i1 < 2; i1++) {
+	for (unsigned int i1 = 0; i1 < 3; i1++) {
 		if ( !verbose && ( array_output_count > MAXARRAYDUMP ) ) {
 			out << "<Data Truncated. Use verbose mode to see complete listing.>" << endl;
 			break;
@@ -86,20 +97,23 @@ std::string NiTextureModeProperty::asString( bool verbose ) const {
 		if ( !verbose && ( array_output_count > MAXARRAYDUMP ) ) {
 			break;
 		};
-		out << "    Unknown 2 Shorts[" << i1 << "]:  " << unknown2Shorts[i1] << endl;
+		out << "    Unknown Ints[" << i1 << "]:  " << unknownInts[i1] << endl;
 		array_output_count++;
 	};
+	out << "  Unknown Short:  " << unknownShort << endl;
+	out << "  PS2 L:  " << ps2L << endl;
+	out << "  PS2 K:  " << ps2K << endl;
 	return out.str();
 
 	//--BEGIN POST-STRING CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 }
 
-void NiTextureModeProperty::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info ) {
+void NiTextureModeProperty::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info ) {
 	//--BEGIN PRE-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiProperty::FixLinks( objects, link_stack, info );
+	NiProperty::FixLinks( objects, link_stack, missing_link_stack, info );
 
 	//--BEGIN POST-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
@@ -109,6 +123,12 @@ std::list<NiObjectRef> NiTextureModeProperty::GetRefs() const {
 	list<Ref<NiObject> > refs;
 	refs = NiProperty::GetRefs();
 	return refs;
+}
+
+std::list<NiObject *> NiTextureModeProperty::GetPtrs() const {
+	list<NiObject *> ptrs;
+	ptrs = NiProperty::GetPtrs();
+	return ptrs;
 }
 
 //--BEGIN MISC CUSTOM CODE--//

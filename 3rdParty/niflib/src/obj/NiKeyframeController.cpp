@@ -53,19 +53,27 @@ void NiKeyframeController::Read( istream& in, list<unsigned int> & link_stack, c
 	//--END CUSTOM CODE--//
 }
 
-void NiKeyframeController::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const {
+void NiKeyframeController::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const {
 	//--BEGIN PRE-WRITE CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiSingleInterpController::Write( out, link_map, info );
+	NiSingleInterpController::Write( out, link_map, missing_link_stack, info );
 	if ( info.version <= 0x0A010000 ) {
 		if ( info.version < VER_3_3_0_13 ) {
-			NifStream( (unsigned int)&(*data), out, info );
+			WritePtr32( &(*data), out );
 		} else {
 			if ( data != NULL ) {
-				NifStream( link_map.find( StaticCast<NiObject>(data) )->second, out, info );
+				map<NiObjectRef,unsigned int>::const_iterator it = link_map.find( StaticCast<NiObject>(data) );
+				if (it != link_map.end()) {
+					NifStream( it->second, out, info );
+					missing_link_stack.push_back( NULL );
+				} else {
+					NifStream( 0xFFFFFFFF, out, info );
+					missing_link_stack.push_back( data );
+				}
 			} else {
 				NifStream( 0xFFFFFFFF, out, info );
+				missing_link_stack.push_back( NULL );
 			}
 		}
 	};
@@ -79,7 +87,6 @@ std::string NiKeyframeController::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 
 	stringstream out;
-	unsigned int array_output_count = 0;
 	out << NiSingleInterpController::asString();
 	out << "  Data:  " << data << endl;
 	return out.str();
@@ -88,13 +95,13 @@ std::string NiKeyframeController::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 }
 
-void NiKeyframeController::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info ) {
+void NiKeyframeController::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info ) {
 	//--BEGIN PRE-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiSingleInterpController::FixLinks( objects, link_stack, info );
+	NiSingleInterpController::FixLinks( objects, link_stack, missing_link_stack, info );
 	if ( info.version <= 0x0A010000 ) {
-		data = FixLink<NiKeyframeData>( objects, link_stack, info );
+		data = FixLink<NiKeyframeData>( objects, link_stack, missing_link_stack, info );
 	};
 
 	//--BEGIN POST-FIXLINKS CUSTOM CODE--//
@@ -107,6 +114,12 @@ std::list<NiObjectRef> NiKeyframeController::GetRefs() const {
 	if ( data != NULL )
 		refs.push_back(StaticCast<NiObject>(data));
 	return refs;
+}
+
+std::list<NiObject *> NiKeyframeController::GetPtrs() const {
+	list<NiObject *> ptrs;
+	ptrs = NiSingleInterpController::GetPtrs();
+	return ptrs;
 }
 
 //--BEGIN MISC CUSTOM CODE--//

@@ -69,11 +69,11 @@ void NiClodData::Read( istream& in, list<unsigned int> & link_stack, const NifIn
 	//--END CUSTOM CODE--//
 }
 
-void NiClodData::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const {
+void NiClodData::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const {
 	//--BEGIN PRE-WRITE CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiTriBasedGeomData::Write( out, link_map, info );
+	NiTriBasedGeomData::Write( out, link_map, missing_link_stack, info );
 	unknownCount3 = (unsigned short)(unknownClodShorts3.size());
 	unknownCount2 = (unsigned short)(unknownClodShorts2.size());
 	unknownCount1 = (unsigned short)(unknownClodShorts1.size());
@@ -163,11 +163,11 @@ std::string NiClodData::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 }
 
-void NiClodData::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info ) {
+void NiClodData::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info ) {
 	//--BEGIN PRE-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiTriBasedGeomData::FixLinks( objects, link_stack, info );
+	NiTriBasedGeomData::FixLinks( objects, link_stack, missing_link_stack, info );
 
 	//--BEGIN POST-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
@@ -177,6 +177,12 @@ std::list<NiObjectRef> NiClodData::GetRefs() const {
 	list<Ref<NiObject> > refs;
 	refs = NiTriBasedGeomData::GetRefs();
 	return refs;
+}
+
+std::list<NiObject *> NiClodData::GetPtrs() const {
+	list<NiObject *> ptrs;
+	ptrs = NiTriBasedGeomData::GetPtrs();
+	return ptrs;
 }
 
 //--BEGIN MISC CUSTOM CODE--//

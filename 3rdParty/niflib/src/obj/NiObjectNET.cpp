@@ -14,6 +14,7 @@ All rights reserved.  Please see niflib.h for license. */
 #include "../../include/ObjectRegistry.h"
 #include "../../include/NIF_IO.h"
 #include "../../include/obj/NiObjectNET.h"
+#include "../../include/obj/BSLightingShaderProperty.h"
 #include "../../include/obj/NiExtraData.h"
 #include "../../include/obj/NiTimeController.h"
 using namespace Niflib;
@@ -21,7 +22,7 @@ using namespace Niflib;
 //Definition of TYPE constant
 const Type NiObjectNET::TYPE("NiObjectNET", &NiObject::TYPE );
 
-NiObjectNET::NiObjectNET() : extraData(NULL), numExtraDataList((unsigned int)0), controller(NULL) {
+NiObjectNET::NiObjectNET() : skyrimShaderType((BSLightingShaderPropertyShaderType)0), hasOldExtraData(false), oldExtraInternalId((unsigned int)0), unknownByte((byte)0), extraData(NULL), numExtraDataList((unsigned int)0), controller(NULL) {
 	//--BEGIN CONSTRUCTOR CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 }
@@ -50,8 +51,22 @@ void NiObjectNET::Read( istream& in, list<unsigned int> & link_stack, const NifI
 
 	unsigned int block_num;
 	NiObject::Read( in, link_stack, info );
+	if ( (info.userVersion >= 12) ) {
+		if ( IsDerivedType(BSLightingShaderProperty::TYPE) ) {
+			NifStream( skyrimShaderType, in, info );
+		};
+	};
 	NifStream( name, in, info );
-	if ( info.version <= 0x04020200 ) {
+	if ( info.version <= 0x02030000 ) {
+		NifStream( hasOldExtraData, in, info );
+		if ( hasOldExtraData ) {
+			NifStream( oldExtraPropName, in, info );
+			NifStream( oldExtraInternalId, in, info );
+			NifStream( oldExtraString, in, info );
+		};
+		NifStream( unknownByte, in, info );
+	};
+	if ( ( info.version >= 0x03000000 ) && ( info.version <= 0x04020200 ) ) {
 		NifStream( block_num, in, info );
 		link_stack.push_back( block_num );
 	};
@@ -63,28 +78,52 @@ void NiObjectNET::Read( istream& in, list<unsigned int> & link_stack, const NifI
 			link_stack.push_back( block_num );
 		};
 	};
-	NifStream( block_num, in, info );
-	link_stack.push_back( block_num );
+	if ( info.version >= 0x03000000 ) {
+		NifStream( block_num, in, info );
+		link_stack.push_back( block_num );
+	};
 
 	//--BEGIN POST-READ CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 }
 
-void NiObjectNET::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const {
+void NiObjectNET::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const {
 	//--BEGIN PRE-WRITE CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiObject::Write( out, link_map, info );
+	NiObject::Write( out, link_map, missing_link_stack, info );
 	numExtraDataList = (unsigned int)(extraDataList.size());
+	if ( (info.userVersion >= 12) ) {
+		if ( IsDerivedType(BSLightingShaderProperty::TYPE) ) {
+			NifStream( skyrimShaderType, out, info );
+		};
+	};
 	NifStream( name, out, info );
-	if ( info.version <= 0x04020200 ) {
+	if ( info.version <= 0x02030000 ) {
+		NifStream( hasOldExtraData, out, info );
+		if ( hasOldExtraData ) {
+			NifStream( oldExtraPropName, out, info );
+			NifStream( oldExtraInternalId, out, info );
+			NifStream( oldExtraString, out, info );
+		};
+		NifStream( unknownByte, out, info );
+	};
+	if ( ( info.version >= 0x03000000 ) && ( info.version <= 0x04020200 ) ) {
 		if ( info.version < VER_3_3_0_13 ) {
-			NifStream( (unsigned int)&(*extraData), out, info );
+			WritePtr32( &(*extraData), out );
 		} else {
 			if ( extraData != NULL ) {
-				NifStream( link_map.find( StaticCast<NiObject>(extraData) )->second, out, info );
+				map<NiObjectRef,unsigned int>::const_iterator it = link_map.find( StaticCast<NiObject>(extraData) );
+				if (it != link_map.end()) {
+					NifStream( it->second, out, info );
+					missing_link_stack.push_back( NULL );
+				} else {
+					NifStream( 0xFFFFFFFF, out, info );
+					missing_link_stack.push_back( extraData );
+				}
 			} else {
 				NifStream( 0xFFFFFFFF, out, info );
+				missing_link_stack.push_back( NULL );
 			}
 		}
 	};
@@ -92,25 +131,43 @@ void NiObjectNET::Write( ostream& out, const map<NiObjectRef,unsigned int> & lin
 		NifStream( numExtraDataList, out, info );
 		for (unsigned int i2 = 0; i2 < extraDataList.size(); i2++) {
 			if ( info.version < VER_3_3_0_13 ) {
-				NifStream( (unsigned int)&(*extraDataList[i2]), out, info );
+				WritePtr32( &(*extraDataList[i2]), out );
 			} else {
 				if ( extraDataList[i2] != NULL ) {
-					NifStream( link_map.find( StaticCast<NiObject>(extraDataList[i2]) )->second, out, info );
+					map<NiObjectRef,unsigned int>::const_iterator it = link_map.find( StaticCast<NiObject>(extraDataList[i2]) );
+					if (it != link_map.end()) {
+						NifStream( it->second, out, info );
+						missing_link_stack.push_back( NULL );
+					} else {
+						NifStream( 0xFFFFFFFF, out, info );
+						missing_link_stack.push_back( extraDataList[i2] );
+					}
 				} else {
 					NifStream( 0xFFFFFFFF, out, info );
+					missing_link_stack.push_back( NULL );
 				}
 			}
 		};
 	};
-	if ( info.version < VER_3_3_0_13 ) {
-		NifStream( (unsigned int)&(*controller), out, info );
-	} else {
-		if ( controller != NULL ) {
-			NifStream( link_map.find( StaticCast<NiObject>(controller) )->second, out, info );
+	if ( info.version >= 0x03000000 ) {
+		if ( info.version < VER_3_3_0_13 ) {
+			WritePtr32( &(*controller), out );
 		} else {
-			NifStream( 0xFFFFFFFF, out, info );
+			if ( controller != NULL ) {
+				map<NiObjectRef,unsigned int>::const_iterator it = link_map.find( StaticCast<NiObject>(controller) );
+				if (it != link_map.end()) {
+					NifStream( it->second, out, info );
+					missing_link_stack.push_back( NULL );
+				} else {
+					NifStream( 0xFFFFFFFF, out, info );
+					missing_link_stack.push_back( controller );
+				}
+			} else {
+				NifStream( 0xFFFFFFFF, out, info );
+				missing_link_stack.push_back( NULL );
+			}
 		}
-	}
+	};
 
 	//--BEGIN POST-WRITE CUSTOM CODE--//
 	//--END CUSTOM CODE--//
@@ -124,7 +181,17 @@ std::string NiObjectNET::asString( bool verbose ) const {
 	unsigned int array_output_count = 0;
 	out << NiObject::asString();
 	numExtraDataList = (unsigned int)(extraDataList.size());
+	if ( IsDerivedType(BSLightingShaderProperty::TYPE) ) {
+		out << "    Skyrim Shader Type:  " << skyrimShaderType << endl;
+	};
 	out << "  Name:  " << name << endl;
+	out << "  Has Old Extra Data:  " << hasOldExtraData << endl;
+	if ( hasOldExtraData ) {
+		out << "    Old Extra Prop Name:  " << oldExtraPropName << endl;
+		out << "    Old Extra Internal Id:  " << oldExtraInternalId << endl;
+		out << "    Old Extra String:  " << oldExtraString << endl;
+	};
+	out << "  Unknown Byte:  " << unknownByte << endl;
 	out << "  Extra Data:  " << extraData << endl;
 	out << "  Num Extra Data List:  " << numExtraDataList << endl;
 	array_output_count = 0;
@@ -146,20 +213,22 @@ std::string NiObjectNET::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 }
 
-void NiObjectNET::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info ) {
+void NiObjectNET::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info ) {
 	//--BEGIN PRE-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiObject::FixLinks( objects, link_stack, info );
-	if ( info.version <= 0x04020200 ) {
-		extraData = FixLink<NiExtraData>( objects, link_stack, info );
+	NiObject::FixLinks( objects, link_stack, missing_link_stack, info );
+	if ( ( info.version >= 0x03000000 ) && ( info.version <= 0x04020200 ) ) {
+		extraData = FixLink<NiExtraData>( objects, link_stack, missing_link_stack, info );
 	};
 	if ( info.version >= 0x0A000100 ) {
 		for (unsigned int i2 = 0; i2 < extraDataList.size(); i2++) {
-			extraDataList[i2] = FixLink<NiExtraData>( objects, link_stack, info );
+			extraDataList[i2] = FixLink<NiExtraData>( objects, link_stack, missing_link_stack, info );
 		};
 	};
-	controller = FixLink<NiTimeController>( objects, link_stack, info );
+	if ( info.version >= 0x03000000 ) {
+		controller = FixLink<NiTimeController>( objects, link_stack, missing_link_stack, info );
+	};
 
 	//--BEGIN POST-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
@@ -177,6 +246,14 @@ std::list<NiObjectRef> NiObjectNET::GetRefs() const {
 	if ( controller != NULL )
 		refs.push_back(StaticCast<NiObject>(controller));
 	return refs;
+}
+
+std::list<NiObject *> NiObjectNET::GetPtrs() const {
+	list<NiObject *> ptrs;
+	ptrs = NiObject::GetPtrs();
+	for (unsigned int i1 = 0; i1 < extraDataList.size(); i1++) {
+	};
+	return ptrs;
 }
 
 //--BEGIN MISC CUSTOM CODE--//
@@ -326,6 +403,14 @@ list< Ref<NiTimeController> > NiObjectNET::GetControllers() const {
 	}
 
 	return conts;
+}
+
+BSLightingShaderPropertyShaderType NiObjectNET::GetSkyrimShaderType() const {
+	return skyrimShaderType;
+}
+
+void NiObjectNET::SetSkyrimShaderType( BSLightingShaderPropertyShaderType value ) {
+	skyrimShaderType = value;
 }
 
 //--END CUSTOM CODE--//

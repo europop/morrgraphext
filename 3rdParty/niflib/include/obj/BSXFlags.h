@@ -21,12 +21,16 @@ typedef Ref<BSXFlags> BSXFlagsRef;
 
 /*!
  * Controls animation and collision.  Integer holds flags:
- *         Bit 0 : enable animation
- *         Bit 1 : enable collision
- *         Bit 2 : unknown, usually zero
- *         Bit 3 : toggable? unknown, set to 1 on oblivion signs
- *         Bit 4 : unknown, usually zero
- *         Bit 5 : trigger?
+ *         Bit 0 : enable havok, bAnimated(Skyrim)
+ *         Bit 1 : enable collision, bHavok(Skyrim)
+ *         Bit 2 : is skeleton nif?, bRagdoll(Skyrim)
+ *         Bit 3 : enable animation, bComplex(Skyrim)
+ *         Bit 4 : FlameNodes present, bAddon(Skyrim)
+ *         Bit 5 : EditorMarkers present
+ *         Bit 6 : bDynamic(Skyrim)
+ *         Bit 7 : bArticulated(Skyrim)
+ *         Bit 8 : bIKTarget(Skyrim)
+ *         Bit 9 : Unknown(Skyrim)
  */
 class BSXFlags : public NiIntegerExtraData {
 public:
@@ -66,11 +70,13 @@ public:
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
 	NIFLIB_HIDDEN virtual void Read( istream& in, list<unsigned int> & link_stack, const NifInfo & info );
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
-	NIFLIB_HIDDEN virtual void Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const;
+	NIFLIB_HIDDEN virtual void Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const;
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
-	NIFLIB_HIDDEN virtual void FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info );
+	NIFLIB_HIDDEN virtual void FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info );
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
 	NIFLIB_HIDDEN virtual list<NiObjectRef> GetRefs() const;
+	/*! NIFLIB_HIDDEN function.  For internal use only. */
+	NIFLIB_HIDDEN virtual list<NiObject *> GetPtrs() const;
 };
 
 //--BEGIN FILE FOOT CUSTOM CODE--//

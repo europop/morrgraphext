@@ -19,7 +19,7 @@ namespace Niflib {
 class NiPSysBoxEmitter;
 typedef Ref<NiPSysBoxEmitter> NiPSysBoxEmitterRef;
 
-/*! Unknown particle modifier. */
+/*! Particle emitter that uses points within a defined Box shape to emit from.. */
 class NiPSysBoxEmitter : public NiPSysVolumeEmitter {
 public:
 	/*! Constructor */
@@ -55,21 +55,23 @@ public:
 	//--BEGIN MISC CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 protected:
-	/*! Width of the boxes to emit? */
+	/*! Defines the Width of the box area. */
 	float width;
-	/*! Height of the boxes to emit? */
+	/*! Defines the Height of the box area. */
 	float height;
-	/*! Depth of the boxes to emit? */
+	/*! Defines the Depth of the box area. */
 	float depth;
 public:
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
 	NIFLIB_HIDDEN virtual void Read( istream& in, list<unsigned int> & link_stack, const NifInfo & info );
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
-	NIFLIB_HIDDEN virtual void Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const;
+	NIFLIB_HIDDEN virtual void Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const;
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
-	NIFLIB_HIDDEN virtual void FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info );
+	NIFLIB_HIDDEN virtual void FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info );
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
 	NIFLIB_HIDDEN virtual list<NiObjectRef> GetRefs() const;
+	/*! NIFLIB_HIDDEN function.  For internal use only. */
+	NIFLIB_HIDDEN virtual list<NiObject *> GetPtrs() const;
 };
 
 //--BEGIN FILE FOOT CUSTOM CODE--//

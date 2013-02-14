@@ -144,6 +144,19 @@ public:
 	 */
 	NIFLIB_API void SetMorphVerts( int n, const vector<Vector3> & in );
 
+	/*!
+	* Retrieves the morph frame name for a specified morph target.
+	* \return A string which specifies the name of the morph frame.
+	*/
+	NIFLIB_API string GetFrameName( int n ) const;
+
+	/*!
+	* Sets the morph frame name for a specified morph target.
+	* \param n The index of the morph target to set the name for.
+	* \param keys A frame name which will replace any existing data for this morph target.
+	*/
+	NIFLIB_API void SetFrameName( int n, string const & key );
+
 	//--END CUSTOM CODE--//
 protected:
 	/*! Number of morphing object. */
@@ -151,18 +164,20 @@ protected:
 	/*! Number of vertices. */
 	unsigned int numVertices;
 	/*! This byte is always 1 in all official files. */
-	byte unknownByte;
+	byte relativeTargets;
 	/*! The geometry morphing objects. */
 	vector<Morph > morphs;
 public:
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
 	NIFLIB_HIDDEN virtual void Read( istream& in, list<unsigned int> & link_stack, const NifInfo & info );
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
-	NIFLIB_HIDDEN virtual void Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const;
+	NIFLIB_HIDDEN virtual void Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const;
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
-	NIFLIB_HIDDEN virtual void FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info );
+	NIFLIB_HIDDEN virtual void FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info );
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
 	NIFLIB_HIDDEN virtual list<NiObjectRef> GetRefs() const;
+	/*! NIFLIB_HIDDEN function.  For internal use only. */
+	NIFLIB_HIDDEN virtual list<NiObject *> GetPtrs() const;
 };
 
 //--BEGIN FILE FOOT CUSTOM CODE--//

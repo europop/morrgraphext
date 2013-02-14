@@ -50,11 +50,11 @@ void NiPSysBoxEmitter::Read( istream& in, list<unsigned int> & link_stack, const
 	//--END CUSTOM CODE--//
 }
 
-void NiPSysBoxEmitter::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const {
+void NiPSysBoxEmitter::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const {
 	//--BEGIN PRE-WRITE CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiPSysVolumeEmitter::Write( out, link_map, info );
+	NiPSysVolumeEmitter::Write( out, link_map, missing_link_stack, info );
 	NifStream( width, out, info );
 	NifStream( height, out, info );
 	NifStream( depth, out, info );
@@ -68,7 +68,6 @@ std::string NiPSysBoxEmitter::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 
 	stringstream out;
-	unsigned int array_output_count = 0;
 	out << NiPSysVolumeEmitter::asString();
 	out << "  Width:  " << width << endl;
 	out << "  Height:  " << height << endl;
@@ -79,11 +78,11 @@ std::string NiPSysBoxEmitter::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 }
 
-void NiPSysBoxEmitter::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info ) {
+void NiPSysBoxEmitter::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info ) {
 	//--BEGIN PRE-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiPSysVolumeEmitter::FixLinks( objects, link_stack, info );
+	NiPSysVolumeEmitter::FixLinks( objects, link_stack, missing_link_stack, info );
 
 	//--BEGIN POST-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
@@ -93,6 +92,12 @@ std::list<NiObjectRef> NiPSysBoxEmitter::GetRefs() const {
 	list<Ref<NiObject> > refs;
 	refs = NiPSysVolumeEmitter::GetRefs();
 	return refs;
+}
+
+std::list<NiObject *> NiPSysBoxEmitter::GetPtrs() const {
+	list<NiObject *> ptrs;
+	ptrs = NiPSysVolumeEmitter::GetPtrs();
+	return ptrs;
 }
 
 //--BEGIN MISC CUSTOM CODE--//

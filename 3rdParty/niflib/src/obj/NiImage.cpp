@@ -20,7 +20,7 @@ using namespace Niflib;
 //Definition of TYPE constant
 const Type NiImage::TYPE("NiImage", &NiObject::TYPE );
 
-NiImage::NiImage() : external((byte)0), imageData(NULL), unknownInt1((unsigned int)7), unknownInt2((unsigned int)0x43008000) {
+NiImage::NiImage() : useExternal((byte)0), imageData(NULL), unknownInt((unsigned int)7), unknownFloat(128.5f) {
 	//--BEGIN CONSTRUCTOR CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 }
@@ -44,46 +44,54 @@ void NiImage::Read( istream& in, list<unsigned int> & link_stack, const NifInfo 
 
 	unsigned int block_num;
 	NiObject::Read( in, link_stack, info );
-	NifStream( external, in, info );
-	if ( (external != 0) ) {
+	NifStream( useExternal, in, info );
+	if ( (useExternal != 0) ) {
 		NifStream( fileName, in, info );
 	};
-	if ( (external == 0) ) {
+	if ( (useExternal == 0) ) {
 		NifStream( block_num, in, info );
 		link_stack.push_back( block_num );
 	};
-	NifStream( unknownInt1, in, info );
+	NifStream( unknownInt, in, info );
 	if ( info.version >= 0x03010000 ) {
-		NifStream( unknownInt2, in, info );
+		NifStream( unknownFloat, in, info );
 	};
 
 	//--BEGIN POST-READ CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 }
 
-void NiImage::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const {
+void NiImage::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const {
 	//--BEGIN PRE-WRITE CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiObject::Write( out, link_map, info );
-	NifStream( external, out, info );
-	if ( (external != 0) ) {
+	NiObject::Write( out, link_map, missing_link_stack, info );
+	NifStream( useExternal, out, info );
+	if ( (useExternal != 0) ) {
 		NifStream( fileName, out, info );
 	};
-	if ( (external == 0) ) {
+	if ( (useExternal == 0) ) {
 		if ( info.version < VER_3_3_0_13 ) {
-			NifStream( (unsigned int)&(*imageData), out, info );
+			WritePtr32( &(*imageData), out );
 		} else {
 			if ( imageData != NULL ) {
-				NifStream( link_map.find( StaticCast<NiObject>(imageData) )->second, out, info );
+				map<NiObjectRef,unsigned int>::const_iterator it = link_map.find( StaticCast<NiObject>(imageData) );
+				if (it != link_map.end()) {
+					NifStream( it->second, out, info );
+					missing_link_stack.push_back( NULL );
+				} else {
+					NifStream( 0xFFFFFFFF, out, info );
+					missing_link_stack.push_back( imageData );
+				}
 			} else {
 				NifStream( 0xFFFFFFFF, out, info );
+				missing_link_stack.push_back( NULL );
 			}
 		}
 	};
-	NifStream( unknownInt1, out, info );
+	NifStream( unknownInt, out, info );
 	if ( info.version >= 0x03010000 ) {
-		NifStream( unknownInt2, out, info );
+		NifStream( unknownFloat, out, info );
 	};
 
 	//--BEGIN POST-WRITE CUSTOM CODE--//
@@ -95,30 +103,29 @@ std::string NiImage::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 
 	stringstream out;
-	unsigned int array_output_count = 0;
 	out << NiObject::asString();
-	out << "  External:  " << external << endl;
-	if ( (external != 0) ) {
+	out << "  Use External:  " << useExternal << endl;
+	if ( (useExternal != 0) ) {
 		out << "    File Name:  " << fileName << endl;
 	};
-	if ( (external == 0) ) {
+	if ( (useExternal == 0) ) {
 		out << "    Image Data:  " << imageData << endl;
 	};
-	out << "  Unknown Int 1:  " << unknownInt1 << endl;
-	out << "  Unknown Int 2:  " << unknownInt2 << endl;
+	out << "  Unknown Int:  " << unknownInt << endl;
+	out << "  Unknown Float:  " << unknownFloat << endl;
 	return out.str();
 
 	//--BEGIN POST-STRING CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 }
 
-void NiImage::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info ) {
+void NiImage::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info ) {
 	//--BEGIN PRE-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiObject::FixLinks( objects, link_stack, info );
-	if ( (external == 0) ) {
-		imageData = FixLink<NiRawImageData>( objects, link_stack, info );
+	NiObject::FixLinks( objects, link_stack, missing_link_stack, info );
+	if ( (useExternal == 0) ) {
+		imageData = FixLink<NiRawImageData>( objects, link_stack, missing_link_stack, info );
 	};
 
 	//--BEGIN POST-FIXLINKS CUSTOM CODE--//
@@ -133,20 +140,26 @@ std::list<NiObjectRef> NiImage::GetRefs() const {
 	return refs;
 }
 
+std::list<NiObject *> NiImage::GetPtrs() const {
+	list<NiObject *> ptrs;
+	ptrs = NiObject::GetPtrs();
+	return ptrs;
+}
+
 //--BEGIN MISC CUSTOM CODE--//
 
 bool NiImage::IsTextureExternal() const {
-	return (external != 0);
+	return (useExternal != 0);
 }
 
 void NiImage::SetExternalTexture( string file_name ) {
 	imageData = NULL;
-	external = 1;
+	useExternal = 1;
 	fileName = file_name;
 }
 
 void NiImage::SetInternalTexture( NiRawImageData * raw_image_data ) {
-	external = 0;
+	useExternal = 0;
 	fileName.clear();
 	imageData = raw_image_data;
 }

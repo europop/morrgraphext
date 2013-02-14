@@ -22,7 +22,7 @@ All rights reserved.  Please see niflib.h for license. */
 namespace Niflib {
 
 // Forward define of referenced NIF objects
-class NiTriShape;
+class NiTriBasedGeom;
 class NiBoneLODController;
 typedef Ref<NiBoneLODController> NiBoneLODControllerRef;
 
@@ -106,6 +106,25 @@ public:
 	 * Clears all node groups.
 	 */
 	NIFLIB_API void ClearNodeGroups();
+	
+	/*!
+	 * Adds a single shape to the specified group. The group list will expand if necessary.
+	 * \param[in] shape The shape to add to the group.
+	 */
+	NIFLIB_API bool AddShapeToGroup( Ref<NiTriBasedGeom > shape );
+
+	/*!
+	 * Remove a single shape from the specified shape group.
+	 * \param[in] shape The shape remove from the group.
+	 */
+	NIFLIB_API bool RemoveShapeFromGroup( Ref<NiTriBasedGeom > shape );
+
+	/*!
+	 * Replace a single shape by another in the specified shape group.
+	 * \param[in] newshape The shape put from the group.
+	 * \param[in] oldshape The shape remove from the group.
+	 */
+	NIFLIB_API bool ReplaceShapeInGroup( Ref<NiTriBasedGeom > newshape, Ref<NiTriBasedGeom > oldshape );
 
 	//--END CUSTOM CODE--//
 protected:
@@ -124,16 +143,22 @@ protected:
 	/*! The size of the second list of shape groups. */
 	mutable unsigned int numShapeGroups2;
 	/*! Group of NiTriShape indices. */
-	vector<Ref<NiTriShape > > shapeGroups2;
+	vector<Ref<NiTriBasedGeom > > shapeGroups2;
+	/*! Unknown. */
+	int unknownInt2;
+	/*! Unknown. */
+	int unknownInt3;
 public:
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
 	NIFLIB_HIDDEN virtual void Read( istream& in, list<unsigned int> & link_stack, const NifInfo & info );
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
-	NIFLIB_HIDDEN virtual void Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const;
+	NIFLIB_HIDDEN virtual void Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const;
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
-	NIFLIB_HIDDEN virtual void FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info );
+	NIFLIB_HIDDEN virtual void FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info );
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
 	NIFLIB_HIDDEN virtual list<NiObjectRef> GetRefs() const;
+	/*! NIFLIB_HIDDEN function.  For internal use only. */
+	NIFLIB_HIDDEN virtual list<NiObject *> GetPtrs() const;
 };
 
 //--BEGIN FILE FOOT CUSTOM CODE--//

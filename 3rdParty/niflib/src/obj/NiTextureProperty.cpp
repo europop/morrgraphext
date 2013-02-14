@@ -20,7 +20,7 @@ using namespace Niflib;
 //Definition of TYPE constant
 const Type NiTextureProperty::TYPE("NiTextureProperty", &NiProperty::TYPE );
 
-NiTextureProperty::NiTextureProperty() : flags((unsigned short)0), image(NULL), unknownInt1((unsigned int)0), unknownInt2((unsigned int)0) {
+NiTextureProperty::NiTextureProperty() : flags((unsigned short)0), image(NULL) {
 	//--BEGIN CONSTRUCTOR CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 }
@@ -44,36 +44,60 @@ void NiTextureProperty::Read( istream& in, list<unsigned int> & link_stack, cons
 
 	unsigned int block_num;
 	NiProperty::Read( in, link_stack, info );
-	NifStream( flags, in, info );
+	if ( info.version <= 0x02030000 ) {
+		for (unsigned int i2 = 0; i2 < 2; i2++) {
+			NifStream( unknownInts1[i2], in, info );
+		};
+	};
+	if ( info.version >= 0x03000000 ) {
+		NifStream( flags, in, info );
+	};
 	NifStream( block_num, in, info );
 	link_stack.push_back( block_num );
-	if ( info.version <= 0x03000300 ) {
-		NifStream( unknownInt1, in, info );
-		NifStream( unknownInt2, in, info );
+	if ( ( info.version >= 0x03000000 ) && ( info.version <= 0x03000300 ) ) {
+		for (unsigned int i2 = 0; i2 < 2; i2++) {
+			NifStream( unknownInts2[i2], in, info );
+		};
 	};
 
 	//--BEGIN POST-READ CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 }
 
-void NiTextureProperty::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const {
+void NiTextureProperty::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const {
 	//--BEGIN PRE-WRITE CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiProperty::Write( out, link_map, info );
-	NifStream( flags, out, info );
+	NiProperty::Write( out, link_map, missing_link_stack, info );
+	if ( info.version <= 0x02030000 ) {
+		for (unsigned int i2 = 0; i2 < 2; i2++) {
+			NifStream( unknownInts1[i2], out, info );
+		};
+	};
+	if ( info.version >= 0x03000000 ) {
+		NifStream( flags, out, info );
+	};
 	if ( info.version < VER_3_3_0_13 ) {
-		NifStream( (unsigned int)&(*image), out, info );
+		WritePtr32( &(*image), out );
 	} else {
 		if ( image != NULL ) {
-			NifStream( link_map.find( StaticCast<NiObject>(image) )->second, out, info );
+			map<NiObjectRef,unsigned int>::const_iterator it = link_map.find( StaticCast<NiObject>(image) );
+			if (it != link_map.end()) {
+				NifStream( it->second, out, info );
+				missing_link_stack.push_back( NULL );
+			} else {
+				NifStream( 0xFFFFFFFF, out, info );
+				missing_link_stack.push_back( image );
+			}
 		} else {
 			NifStream( 0xFFFFFFFF, out, info );
+			missing_link_stack.push_back( NULL );
 		}
 	}
-	if ( info.version <= 0x03000300 ) {
-		NifStream( unknownInt1, out, info );
-		NifStream( unknownInt2, out, info );
+	if ( ( info.version >= 0x03000000 ) && ( info.version <= 0x03000300 ) ) {
+		for (unsigned int i2 = 0; i2 < 2; i2++) {
+			NifStream( unknownInts2[i2], out, info );
+		};
 	};
 
 	//--BEGIN POST-WRITE CUSTOM CODE--//
@@ -87,22 +111,44 @@ std::string NiTextureProperty::asString( bool verbose ) const {
 	stringstream out;
 	unsigned int array_output_count = 0;
 	out << NiProperty::asString();
+	array_output_count = 0;
+	for (unsigned int i1 = 0; i1 < 2; i1++) {
+		if ( !verbose && ( array_output_count > MAXARRAYDUMP ) ) {
+			out << "<Data Truncated. Use verbose mode to see complete listing.>" << endl;
+			break;
+		};
+		if ( !verbose && ( array_output_count > MAXARRAYDUMP ) ) {
+			break;
+		};
+		out << "    Unknown Ints 1[" << i1 << "]:  " << unknownInts1[i1] << endl;
+		array_output_count++;
+	};
 	out << "  Flags:  " << flags << endl;
 	out << "  Image:  " << image << endl;
-	out << "  Unknown Int 1:  " << unknownInt1 << endl;
-	out << "  Unknown Int 2:  " << unknownInt2 << endl;
+	array_output_count = 0;
+	for (unsigned int i1 = 0; i1 < 2; i1++) {
+		if ( !verbose && ( array_output_count > MAXARRAYDUMP ) ) {
+			out << "<Data Truncated. Use verbose mode to see complete listing.>" << endl;
+			break;
+		};
+		if ( !verbose && ( array_output_count > MAXARRAYDUMP ) ) {
+			break;
+		};
+		out << "    Unknown Ints 2[" << i1 << "]:  " << unknownInts2[i1] << endl;
+		array_output_count++;
+	};
 	return out.str();
 
 	//--BEGIN POST-STRING CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 }
 
-void NiTextureProperty::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info ) {
+void NiTextureProperty::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info ) {
 	//--BEGIN PRE-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiProperty::FixLinks( objects, link_stack, info );
-	image = FixLink<NiImage>( objects, link_stack, info );
+	NiProperty::FixLinks( objects, link_stack, missing_link_stack, info );
+	image = FixLink<NiImage>( objects, link_stack, missing_link_stack, info );
 
 	//--BEGIN POST-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
@@ -114,6 +160,12 @@ std::list<NiObjectRef> NiTextureProperty::GetRefs() const {
 	if ( image != NULL )
 		refs.push_back(StaticCast<NiObject>(image));
 	return refs;
+}
+
+std::list<NiObject *> NiTextureProperty::GetPtrs() const {
+	list<NiObject *> ptrs;
+	ptrs = NiProperty::GetPtrs();
+	return ptrs;
 }
 
 //--BEGIN MISC CUSTOM CODE--//

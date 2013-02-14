@@ -14,8 +14,13 @@ All rights reserved.  Please see niflib.h for license. */
 //--END CUSTOM CODE--//
 
 #include "NiCollisionObject.h"
+
+// Include structures
+#include "../Ref.h"
 namespace Niflib {
 
+// Forward define of referenced NIF objects
+class NiObject;
 class bhkNiCollisionObject;
 typedef Ref<bhkNiCollisionObject> bhkNiCollisionObjectRef;
 
@@ -53,16 +58,50 @@ public:
 	NIFLIB_API virtual const Type & GetType() const;
 
 	//--BEGIN MISC CUSTOM CODE--//
+   /*!
+   * Gets the rigid body that this collision object uses, if any.
+   * \return The rigid body that this object references, or a NULL reference if it does not reference any.
+   */
+   NIFLIB_API Ref<NiObject> GetBody() const;
+
+   /*!
+   * Sets the new rigid body that this collision object uses.
+   * \param[in] value The new rigid body for this collision object to use, or NULL to clear the current reference.
+   */
+   NIFLIB_API void SetBody( NiObject * value );
+
+   /*!
+   * Gets the flags field
+   * \return flags
+   */
+   NIFLIB_API unsigned short GetFlags() const;
+
+   /*!
+   * Sets the flags field
+   * \param[in] flags The new flags to be set
+   */
+   NIFLIB_API void SetFlags(unsigned short value);
+
 	//--END CUSTOM CODE--//
+protected:
+	/*!
+	 * Set to 1 for most objects, and to 41 for animated objects (OL_ANIM_STATIC).
+	 * Bits: 0=Active 2=Notify 3=Set Local 6=Reset.
+	 */
+	unsigned short flags;
+	/*! Links to the collision object data */
+	Ref<NiObject > body;
 public:
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
 	NIFLIB_HIDDEN virtual void Read( istream& in, list<unsigned int> & link_stack, const NifInfo & info );
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
-	NIFLIB_HIDDEN virtual void Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const;
+	NIFLIB_HIDDEN virtual void Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const;
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
-	NIFLIB_HIDDEN virtual void FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info );
+	NIFLIB_HIDDEN virtual void FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info );
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
 	NIFLIB_HIDDEN virtual list<NiObjectRef> GetRefs() const;
+	/*! NIFLIB_HIDDEN function.  For internal use only. */
+	NIFLIB_HIDDEN virtual list<NiObject *> GetPtrs() const;
 };
 
 //--BEGIN FILE FOOT CUSTOM CODE--//

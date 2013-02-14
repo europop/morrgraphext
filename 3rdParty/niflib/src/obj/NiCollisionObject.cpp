@@ -15,13 +15,12 @@ All rights reserved.  Please see niflib.h for license. */
 #include "../../include/NIF_IO.h"
 #include "../../include/obj/NiCollisionObject.h"
 #include "../../include/obj/NiAVObject.h"
-#include "../../include/obj/NiObject.h"
 using namespace Niflib;
 
 //Definition of TYPE constant
 const Type NiCollisionObject::TYPE("NiCollisionObject", &NiObject::TYPE );
 
-NiCollisionObject::NiCollisionObject() : target(NULL), unknownShort((unsigned short)1), body(NULL) {
+NiCollisionObject::NiCollisionObject() : target(NULL) {
 	//--BEGIN CONSTRUCTOR CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 }
@@ -47,42 +46,33 @@ void NiCollisionObject::Read( istream& in, list<unsigned int> & link_stack, cons
 	NiObject::Read( in, link_stack, info );
 	NifStream( block_num, in, info );
 	link_stack.push_back( block_num );
-	if ( info.version >= 0x14000004 ) {
-		NifStream( unknownShort, in, info );
-		NifStream( block_num, in, info );
-		link_stack.push_back( block_num );
-	};
 
 	//--BEGIN POST-READ CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 }
 
-void NiCollisionObject::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const {
+void NiCollisionObject::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const {
 	//--BEGIN PRE-WRITE CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiObject::Write( out, link_map, info );
+	NiObject::Write( out, link_map, missing_link_stack, info );
 	if ( info.version < VER_3_3_0_13 ) {
-		NifStream( (unsigned int)&(*target), out, info );
+		WritePtr32( &(*target), out );
 	} else {
 		if ( target != NULL ) {
-			NifStream( link_map.find( StaticCast<NiObject>(target) )->second, out, info );
-		} else {
-			NifStream( 0xFFFFFFFF, out, info );
-		}
-	}
-	if ( info.version >= 0x14000004 ) {
-		NifStream( unknownShort, out, info );
-		if ( info.version < VER_3_3_0_13 ) {
-			NifStream( (unsigned int)&(*body), out, info );
-		} else {
-			if ( body != NULL ) {
-				NifStream( link_map.find( StaticCast<NiObject>(body) )->second, out, info );
+			map<NiObjectRef,unsigned int>::const_iterator it = link_map.find( StaticCast<NiObject>(target) );
+			if (it != link_map.end()) {
+				NifStream( it->second, out, info );
+				missing_link_stack.push_back( NULL );
 			} else {
 				NifStream( 0xFFFFFFFF, out, info );
+				missing_link_stack.push_back( target );
 			}
+		} else {
+			NifStream( 0xFFFFFFFF, out, info );
+			missing_link_stack.push_back( NULL );
 		}
-	};
+	}
 
 	//--BEGIN POST-WRITE CUSTOM CODE--//
 	//--END CUSTOM CODE--//
@@ -93,26 +83,20 @@ std::string NiCollisionObject::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 
 	stringstream out;
-	unsigned int array_output_count = 0;
 	out << NiObject::asString();
 	out << "  Target:  " << target << endl;
-	out << "  Unknown Short:  " << unknownShort << endl;
-	out << "  Body:  " << body << endl;
 	return out.str();
 
 	//--BEGIN POST-STRING CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 }
 
-void NiCollisionObject::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info ) {
+void NiCollisionObject::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info ) {
 	//--BEGIN PRE-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiObject::FixLinks( objects, link_stack, info );
-	target = FixLink<NiAVObject>( objects, link_stack, info );
-	if ( info.version >= 0x14000004 ) {
-		body = FixLink<NiObject>( objects, link_stack, info );
-	};
+	NiObject::FixLinks( objects, link_stack, missing_link_stack, info );
+	target = FixLink<NiAVObject>( objects, link_stack, missing_link_stack, info );
 
 	//--BEGIN POST-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
@@ -121,9 +105,15 @@ void NiCollisionObject::FixLinks( const map<unsigned int,NiObjectRef> & objects,
 std::list<NiObjectRef> NiCollisionObject::GetRefs() const {
 	list<Ref<NiObject> > refs;
 	refs = NiObject::GetRefs();
-	if ( body != NULL )
-		refs.push_back(StaticCast<NiObject>(body));
 	return refs;
+}
+
+std::list<NiObject *> NiCollisionObject::GetPtrs() const {
+	list<NiObject *> ptrs;
+	ptrs = NiObject::GetPtrs();
+	if ( target != NULL )
+		ptrs.push_back((NiObject *)(target));
+	return ptrs;
 }
 
 //--BEGIN MISC CUSTOM CODE--//
@@ -134,14 +124,6 @@ Ref<NiAVObject> NiCollisionObject::GetTarget() const {
 
 void NiCollisionObject::SetTarget( NiAVObject * value ) {
 	target = value;
-}
-
-Ref<NiObject > NiCollisionObject::GetBody() const {
-	return body;
-}
-
-void NiCollisionObject::SetBody( NiObject * value ) {
-	body = value;
 }
 
 //--END CUSTOM CODE--//

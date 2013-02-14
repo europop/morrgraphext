@@ -8,6 +8,7 @@ All rights reserved.  Please see niflib.h for license. */
 //-----------------------------------NOTICE----------------------------------//
 
 //--BEGIN FILE HEAD CUSTOM CODE--//
+#include "../../include/Inertia.h"
 //--END CUSTOM CODE--//
 
 #include "../../include/FixLink.h"
@@ -21,7 +22,7 @@ using namespace Niflib;
 //Definition of TYPE constant
 const Type bhkNiTriStripsShape::TYPE("bhkNiTriStripsShape", &bhkShapeCollection::TYPE );
 
-bhkNiTriStripsShape::bhkNiTriStripsShape() : unknownFloat1(0.1f), unknownInt1((unsigned int)0x004ABE60), unknownInt2((unsigned int)1), scale(1.0f, 1.0f, 1.0f), unknownInt3((unsigned int)0), numStripsData((unsigned int)0), numDataLayers((unsigned int)0) {
+bhkNiTriStripsShape::bhkNiTriStripsShape() : material((HavokMaterial)0), skyrimMaterial((SkyrimHavokMaterial)0), unknownFloat1(0.1f), unknownInt1((unsigned int)0x004ABE60), unknownInt2((unsigned int)1), scale(1.0, 1.0, 1.0), unknownInt3((unsigned int)0), numStripsData((unsigned int)0), numDataLayers((unsigned int)0) {
 	//--BEGIN CONSTRUCTOR CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 }
@@ -45,7 +46,12 @@ void bhkNiTriStripsShape::Read( istream& in, list<unsigned int> & link_stack, co
 
 	unsigned int block_num;
 	bhkShapeCollection::Read( in, link_stack, info );
-	NifStream( material, in, info );
+	if ( (info.userVersion < 12) ) {
+		NifStream( material, in, info );
+	};
+	if ( (info.userVersion >= 12) ) {
+		NifStream( skyrimMaterial, in, info );
+	};
 	NifStream( unknownFloat1, in, info );
 	NifStream( unknownInt1, in, info );
 	for (unsigned int i1 = 0; i1 < 4; i1++) {
@@ -72,14 +78,19 @@ void bhkNiTriStripsShape::Read( istream& in, list<unsigned int> & link_stack, co
 	//--END CUSTOM CODE--//
 }
 
-void bhkNiTriStripsShape::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const {
+void bhkNiTriStripsShape::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const {
 	//--BEGIN PRE-WRITE CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	bhkShapeCollection::Write( out, link_map, info );
+	bhkShapeCollection::Write( out, link_map, missing_link_stack, info );
 	numDataLayers = (unsigned int)(dataLayers.size());
 	numStripsData = (unsigned int)(stripsData.size());
-	NifStream( material, out, info );
+	if ( (info.userVersion < 12) ) {
+		NifStream( material, out, info );
+	};
+	if ( (info.userVersion >= 12) ) {
+		NifStream( skyrimMaterial, out, info );
+	};
 	NifStream( unknownFloat1, out, info );
 	NifStream( unknownInt1, out, info );
 	for (unsigned int i1 = 0; i1 < 4; i1++) {
@@ -91,12 +102,20 @@ void bhkNiTriStripsShape::Write( ostream& out, const map<NiObjectRef,unsigned in
 	NifStream( numStripsData, out, info );
 	for (unsigned int i1 = 0; i1 < stripsData.size(); i1++) {
 		if ( info.version < VER_3_3_0_13 ) {
-			NifStream( (unsigned int)&(*stripsData[i1]), out, info );
+			WritePtr32( &(*stripsData[i1]), out );
 		} else {
 			if ( stripsData[i1] != NULL ) {
-				NifStream( link_map.find( StaticCast<NiObject>(stripsData[i1]) )->second, out, info );
+				map<NiObjectRef,unsigned int>::const_iterator it = link_map.find( StaticCast<NiObject>(stripsData[i1]) );
+				if (it != link_map.end()) {
+					NifStream( it->second, out, info );
+					missing_link_stack.push_back( NULL );
+				} else {
+					NifStream( 0xFFFFFFFF, out, info );
+					missing_link_stack.push_back( stripsData[i1] );
+				}
 			} else {
 				NifStream( 0xFFFFFFFF, out, info );
+				missing_link_stack.push_back( NULL );
 			}
 		}
 	};
@@ -121,6 +140,7 @@ std::string bhkNiTriStripsShape::asString( bool verbose ) const {
 	numDataLayers = (unsigned int)(dataLayers.size());
 	numStripsData = (unsigned int)(stripsData.size());
 	out << "  Material:  " << material << endl;
+	out << "  Skyrim Material:  " << skyrimMaterial << endl;
 	out << "  Unknown Float 1:  " << unknownFloat1 << endl;
 	out << "  Unknown Int 1:  " << unknownInt1 << endl;
 	array_output_count = 0;
@@ -168,13 +188,13 @@ std::string bhkNiTriStripsShape::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 }
 
-void bhkNiTriStripsShape::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info ) {
+void bhkNiTriStripsShape::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info ) {
 	//--BEGIN PRE-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	bhkShapeCollection::FixLinks( objects, link_stack, info );
+	bhkShapeCollection::FixLinks( objects, link_stack, missing_link_stack, info );
 	for (unsigned int i1 = 0; i1 < stripsData.size(); i1++) {
-		stripsData[i1] = FixLink<NiTriStripsData>( objects, link_stack, info );
+		stripsData[i1] = FixLink<NiTriStripsData>( objects, link_stack, missing_link_stack, info );
 	};
 
 	//--BEGIN POST-FIXLINKS CUSTOM CODE--//
@@ -189,6 +209,14 @@ std::list<NiObjectRef> bhkNiTriStripsShape::GetRefs() const {
 			refs.push_back(StaticCast<NiObject>(stripsData[i1]));
 	};
 	return refs;
+}
+
+std::list<NiObject *> bhkNiTriStripsShape::GetPtrs() const {
+	list<NiObject *> ptrs;
+	ptrs = bhkShapeCollection::GetPtrs();
+	for (unsigned int i1 = 0; i1 < stripsData.size(); i1++) {
+	};
+	return ptrs;
 }
 
 //--BEGIN MISC CUSTOM CODE--//
@@ -257,4 +285,24 @@ void bhkNiTriStripsShape::SetOblivionFilter( unsigned int index, unsigned char f
 	dataLayers[index].colFilter = filter;
 }
 
+void bhkNiTriStripsShape::CalcMassProperties(float density, bool solid, float &mass, float &volume, Vector3 &center, InertiaMatrix& inertia)
+{
+	center = Vector3(0,0,0);
+	mass = 0.0f, volume = 0.0f;
+	inertia = InertiaMatrix::IDENTITY;
+
+	vector<Vector3> verts;
+	vector<Triangle> tris;
+	for ( vector<NiTriStripsDataRef>::iterator itr = stripsData.begin(); itr != stripsData.end(); ++itr )
+	{
+		size_t nv = verts.size(), nt = tris.size();
+		vector<Vector3> v = (*itr)->GetVertices();
+		vector<Triangle> t = (*itr)->GetTriangles();
+		for (size_t i=0; i<nv; ++i)
+			verts.push_back( v[i] );
+		for (size_t i=0; i<nt; ++i)
+			tris.push_back( Triangle(t[i][0] + nt, t[i][1] + nt, t[i][2] + nt) );
+	}
+	Inertia::CalcMassPropertiesPolyhedron(verts, tris, density, solid, mass, volume, center, inertia);
+}
 //--END CUSTOM CODE--//

@@ -20,6 +20,7 @@ All rights reserved.  Please see niflib.h for license. */
 namespace Niflib {
 
 // Forward define of referenced NIF objects
+class NiImage;
 class NiSourceTexture;
 class NiTextureEffect;
 typedef Ref<NiTextureEffect> NiTextureEffectRef;
@@ -216,10 +217,14 @@ protected:
 	TexFilterMode textureFiltering;
 	/*! Texture Clamp mode. */
 	TexClampMode textureClamping;
+	/*! Unknown. */
+	short unknown;
 	/*! The type of effect that the texture is used for. */
 	EffectType textureType;
 	/*! The method that will be used to generate UV coordinates for the texture effect. */
 	CoordGenType coordinateGenerationType;
+	/*! Image index. */
+	Ref<NiImage > image;
 	/*! Source texture index. */
 	Ref<NiSourceTexture > sourceTexture;
 	/*! Determines whether a clipping plane is used.  0 means that a plane is not used. */
@@ -229,20 +234,22 @@ protected:
 	/*! Unknown. 0? */
 	float unknownFloat;
 	/*! 0? */
-	unsigned short ps2L;
-	/*! 0xFFB5? */
-	unsigned short ps2K;
+	short ps2L;
+	/*! -75? */
+	short ps2K;
 	/*! Unknown: 0. */
 	unsigned short unknownShort;
 public:
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
 	NIFLIB_HIDDEN virtual void Read( istream& in, list<unsigned int> & link_stack, const NifInfo & info );
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
-	NIFLIB_HIDDEN virtual void Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const;
+	NIFLIB_HIDDEN virtual void Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const;
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
-	NIFLIB_HIDDEN virtual void FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info );
+	NIFLIB_HIDDEN virtual void FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info );
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
 	NIFLIB_HIDDEN virtual list<NiObjectRef> GetRefs() const;
+	/*! NIFLIB_HIDDEN function.  For internal use only. */
+	NIFLIB_HIDDEN virtual list<NiObject *> GetPtrs() const;
 };
 
 //--BEGIN FILE FOOT CUSTOM CODE--//

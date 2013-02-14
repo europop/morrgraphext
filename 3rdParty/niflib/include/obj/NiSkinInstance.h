@@ -92,10 +92,10 @@ public:
 	NIFLIB_API Ref<NiSkinPartition> GetSkinPartition() const;
 
 	/*!
-	 * This constructor is called by NiTriBasedGeom when it creates a new skin
+	 * This constructor is called by NiGeometry when it creates a new skin
 	 * instance using the BindSkin function.
 	 */
-	NIFLIB_HIDDEN NiSkinInstance( NiNode * skeleton_root, vector< Ref<NiNode> > bone_nodes );
+	NIFLIB_HIDDEN void BindSkin( NiNode * skeleton_root, vector< Ref<NiNode> > bone_nodes );
 
 	/*! 
 	 * NIFLIB_HIDDEN function.  For internal use only.
@@ -136,11 +136,13 @@ public:
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
 	NIFLIB_HIDDEN virtual void Read( istream& in, list<unsigned int> & link_stack, const NifInfo & info );
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
-	NIFLIB_HIDDEN virtual void Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const;
+	NIFLIB_HIDDEN virtual void Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const;
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
-	NIFLIB_HIDDEN virtual void FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info );
+	NIFLIB_HIDDEN virtual void FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info );
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
 	NIFLIB_HIDDEN virtual list<NiObjectRef> GetRefs() const;
+	/*! NIFLIB_HIDDEN function.  For internal use only. */
+	NIFLIB_HIDDEN virtual list<NiObject *> GetPtrs() const;
 };
 
 //--BEGIN FILE FOOT CUSTOM CODE--//

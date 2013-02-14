@@ -50,7 +50,7 @@ void NiPSysEmitter::Read( istream& in, list<unsigned int> & link_stack, const Ni
 	NifStream( planarAngleVariation, in, info );
 	NifStream( initialColor, in, info );
 	NifStream( initialRadius, in, info );
-	if ( info.version >= 0x14000004 ) {
+	if ( info.version >= 0x0A040001 ) {
 		NifStream( radiusVariation, in, info );
 	};
 	NifStream( lifeSpan, in, info );
@@ -60,11 +60,11 @@ void NiPSysEmitter::Read( istream& in, list<unsigned int> & link_stack, const Ni
 	//--END CUSTOM CODE--//
 }
 
-void NiPSysEmitter::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const {
+void NiPSysEmitter::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const {
 	//--BEGIN PRE-WRITE CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiPSysModifier::Write( out, link_map, info );
+	NiPSysModifier::Write( out, link_map, missing_link_stack, info );
 	NifStream( speed, out, info );
 	NifStream( speedVariation, out, info );
 	NifStream( declination, out, info );
@@ -73,7 +73,7 @@ void NiPSysEmitter::Write( ostream& out, const map<NiObjectRef,unsigned int> & l
 	NifStream( planarAngleVariation, out, info );
 	NifStream( initialColor, out, info );
 	NifStream( initialRadius, out, info );
-	if ( info.version >= 0x14000004 ) {
+	if ( info.version >= 0x0A040001 ) {
 		NifStream( radiusVariation, out, info );
 	};
 	NifStream( lifeSpan, out, info );
@@ -88,7 +88,6 @@ std::string NiPSysEmitter::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 
 	stringstream out;
-	unsigned int array_output_count = 0;
 	out << NiPSysModifier::asString();
 	out << "  Speed:  " << speed << endl;
 	out << "  Speed Variation:  " << speedVariation << endl;
@@ -107,11 +106,11 @@ std::string NiPSysEmitter::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 }
 
-void NiPSysEmitter::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info ) {
+void NiPSysEmitter::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info ) {
 	//--BEGIN PRE-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiPSysModifier::FixLinks( objects, link_stack, info );
+	NiPSysModifier::FixLinks( objects, link_stack, missing_link_stack, info );
 
 	//--BEGIN POST-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
@@ -121,6 +120,12 @@ std::list<NiObjectRef> NiPSysEmitter::GetRefs() const {
 	list<Ref<NiObject> > refs;
 	refs = NiPSysModifier::GetRefs();
 	return refs;
+}
+
+std::list<NiObject *> NiPSysEmitter::GetPtrs() const {
+	list<NiObject *> ptrs;
+	ptrs = NiPSysModifier::GetPtrs();
+	return ptrs;
 }
 
 //--BEGIN MISC CUSTOM CODE--//

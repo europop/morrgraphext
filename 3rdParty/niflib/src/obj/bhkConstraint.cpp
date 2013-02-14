@@ -56,21 +56,29 @@ void bhkConstraint::Read( istream& in, list<unsigned int> & link_stack, const Ni
 	//--END CUSTOM CODE--//
 }
 
-void bhkConstraint::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const {
+void bhkConstraint::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const {
 	//--BEGIN PRE-WRITE CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	bhkSerializable::Write( out, link_map, info );
+	bhkSerializable::Write( out, link_map, missing_link_stack, info );
 	numEntities = (unsigned int)(entities.size());
 	NifStream( numEntities, out, info );
 	for (unsigned int i1 = 0; i1 < entities.size(); i1++) {
 		if ( info.version < VER_3_3_0_13 ) {
-			NifStream( (unsigned int)&(*entities[i1]), out, info );
+			WritePtr32( &(*entities[i1]), out );
 		} else {
 			if ( entities[i1] != NULL ) {
-				NifStream( link_map.find( StaticCast<NiObject>(entities[i1]) )->second, out, info );
+				map<NiObjectRef,unsigned int>::const_iterator it = link_map.find( StaticCast<NiObject>(entities[i1]) );
+				if (it != link_map.end()) {
+					NifStream( it->second, out, info );
+					missing_link_stack.push_back( NULL );
+				} else {
+					NifStream( 0xFFFFFFFF, out, info );
+					missing_link_stack.push_back( entities[i1] );
+				}
 			} else {
 				NifStream( 0xFFFFFFFF, out, info );
+				missing_link_stack.push_back( NULL );
 			}
 		}
 	};
@@ -108,13 +116,13 @@ std::string bhkConstraint::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 }
 
-void bhkConstraint::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info ) {
+void bhkConstraint::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info ) {
 	//--BEGIN PRE-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	bhkSerializable::FixLinks( objects, link_stack, info );
+	bhkSerializable::FixLinks( objects, link_stack, missing_link_stack, info );
 	for (unsigned int i1 = 0; i1 < entities.size(); i1++) {
-		entities[i1] = FixLink<bhkEntity>( objects, link_stack, info );
+		entities[i1] = FixLink<bhkEntity>( objects, link_stack, missing_link_stack, info );
 	};
 
 	//--BEGIN POST-FIXLINKS CUSTOM CODE--//
@@ -129,5 +137,39 @@ std::list<NiObjectRef> bhkConstraint::GetRefs() const {
 	return refs;
 }
 
+std::list<NiObject *> bhkConstraint::GetPtrs() const {
+	list<NiObject *> ptrs;
+	ptrs = bhkSerializable::GetPtrs();
+	for (unsigned int i1 = 0; i1 < entities.size(); i1++) {
+		if ( entities[i1] != NULL )
+			ptrs.push_back((NiObject *)(entities[i1]));
+	};
+	return ptrs;
+}
+
 //--BEGIN MISC CUSTOM CODE--//
+
+void bhkConstraint::AddEntity( bhkEntity * obj ) {
+   entities.push_back( obj );
+}
+
+void bhkConstraint::RemoveEntity( bhkEntity * obj ) {
+   //Search Effect list for the one to remove
+   for ( vector< bhkEntity * >::iterator it = entities.begin(); it != entities.end(); ) {
+      if ( *it == obj ) {
+         it = entities.erase( it );
+      } else {
+         ++it;
+      }
+   }
+}
+
+void bhkConstraint::ClearEntities() {
+   entities.clear();
+}
+
+vector< bhkEntity * > bhkConstraint::GetEntities() const {
+   return entities;
+}
+
 //--END CUSTOM CODE--//

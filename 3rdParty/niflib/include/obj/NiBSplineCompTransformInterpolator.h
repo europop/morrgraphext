@@ -19,7 +19,11 @@ namespace Niflib {
 class NiBSplineCompTransformInterpolator;
 typedef Ref<NiBSplineCompTransformInterpolator> NiBSplineCompTransformInterpolatorRef;
 
-/*! Unknown. */
+/*!
+ * An interpolator for storing transform keyframes via a compressed
+ *         B-spline (that is, using shorts rather than floats in the B-spline
+ *         data).
+ */
 class NiBSplineCompTransformInterpolator : public NiBSplineTransformInterpolator {
 public:
 	/*! Constructor */
@@ -53,42 +57,6 @@ public:
 	NIFLIB_API virtual const Type & GetType() const;
 
 	//--BEGIN MISC CUSTOM CODE--//
-
-	/*!
-	 * Gets the base translation when a translate curve is not defined.
-	 * \return The base translation.
-	 */
-	NIFLIB_API Vector3 GetTranslation() const;
-
-	/*!
-	 * Sets the base translation when a translate curve is not defined.
-	 * \param[in] value The new base translation.
-	 */
-	NIFLIB_API void SetTranslation( Vector3 value );
-
-	/*!
-	 * Gets the base rotation when a translate curve is not defined.
-	 * \return The base rotation.
-	 */
-	NIFLIB_API Quaternion GetRotation() const;
-
-	/*!
-	 * Sets the base rotation when a translate curve is not defined.
-	 * \param[in] value The new base rotation.
-	 */
-	NIFLIB_API void SetRotation( Quaternion value );
-
-	/*!
-	 * Gets the base scale when a translate curve is not defined.
-	 * \return The base scale.
-	 */
-	NIFLIB_API float GetScale() const;
-
-	/*!
-	 * Sets the base scale when a translate curve is not defined.
-	 * \param[in] value The new base scale.
-	 */
-	NIFLIB_API void SetScale( float value );
 
 	/*!
 	 * Gets translate bias.
@@ -208,26 +176,14 @@ public:
 	 * Retrieves the number of control points used in the spline curve.
 	 * \return The number of control points used in the spline curve.
 	 */
-	NIFLIB_API int GetNumControlPt() const;
+	NIFLIB_API int GetNumControlPoints() const;
 
 	//--END CUSTOM CODE--//
 protected:
-	/*! Base translation when translate curve not defined. */
-	Vector3 translation;
-	/*! Base rotation when rotation curve not defined. */
-	Quaternion rotation;
-	/*! Base scale when scale curve not defined. */
-	float scale;
-	/*! Starting offset for the translation data. (USHRT_MAX for no data.) */
-	unsigned int translateOffset;
-	/*! Starting offset for the rotation data. (USHRT_MAX for no data.) */
-	unsigned int rotateOffset;
-	/*! Starting offset for the scale data. (USHRT_MAX for no data.) */
-	unsigned int scaleOffset;
-	/*! Translate Bias */
-	float translateBias;
-	/*! Translate Multiplier */
-	float translateMultiplier;
+	/*! Translation Bias */
+	float translationBias;
+	/*! Translation Multiplier */
+	float translationMultiplier;
 	/*! Rotation Bias */
 	float rotationBias;
 	/*! Rotation Multiplier */
@@ -240,11 +196,13 @@ public:
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
 	NIFLIB_HIDDEN virtual void Read( istream& in, list<unsigned int> & link_stack, const NifInfo & info );
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
-	NIFLIB_HIDDEN virtual void Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const;
+	NIFLIB_HIDDEN virtual void Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const;
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
-	NIFLIB_HIDDEN virtual void FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info );
+	NIFLIB_HIDDEN virtual void FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info );
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
 	NIFLIB_HIDDEN virtual list<NiObjectRef> GetRefs() const;
+	/*! NIFLIB_HIDDEN function.  For internal use only. */
+	NIFLIB_HIDDEN virtual list<NiObject *> GetPtrs() const;
 };
 
 //--BEGIN FILE FOOT CUSTOM CODE--//

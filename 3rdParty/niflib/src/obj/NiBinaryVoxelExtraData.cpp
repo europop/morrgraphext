@@ -52,19 +52,27 @@ void NiBinaryVoxelExtraData::Read( istream& in, list<unsigned int> & link_stack,
 	//--END CUSTOM CODE--//
 }
 
-void NiBinaryVoxelExtraData::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const {
+void NiBinaryVoxelExtraData::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const {
 	//--BEGIN PRE-WRITE CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiExtraData::Write( out, link_map, info );
+	NiExtraData::Write( out, link_map, missing_link_stack, info );
 	NifStream( unknownInt, out, info );
 	if ( info.version < VER_3_3_0_13 ) {
-		NifStream( (unsigned int)&(*data), out, info );
+		WritePtr32( &(*data), out );
 	} else {
 		if ( data != NULL ) {
-			NifStream( link_map.find( StaticCast<NiObject>(data) )->second, out, info );
+			map<NiObjectRef,unsigned int>::const_iterator it = link_map.find( StaticCast<NiObject>(data) );
+			if (it != link_map.end()) {
+				NifStream( it->second, out, info );
+				missing_link_stack.push_back( NULL );
+			} else {
+				NifStream( 0xFFFFFFFF, out, info );
+				missing_link_stack.push_back( data );
+			}
 		} else {
 			NifStream( 0xFFFFFFFF, out, info );
+			missing_link_stack.push_back( NULL );
 		}
 	}
 
@@ -77,7 +85,6 @@ std::string NiBinaryVoxelExtraData::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 
 	stringstream out;
-	unsigned int array_output_count = 0;
 	out << NiExtraData::asString();
 	out << "  Unknown Int:  " << unknownInt << endl;
 	out << "  Data:  " << data << endl;
@@ -87,12 +94,12 @@ std::string NiBinaryVoxelExtraData::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 }
 
-void NiBinaryVoxelExtraData::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info ) {
+void NiBinaryVoxelExtraData::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info ) {
 	//--BEGIN PRE-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiExtraData::FixLinks( objects, link_stack, info );
-	data = FixLink<NiBinaryVoxelData>( objects, link_stack, info );
+	NiExtraData::FixLinks( objects, link_stack, missing_link_stack, info );
+	data = FixLink<NiBinaryVoxelData>( objects, link_stack, missing_link_stack, info );
 
 	//--BEGIN POST-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
@@ -104,6 +111,12 @@ std::list<NiObjectRef> NiBinaryVoxelExtraData::GetRefs() const {
 	if ( data != NULL )
 		refs.push_back(StaticCast<NiObject>(data));
 	return refs;
+}
+
+std::list<NiObject *> NiBinaryVoxelExtraData::GetPtrs() const {
+	list<NiObject *> ptrs;
+	ptrs = NiExtraData::GetPtrs();
+	return ptrs;
 }
 
 //--BEGIN MISC CUSTOM CODE--//

@@ -67,16 +67,18 @@ public:
 	 * Adds a child AV Object to this node.  This is a sub-leaf in the scene graph contained in a NIF file.  Each AV Object can only be the child of one node.
 	 * \param[in] obj The AV Object to add as a child of this node.
 	 */
-	NIFLIB_API void AddChild( NiAVObject * obj );
+	NIFLIB_API void AddChild( Ref<NiAVObject> obj );
 
 	/*!
 	 * Removes an AV Object child from this node.  This is a sub-leaf in the scene graph contained in a NIF file.  Each AV Object can only be the child of one node.
+	 * The caller is responsible that the child is no longer weakly linked elsewhere, for instance, as a skin influence.
 	 * \param[in] obj The AV Object to remove as a child from this node.
 	 */
-	NIFLIB_API void RemoveChild( NiAVObject * obj );
+	NIFLIB_API void RemoveChild( Ref<NiAVObject> obj );
 
 	/*!
 	 * Removes all AV Object children from this node.  These are a sub-leafs in the scene graph contained in a NIF file.  Each AV Object can only be the child of one node.
+	 * The caller is responsible that no child is still weakly linked elsewhere, for instance, as a skin influence.
 	 */
 	NIFLIB_API void ClearChildren();
 
@@ -177,11 +179,13 @@ public:
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
 	NIFLIB_HIDDEN virtual void Read( istream& in, list<unsigned int> & link_stack, const NifInfo & info );
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
-	NIFLIB_HIDDEN virtual void Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const;
+	NIFLIB_HIDDEN virtual void Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const;
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
-	NIFLIB_HIDDEN virtual void FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info );
+	NIFLIB_HIDDEN virtual void FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info );
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
 	NIFLIB_HIDDEN virtual list<NiObjectRef> GetRefs() const;
+	/*! NIFLIB_HIDDEN function.  For internal use only. */
+	NIFLIB_HIDDEN virtual list<NiObject *> GetPtrs() const;
 };
 
 //--BEGIN FILE FOOT CUSTOM CODE--//

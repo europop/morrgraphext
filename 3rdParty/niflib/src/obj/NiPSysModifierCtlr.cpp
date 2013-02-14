@@ -48,11 +48,11 @@ void NiPSysModifierCtlr::Read( istream& in, list<unsigned int> & link_stack, con
 	//--END CUSTOM CODE--//
 }
 
-void NiPSysModifierCtlr::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const {
+void NiPSysModifierCtlr::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const {
 	//--BEGIN PRE-WRITE CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiSingleInterpController::Write( out, link_map, info );
+	NiSingleInterpController::Write( out, link_map, missing_link_stack, info );
 	NifStream( modifierName, out, info );
 
 	//--BEGIN POST-WRITE CUSTOM CODE--//
@@ -64,7 +64,6 @@ std::string NiPSysModifierCtlr::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 
 	stringstream out;
-	unsigned int array_output_count = 0;
 	out << NiSingleInterpController::asString();
 	out << "  Modifier Name:  " << modifierName << endl;
 	return out.str();
@@ -73,11 +72,11 @@ std::string NiPSysModifierCtlr::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 }
 
-void NiPSysModifierCtlr::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info ) {
+void NiPSysModifierCtlr::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info ) {
 	//--BEGIN PRE-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiSingleInterpController::FixLinks( objects, link_stack, info );
+	NiSingleInterpController::FixLinks( objects, link_stack, missing_link_stack, info );
 
 	//--BEGIN POST-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
@@ -87,6 +86,12 @@ std::list<NiObjectRef> NiPSysModifierCtlr::GetRefs() const {
 	list<Ref<NiObject> > refs;
 	refs = NiSingleInterpController::GetRefs();
 	return refs;
+}
+
+std::list<NiObject *> NiPSysModifierCtlr::GetPtrs() const {
+	list<NiObject *> ptrs;
+	ptrs = NiSingleInterpController::GetPtrs();
+	return ptrs;
 }
 
 //--BEGIN MISC CUSTOM CODE--//

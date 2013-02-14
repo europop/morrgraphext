@@ -13,21 +13,14 @@ All rights reserved.  Please see niflib.h for license. */
 //--BEGIN FILE HEAD CUSTOM CODE--//
 //--END CUSTOM CODE--//
 
-#include "NiObject.h"
-
-// Include structures
-#include "../Ref.h"
-#include "../gen/MipMap.h"
-#include "../gen/ByteArray.h"
+#include "ATextureRenderData.h"
 namespace Niflib {
 
-// Forward define of referenced NIF objects
-class NiPalette;
 class NiPixelData;
 typedef Ref<NiPixelData> NiPixelDataRef;
 
 /*! A texture. */
-class NiPixelData : public NiObject {
+class NiPixelData : public ATextureRenderData {
 public:
 	/*! Constructor */
 	NIFLIB_API NiPixelData();
@@ -108,53 +101,26 @@ public:
 
 	//--END CUSTOM CODE--//
 protected:
-	/*! The format of the pixels in this internally stored image. */
-	PixelFormat pixelFormat;
-	/*! 0x000000ff (for 24bpp and 32bpp) or 0x00000000 (for 8bpp) */
-	unsigned int redMask;
-	/*! 0x0000ff00 (for 24bpp and 32bpp) or 0x00000000 (for 8bpp) */
-	unsigned int greenMask;
-	/*! 0x00ff0000 (for 24bpp and 32bpp) or 0x00000000 (for 8bpp) */
-	unsigned int blueMask;
-	/*! 0xff000000 (for 32bpp) or 0x00000000 (for 24bpp and 8bpp) */
-	unsigned int alphaMask;
-	/*! Bits per pixel, 0 (?), 8, 24 or 32. */
-	unsigned int bitsPerPixel;
-	/*!
-	 * [96,8,130,0,0,65,0,0] if 24 bits per pixel
-	 *             [129,8,130,32,0,65,12,0] if 32 bits per pixel
-	 *             [34,0,0,0,0,0,0,0] if 8 bits per pixel
-	 *             [4,0,0,0,0,0,0,0] if 0 (?) bits per pixel
-	 */
-	array<8,byte > unknown8Bytes;
-	/*! Seems to always be zero. */
-	unsigned int unknownInt;
-	/*! Unknown. */
-	array<54,byte > unknown54Bytes;
-	/*! Link to NiPalette, for 8-bit textures. */
-	Ref<NiPalette > palette;
-	/*! Number of mipmaps in the texture. */
-	mutable unsigned int numMipmaps;
-	/*! Bytes per pixel (Bits Per Pixel / 8). */
-	unsigned int bytesPerPixel;
-	/*! Mipmap descriptions (width, height, offset). */
-	vector<MipMap > mipmaps;
+	/*! Total number of pixels */
+	mutable unsigned int numPixels;
+	/*! Unknown */
+	mutable unsigned int numFaces;
 	/*!
 	 * Raw pixel data holding the mipmaps.  Mipmap zero is the full-size texture and
 	 * they get smaller by half as the number increases.
 	 */
-	ByteArray pixelData;
-	/*! Unknown. */
-	unsigned int unknownInt2;
+	vector< vector<byte > > pixelData;
 public:
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
 	NIFLIB_HIDDEN virtual void Read( istream& in, list<unsigned int> & link_stack, const NifInfo & info );
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
-	NIFLIB_HIDDEN virtual void Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const;
+	NIFLIB_HIDDEN virtual void Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const;
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
-	NIFLIB_HIDDEN virtual void FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info );
+	NIFLIB_HIDDEN virtual void FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info );
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
 	NIFLIB_HIDDEN virtual list<NiObjectRef> GetRefs() const;
+	/*! NIFLIB_HIDDEN function.  For internal use only. */
+	NIFLIB_HIDDEN virtual list<NiObject *> GetPtrs() const;
 };
 
 //--BEGIN FILE FOOT CUSTOM CODE--//

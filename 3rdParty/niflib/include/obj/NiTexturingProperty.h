@@ -105,7 +105,7 @@ public:
 	 * \param n The slot number of the texture to get the texture description of.  This is a positive zero based index that must be less than the value returned by NiTexturingProperty::GetTextureCount.
 	 * \sa NiTexturingProperty::SetTexture, TexType
 	 */
-	NIFLIB_API TexDesc GetTexture( int n ) const;
+	NIFLIB_API TexDesc & GetTexture( int n );
 
 	/*! 
 	 * Checks whether a particular texture type is being used
@@ -229,6 +229,19 @@ protected:
 	float bumpMapLumaOffset;
 	/*! Unknown. */
 	Matrix22 bumpMapMatrix;
+	/*!
+	 * Do we have a normal texture?  (Noraml guess based on file suffix in sample
+	 * files)
+	 */
+	bool hasNormalTexture;
+	/*! Normal texture. */
+	TexDesc normalTexture;
+	/*! Do we have a unknown texture 2? */
+	bool hasUnknown2Texture;
+	/*! Unknown texture 2. */
+	TexDesc unknown2Texture;
+	/*! Unknown. */
+	float unknown2Float;
 	/*! Do we have a decal 0 texture? */
 	bool hasDecal0Texture;
 	/*! The decal texture. */
@@ -253,11 +266,13 @@ public:
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
 	NIFLIB_HIDDEN virtual void Read( istream& in, list<unsigned int> & link_stack, const NifInfo & info );
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
-	NIFLIB_HIDDEN virtual void Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const;
+	NIFLIB_HIDDEN virtual void Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const;
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
-	NIFLIB_HIDDEN virtual void FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info );
+	NIFLIB_HIDDEN virtual void FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info );
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
 	NIFLIB_HIDDEN virtual list<NiObjectRef> GetRefs() const;
+	/*! NIFLIB_HIDDEN function.  For internal use only. */
+	NIFLIB_HIDDEN virtual list<NiObject *> GetPtrs() const;
 };
 
 //--BEGIN FILE FOOT CUSTOM CODE--//

@@ -19,7 +19,7 @@ using namespace Niflib;
 //Definition of TYPE constant
 const Type NiVisData::TYPE("NiVisData", &NiObject::TYPE );
 
-NiVisData::NiVisData() : numVisKeys((unsigned int)0) {
+NiVisData::NiVisData() : numKeys((unsigned int)0) {
 	//--BEGIN CONSTRUCTOR CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 }
@@ -42,25 +42,25 @@ void NiVisData::Read( istream& in, list<unsigned int> & link_stack, const NifInf
 	//--END CUSTOM CODE--//
 
 	NiObject::Read( in, link_stack, info );
-	NifStream( numVisKeys, in, info );
-	visKeys.resize(numVisKeys);
-	for (unsigned int i1 = 0; i1 < visKeys.size(); i1++) {
-		NifStream( visKeys[i1], in, info, 1 );
+	NifStream( numKeys, in, info );
+	keys.resize(numKeys);
+	for (unsigned int i1 = 0; i1 < keys.size(); i1++) {
+		NifStream( keys[i1], in, info, 1 );
 	};
 
 	//--BEGIN POST-READ CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 }
 
-void NiVisData::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const {
+void NiVisData::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const {
 	//--BEGIN PRE-WRITE CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiObject::Write( out, link_map, info );
-	numVisKeys = (unsigned int)(visKeys.size());
-	NifStream( numVisKeys, out, info );
-	for (unsigned int i1 = 0; i1 < visKeys.size(); i1++) {
-		NifStream( visKeys[i1], out, info, 1 );
+	NiObject::Write( out, link_map, missing_link_stack, info );
+	numKeys = (unsigned int)(keys.size());
+	NifStream( numKeys, out, info );
+	for (unsigned int i1 = 0; i1 < keys.size(); i1++) {
+		NifStream( keys[i1], out, info, 1 );
 	};
 
 	//--BEGIN POST-WRITE CUSTOM CODE--//
@@ -74,10 +74,10 @@ std::string NiVisData::asString( bool verbose ) const {
 	stringstream out;
 	unsigned int array_output_count = 0;
 	out << NiObject::asString();
-	numVisKeys = (unsigned int)(visKeys.size());
-	out << "  Num Vis Keys:  " << numVisKeys << endl;
+	numKeys = (unsigned int)(keys.size());
+	out << "  Num Keys:  " << numKeys << endl;
 	array_output_count = 0;
-	for (unsigned int i1 = 0; i1 < visKeys.size(); i1++) {
+	for (unsigned int i1 = 0; i1 < keys.size(); i1++) {
 		if ( !verbose && ( array_output_count > MAXARRAYDUMP ) ) {
 			out << "<Data Truncated. Use verbose mode to see complete listing.>" << endl;
 			break;
@@ -85,7 +85,7 @@ std::string NiVisData::asString( bool verbose ) const {
 		if ( !verbose && ( array_output_count > MAXARRAYDUMP ) ) {
 			break;
 		};
-		out << "    Vis Keys[" << i1 << "]:  " << visKeys[i1] << endl;
+		out << "    Keys[" << i1 << "]:  " << keys[i1] << endl;
 		array_output_count++;
 	};
 	return out.str();
@@ -94,11 +94,11 @@ std::string NiVisData::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 }
 
-void NiVisData::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info ) {
+void NiVisData::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info ) {
 	//--BEGIN PRE-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiObject::FixLinks( objects, link_stack, info );
+	NiObject::FixLinks( objects, link_stack, missing_link_stack, info );
 
 	//--BEGIN POST-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
@@ -110,18 +110,24 @@ std::list<NiObjectRef> NiVisData::GetRefs() const {
 	return refs;
 }
 
+std::list<NiObject *> NiVisData::GetPtrs() const {
+	list<NiObject *> ptrs;
+	ptrs = NiObject::GetPtrs();
+	return ptrs;
+}
+
 //--BEGIN MISC CUSTOM CODE--//
 
 vector< Key<unsigned char> > NiVisData::GetKeys() const {
-	return visKeys;
+	return keys;
 }
 
 void NiVisData::SetKeys( vector< Key<unsigned char> > const & keys ) {
-	visKeys = keys;
+	this->keys = keys;
 }
 
 void NiVisData::NormalizeKeys( float phase, float frequency ) {
-	NormalizeKeyVector( this->visKeys, phase, frequency );
+	NormalizeKeyVector( this->keys, phase, frequency );
 }
 
 //--END CUSTOM CODE--//

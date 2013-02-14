@@ -57,11 +57,11 @@ void FxRadioButton::Read( istream& in, list<unsigned int> & link_stack, const Ni
 	//--END CUSTOM CODE--//
 }
 
-void FxRadioButton::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const {
+void FxRadioButton::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const {
 	//--BEGIN PRE-WRITE CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	FxWidget::Write( out, link_map, info );
+	FxWidget::Write( out, link_map, missing_link_stack, info );
 	numButtons = (unsigned int)(buttons.size());
 	NifStream( unknownInt1, out, info );
 	NifStream( unknownInt2, out, info );
@@ -69,12 +69,20 @@ void FxRadioButton::Write( ostream& out, const map<NiObjectRef,unsigned int> & l
 	NifStream( numButtons, out, info );
 	for (unsigned int i1 = 0; i1 < buttons.size(); i1++) {
 		if ( info.version < VER_3_3_0_13 ) {
-			NifStream( (unsigned int)&(*buttons[i1]), out, info );
+			WritePtr32( &(*buttons[i1]), out );
 		} else {
 			if ( buttons[i1] != NULL ) {
-				NifStream( link_map.find( StaticCast<NiObject>(buttons[i1]) )->second, out, info );
+				map<NiObjectRef,unsigned int>::const_iterator it = link_map.find( StaticCast<NiObject>(buttons[i1]) );
+				if (it != link_map.end()) {
+					NifStream( it->second, out, info );
+					missing_link_stack.push_back( NULL );
+				} else {
+					NifStream( 0xFFFFFFFF, out, info );
+					missing_link_stack.push_back( buttons[i1] );
+				}
 			} else {
 				NifStream( 0xFFFFFFFF, out, info );
+				missing_link_stack.push_back( NULL );
 			}
 		}
 	};
@@ -113,13 +121,13 @@ std::string FxRadioButton::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 }
 
-void FxRadioButton::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info ) {
+void FxRadioButton::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info ) {
 	//--BEGIN PRE-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	FxWidget::FixLinks( objects, link_stack, info );
+	FxWidget::FixLinks( objects, link_stack, missing_link_stack, info );
 	for (unsigned int i1 = 0; i1 < buttons.size(); i1++) {
-		buttons[i1] = FixLink<FxRadioButton>( objects, link_stack, info );
+		buttons[i1] = FixLink<FxRadioButton>( objects, link_stack, missing_link_stack, info );
 	};
 
 	//--BEGIN POST-FIXLINKS CUSTOM CODE--//
@@ -132,6 +140,16 @@ std::list<NiObjectRef> FxRadioButton::GetRefs() const {
 	for (unsigned int i1 = 0; i1 < buttons.size(); i1++) {
 	};
 	return refs;
+}
+
+std::list<NiObject *> FxRadioButton::GetPtrs() const {
+	list<NiObject *> ptrs;
+	ptrs = FxWidget::GetPtrs();
+	for (unsigned int i1 = 0; i1 < buttons.size(); i1++) {
+		if ( buttons[i1] != NULL )
+			ptrs.push_back((NiObject *)(buttons[i1]));
+	};
+	return ptrs;
 }
 
 //--BEGIN MISC CUSTOM CODE--//

@@ -47,11 +47,11 @@ void NiAutoNormalParticlesData::Read( istream& in, list<unsigned int> & link_sta
 	//--END CUSTOM CODE--//
 }
 
-void NiAutoNormalParticlesData::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const {
+void NiAutoNormalParticlesData::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const {
 	//--BEGIN PRE-WRITE CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiParticlesData::Write( out, link_map, info );
+	NiParticlesData::Write( out, link_map, missing_link_stack, info );
 
 	//--BEGIN POST-WRITE CUSTOM CODE--//
 	//--END CUSTOM CODE--//
@@ -62,7 +62,6 @@ std::string NiAutoNormalParticlesData::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 
 	stringstream out;
-	unsigned int array_output_count = 0;
 	out << NiParticlesData::asString();
 	return out.str();
 
@@ -70,11 +69,11 @@ std::string NiAutoNormalParticlesData::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 }
 
-void NiAutoNormalParticlesData::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info ) {
+void NiAutoNormalParticlesData::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info ) {
 	//--BEGIN PRE-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiParticlesData::FixLinks( objects, link_stack, info );
+	NiParticlesData::FixLinks( objects, link_stack, missing_link_stack, info );
 
 	//--BEGIN POST-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
@@ -84,6 +83,12 @@ std::list<NiObjectRef> NiAutoNormalParticlesData::GetRefs() const {
 	list<Ref<NiObject> > refs;
 	refs = NiParticlesData::GetRefs();
 	return refs;
+}
+
+std::list<NiObject *> NiAutoNormalParticlesData::GetPtrs() const {
+	list<NiObject *> ptrs;
+	ptrs = NiParticlesData::GetPtrs();
+	return ptrs;
 }
 
 //--BEGIN MISC CUSTOM CODE--//

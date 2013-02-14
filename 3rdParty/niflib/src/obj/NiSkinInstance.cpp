@@ -14,9 +14,9 @@ All rights reserved.  Please see niflib.h for license. */
 #include "../../include/ObjectRegistry.h"
 #include "../../include/NIF_IO.h"
 #include "../../include/obj/NiSkinInstance.h"
+#include "../../include/obj/NiNode.h"
 #include "../../include/obj/NiSkinData.h"
 #include "../../include/obj/NiSkinPartition.h"
-#include "../../include/obj/NiNode.h"
 using namespace Niflib;
 
 //Definition of TYPE constant
@@ -32,7 +32,8 @@ NiSkinInstance::~NiSkinInstance() {
 
 	//Unflag any bones that were part of this skin instance
 	for ( unsigned int i = 0; i < bones.size(); ++i ) {
-		bones[i]->SetSkinFlag(false);
+		if (bones[i] != NULL)
+			bones[i]->SetSkinFlag(false);
 	}
 
 	//Inform Skeleton Root of detatchment and clear it.
@@ -77,50 +78,82 @@ void NiSkinInstance::Read( istream& in, list<unsigned int> & link_stack, const N
 	//--END CUSTOM CODE--//
 }
 
-void NiSkinInstance::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const {
+void NiSkinInstance::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const {
 	//--BEGIN PRE-WRITE CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiObject::Write( out, link_map, info );
+	NiObject::Write( out, link_map, missing_link_stack, info );
 	numBones = (unsigned int)(bones.size());
 	if ( info.version < VER_3_3_0_13 ) {
-		NifStream( (unsigned int)&(*data), out, info );
+		WritePtr32( &(*data), out );
 	} else {
 		if ( data != NULL ) {
-			NifStream( link_map.find( StaticCast<NiObject>(data) )->second, out, info );
+			map<NiObjectRef,unsigned int>::const_iterator it = link_map.find( StaticCast<NiObject>(data) );
+			if (it != link_map.end()) {
+				NifStream( it->second, out, info );
+				missing_link_stack.push_back( NULL );
+			} else {
+				NifStream( 0xFFFFFFFF, out, info );
+				missing_link_stack.push_back( data );
+			}
 		} else {
 			NifStream( 0xFFFFFFFF, out, info );
+			missing_link_stack.push_back( NULL );
 		}
 	}
 	if ( info.version >= 0x0A020000 ) {
 		if ( info.version < VER_3_3_0_13 ) {
-			NifStream( (unsigned int)&(*skinPartition), out, info );
+			WritePtr32( &(*skinPartition), out );
 		} else {
 			if ( skinPartition != NULL ) {
-				NifStream( link_map.find( StaticCast<NiObject>(skinPartition) )->second, out, info );
+				map<NiObjectRef,unsigned int>::const_iterator it = link_map.find( StaticCast<NiObject>(skinPartition) );
+				if (it != link_map.end()) {
+					NifStream( it->second, out, info );
+					missing_link_stack.push_back( NULL );
+				} else {
+					NifStream( 0xFFFFFFFF, out, info );
+					missing_link_stack.push_back( skinPartition );
+				}
 			} else {
 				NifStream( 0xFFFFFFFF, out, info );
+				missing_link_stack.push_back( NULL );
 			}
 		}
 	};
 	if ( info.version < VER_3_3_0_13 ) {
-		NifStream( (unsigned int)&(*skeletonRoot), out, info );
+		WritePtr32( &(*skeletonRoot), out );
 	} else {
 		if ( skeletonRoot != NULL ) {
-			NifStream( link_map.find( StaticCast<NiObject>(skeletonRoot) )->second, out, info );
+			map<NiObjectRef,unsigned int>::const_iterator it = link_map.find( StaticCast<NiObject>(skeletonRoot) );
+			if (it != link_map.end()) {
+				NifStream( it->second, out, info );
+				missing_link_stack.push_back( NULL );
+			} else {
+				NifStream( 0xFFFFFFFF, out, info );
+				missing_link_stack.push_back( skeletonRoot );
+			}
 		} else {
 			NifStream( 0xFFFFFFFF, out, info );
+			missing_link_stack.push_back( NULL );
 		}
 	}
 	NifStream( numBones, out, info );
 	for (unsigned int i1 = 0; i1 < bones.size(); i1++) {
 		if ( info.version < VER_3_3_0_13 ) {
-			NifStream( (unsigned int)&(*bones[i1]), out, info );
+			WritePtr32( &(*bones[i1]), out );
 		} else {
 			if ( bones[i1] != NULL ) {
-				NifStream( link_map.find( StaticCast<NiObject>(bones[i1]) )->second, out, info );
+				map<NiObjectRef,unsigned int>::const_iterator it = link_map.find( StaticCast<NiObject>(bones[i1]) );
+				if (it != link_map.end()) {
+					NifStream( it->second, out, info );
+					missing_link_stack.push_back( NULL );
+				} else {
+					NifStream( 0xFFFFFFFF, out, info );
+					missing_link_stack.push_back( bones[i1] );
+				}
 			} else {
 				NifStream( 0xFFFFFFFF, out, info );
+				missing_link_stack.push_back( NULL );
 			}
 		}
 	};
@@ -159,18 +192,18 @@ std::string NiSkinInstance::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 }
 
-void NiSkinInstance::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info ) {
+void NiSkinInstance::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info ) {
 	//--BEGIN PRE-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiObject::FixLinks( objects, link_stack, info );
-	data = FixLink<NiSkinData>( objects, link_stack, info );
+	NiObject::FixLinks( objects, link_stack, missing_link_stack, info );
+	data = FixLink<NiSkinData>( objects, link_stack, missing_link_stack, info );
 	if ( info.version >= 0x0A020000 ) {
-		skinPartition = FixLink<NiSkinPartition>( objects, link_stack, info );
+		skinPartition = FixLink<NiSkinPartition>( objects, link_stack, missing_link_stack, info );
 	};
-	skeletonRoot = FixLink<NiNode>( objects, link_stack, info );
+	skeletonRoot = FixLink<NiNode>( objects, link_stack, missing_link_stack, info );
 	for (unsigned int i1 = 0; i1 < bones.size(); i1++) {
-		bones[i1] = FixLink<NiNode>( objects, link_stack, info );
+		bones[i1] = FixLink<NiNode>( objects, link_stack, missing_link_stack, info );
 	};
 
 	//--BEGIN POST-FIXLINKS CUSTOM CODE--//
@@ -182,7 +215,9 @@ void NiSkinInstance::FixLinks( const map<unsigned int,NiObjectRef> & objects, li
 
 	//Ensure that bones have the flag set properly
 	for ( unsigned int i = 0; i < bones.size(); ++i ) {
-		bones[i]->SetSkinFlag(true);
+		if ( bones[i] != NULL ) {
+			bones[i]->SetSkinFlag(true);
+		}
 	}
 
 	//--END CUSTOM CODE--//
@@ -198,6 +233,18 @@ std::list<NiObjectRef> NiSkinInstance::GetRefs() const {
 	for (unsigned int i1 = 0; i1 < bones.size(); i1++) {
 	};
 	return refs;
+}
+
+std::list<NiObject *> NiSkinInstance::GetPtrs() const {
+	list<NiObject *> ptrs;
+	ptrs = NiObject::GetPtrs();
+	if ( skeletonRoot != NULL )
+		ptrs.push_back((NiObject *)(skeletonRoot));
+	for (unsigned int i1 = 0; i1 < bones.size(); i1++) {
+		if ( bones[i1] != NULL )
+			ptrs.push_back((NiObject *)(bones[i1]));
+	};
+	return ptrs;
 }
 
 //--BEGIN MISC CUSTOM CODE--//
@@ -245,9 +292,9 @@ Ref<NiNode> NiSkinInstance::GetSkeletonRoot() const {
 	return skeletonRoot;
 }
 
-NiSkinInstance::NiSkinInstance( NiNode * skeleton_root, vector< Ref<NiNode> > bone_nodes ) {
+void NiSkinInstance::BindSkin( NiNode * skeleton_root, vector< Ref<NiNode> > bone_nodes ) {
 	//Call normal constructor
-	NiSkinInstance();
+	//NiSkinInstance();
 
 	//Ensure that all bones are below the skeleton root node on the scene graph
 	for ( unsigned int i = 0; i < bone_nodes.size(); ++i ) {
@@ -273,7 +320,9 @@ NiSkinInstance::NiSkinInstance( NiNode * skeleton_root, vector< Ref<NiNode> > bo
 
 	//Flag any bones that are part of this skin instance
 	for ( unsigned int i = 0; i < bones.size(); ++i ) {
-		bones[i]->SetSkinFlag(true);
+		if ( bones[i] != NULL ) {
+			bones[i]->SetSkinFlag(true);
+		}
 	}
 
 	//Store skeleton root and inform it of this attachment

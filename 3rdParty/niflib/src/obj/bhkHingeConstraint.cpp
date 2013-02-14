@@ -14,6 +14,7 @@ All rights reserved.  Please see niflib.h for license. */
 #include "../../include/ObjectRegistry.h"
 #include "../../include/NIF_IO.h"
 #include "../../include/obj/bhkHingeConstraint.h"
+#include "../../include/gen/HingeDescriptor.h"
 using namespace Niflib;
 
 //Definition of TYPE constant
@@ -42,26 +43,50 @@ void bhkHingeConstraint::Read( istream& in, list<unsigned int> & link_stack, con
 	//--END CUSTOM CODE--//
 
 	bhkConstraint::Read( in, link_stack, info );
-	NifStream( pivotA, in, info );
-	NifStream( perp2axleina1, in, info );
-	NifStream( perp2axleina2, in, info );
-	NifStream( pivotB, in, info );
-	NifStream( axleB, in, info );
+	if ( info.version <= 0x14000005 ) {
+		NifStream( hinge.pivotA, in, info );
+		NifStream( hinge.perp2AxleInA1, in, info );
+		NifStream( hinge.perp2AxleInA2, in, info );
+		NifStream( hinge.pivotB, in, info );
+		NifStream( hinge.axleB, in, info );
+	};
+	if ( info.version >= 0x14020007 ) {
+		NifStream( hinge.axleA, in, info );
+		NifStream( hinge.perp2AxleInA1, in, info );
+		NifStream( hinge.perp2AxleInA2, in, info );
+		NifStream( hinge.pivotA, in, info );
+		NifStream( hinge.axleB, in, info );
+		NifStream( hinge.perp2AxleInB1, in, info );
+		NifStream( hinge.perp2AxleInB2, in, info );
+		NifStream( hinge.pivotB, in, info );
+	};
 
 	//--BEGIN POST-READ CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 }
 
-void bhkHingeConstraint::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const {
+void bhkHingeConstraint::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const {
 	//--BEGIN PRE-WRITE CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	bhkConstraint::Write( out, link_map, info );
-	NifStream( pivotA, out, info );
-	NifStream( perp2axleina1, out, info );
-	NifStream( perp2axleina2, out, info );
-	NifStream( pivotB, out, info );
-	NifStream( axleB, out, info );
+	bhkConstraint::Write( out, link_map, missing_link_stack, info );
+	if ( info.version <= 0x14000005 ) {
+		NifStream( hinge.pivotA, out, info );
+		NifStream( hinge.perp2AxleInA1, out, info );
+		NifStream( hinge.perp2AxleInA2, out, info );
+		NifStream( hinge.pivotB, out, info );
+		NifStream( hinge.axleB, out, info );
+	};
+	if ( info.version >= 0x14020007 ) {
+		NifStream( hinge.axleA, out, info );
+		NifStream( hinge.perp2AxleInA1, out, info );
+		NifStream( hinge.perp2AxleInA2, out, info );
+		NifStream( hinge.pivotA, out, info );
+		NifStream( hinge.axleB, out, info );
+		NifStream( hinge.perp2AxleInB1, out, info );
+		NifStream( hinge.perp2AxleInB2, out, info );
+		NifStream( hinge.pivotB, out, info );
+	};
 
 	//--BEGIN POST-WRITE CUSTOM CODE--//
 	//--END CUSTOM CODE--//
@@ -72,24 +97,26 @@ std::string bhkHingeConstraint::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 
 	stringstream out;
-	unsigned int array_output_count = 0;
 	out << bhkConstraint::asString();
-	out << "  Pivot A:  " << pivotA << endl;
-	out << "  Perp2AxleInA1:  " << perp2axleina1 << endl;
-	out << "  Perp2AxleInA2:  " << perp2axleina2 << endl;
-	out << "  Pivot B:  " << pivotB << endl;
-	out << "  Axle B:  " << axleB << endl;
+	out << "  Pivot A:  " << hinge.pivotA << endl;
+	out << "  Perp2 Axle In A1:  " << hinge.perp2AxleInA1 << endl;
+	out << "  Perp2 Axle In A2:  " << hinge.perp2AxleInA2 << endl;
+	out << "  Pivot B:  " << hinge.pivotB << endl;
+	out << "  Axle B:  " << hinge.axleB << endl;
+	out << "  Axle A:  " << hinge.axleA << endl;
+	out << "  Perp2 Axle In B1:  " << hinge.perp2AxleInB1 << endl;
+	out << "  Perp2 Axle In B2:  " << hinge.perp2AxleInB2 << endl;
 	return out.str();
 
 	//--BEGIN POST-STRING CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 }
 
-void bhkHingeConstraint::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info ) {
+void bhkHingeConstraint::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info ) {
 	//--BEGIN PRE-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	bhkConstraint::FixLinks( objects, link_stack, info );
+	bhkConstraint::FixLinks( objects, link_stack, missing_link_stack, info );
 
 	//--BEGIN POST-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
@@ -99,6 +126,12 @@ std::list<NiObjectRef> bhkHingeConstraint::GetRefs() const {
 	list<Ref<NiObject> > refs;
 	refs = bhkConstraint::GetRefs();
 	return refs;
+}
+
+std::list<NiObject *> bhkHingeConstraint::GetPtrs() const {
+	list<NiObject *> ptrs;
+	ptrs = bhkConstraint::GetPtrs();
+	return ptrs;
 }
 
 //--BEGIN MISC CUSTOM CODE--//

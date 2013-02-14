@@ -55,19 +55,43 @@ public:
 	//--BEGIN MISC CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 protected:
-	/*! Unknown. */
-	array<8,Float4 > unknownVectors;
-	/*! Unknown. */
-	array<3,float > unknownFloats2;
+	/*! Pivot A. */
+	Vector4 pivotA;
+	/*! 4x4 rotation matrix, rotates the child entity. */
+	array<4,Vector4 > rotationMatrixA;
+	/*! Pivot B. */
+	Vector4 pivotB;
+	/*! Describes the axis the object is able to travel along. Unit vector. */
+	Vector4 slidingB;
+	/*! Plane normal. Describes the plane the object is able to move on. */
+	Vector4 planeB;
+	/*! Describes the axis the object is able to travel along. Unit vector. */
+	Vector4 slidingA;
+	/*! Rotation axis. */
+	Vector4 rotationA;
+	/*! Plane normal. Describes the plane the object is able to move on. */
+	Vector4 planeA;
+	/*! Rotation axis. */
+	Vector4 rotationB;
+	/*! Describe the min distance the object is able to travel. */
+	float minDistance;
+	/*! Describe the max distance the object is able to travel. */
+	float maxDistance;
+	/*! Friction. */
+	float friction;
+	/*! Unknown. Do not set this to anything over 0 as it will crash the game. */
+	byte unknownByte1;
 public:
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
 	NIFLIB_HIDDEN virtual void Read( istream& in, list<unsigned int> & link_stack, const NifInfo & info );
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
-	NIFLIB_HIDDEN virtual void Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const;
+	NIFLIB_HIDDEN virtual void Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const;
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
-	NIFLIB_HIDDEN virtual void FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info );
+	NIFLIB_HIDDEN virtual void FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info );
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
 	NIFLIB_HIDDEN virtual list<NiObjectRef> GetRefs() const;
+	/*! NIFLIB_HIDDEN function.  For internal use only. */
+	NIFLIB_HIDDEN virtual list<NiObject *> GetPtrs() const;
 };
 
 //--BEGIN FILE FOOT CUSTOM CODE--//

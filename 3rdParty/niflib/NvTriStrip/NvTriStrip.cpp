@@ -1,6 +1,8 @@
 
 #include "NvTriStripObjects.h"
 #include "NvTriStrip.h"
+#include <string.h> // memset
+#include <cstddef> // NULL
 
 using namespace NvTriStrip;
 
@@ -249,11 +251,11 @@ bool GenerateStrips(const unsigned short* in_indices, const unsigned int in_numI
 		unsigned int numIndices = 0;
 		for(size_t i = 0; i < tempStrips.size(); i++)
 		{
-			numIndices += (unsigned int)(tempStrips[i]->m_faces.size() * 3);
+			numIndices += tempStrips[i]->m_faces.size() * 3;
 		}
 
 		//add in the list
-		numIndices += (unsigned int)(tempFaces.size() * 3);
+		numIndices += tempFaces.size() * 3;
 
 		primGroupArray[0].type       = PT_LIST;
 		primGroupArray[0].numIndices = numIndices;
@@ -319,10 +321,10 @@ bool GenerateStrips(const unsigned short* in_indices, const unsigned int in_numI
 						break;
 				}
 				
-				stripLength = int(i - startingLoc);
+				stripLength = i - startingLoc;
 			}
 			else
-				stripLength = int( stripIndices.size() );
+				stripLength = stripIndices.size();
 			
 			primGroupArray[stripCtr].type       = PT_STRIP;
 			primGroupArray[stripCtr].indices    = new unsigned short[stripLength];
@@ -343,7 +345,7 @@ bool GenerateStrips(const unsigned short* in_indices, const unsigned int in_numI
 			int faceGroupLoc = (*numGroups) - 1;    //the face group is the last one
 			primGroupArray[faceGroupLoc].type       = PT_LIST;
 			primGroupArray[faceGroupLoc].indices    = new unsigned short[tempFaces.size() * 3];
-			primGroupArray[faceGroupLoc].numIndices = (unsigned int)tempFaces.size() * 3;
+			primGroupArray[faceGroupLoc].numIndices = tempFaces.size() * 3;
 			int indexCtr = 0;
 			for(size_t i = 0; i < tempFaces.size(); i++)
 			{

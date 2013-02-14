@@ -51,11 +51,11 @@ void NiLight::Read( istream& in, list<unsigned int> & link_stack, const NifInfo 
 	//--END CUSTOM CODE--//
 }
 
-void NiLight::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const {
+void NiLight::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const {
 	//--BEGIN PRE-WRITE CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiDynamicEffect::Write( out, link_map, info );
+	NiDynamicEffect::Write( out, link_map, missing_link_stack, info );
 	NifStream( dimmer, out, info );
 	NifStream( ambientColor, out, info );
 	NifStream( diffuseColor, out, info );
@@ -70,7 +70,6 @@ std::string NiLight::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 
 	stringstream out;
-	unsigned int array_output_count = 0;
 	out << NiDynamicEffect::asString();
 	out << "  Dimmer:  " << dimmer << endl;
 	out << "  Ambient Color:  " << ambientColor << endl;
@@ -82,11 +81,11 @@ std::string NiLight::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 }
 
-void NiLight::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info ) {
+void NiLight::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info ) {
 	//--BEGIN PRE-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiDynamicEffect::FixLinks( objects, link_stack, info );
+	NiDynamicEffect::FixLinks( objects, link_stack, missing_link_stack, info );
 
 	//--BEGIN POST-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
@@ -96,6 +95,12 @@ std::list<NiObjectRef> NiLight::GetRefs() const {
 	list<Ref<NiObject> > refs;
 	refs = NiDynamicEffect::GetRefs();
 	return refs;
+}
+
+std::list<NiObject *> NiLight::GetPtrs() const {
+	list<NiObject *> ptrs;
+	ptrs = NiDynamicEffect::GetPtrs();
+	return ptrs;
 }
 
 //--BEGIN MISC CUSTOM CODE--//

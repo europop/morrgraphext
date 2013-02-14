@@ -60,32 +60,48 @@ void NiControllerManager::Read( istream& in, list<unsigned int> & link_stack, co
 	//--END CUSTOM CODE--//
 }
 
-void NiControllerManager::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const {
+void NiControllerManager::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const {
 	//--BEGIN PRE-WRITE CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiTimeController::Write( out, link_map, info );
+	NiTimeController::Write( out, link_map, missing_link_stack, info );
 	numControllerSequences = (unsigned int)(controllerSequences.size());
 	NifStream( cumulative, out, info );
 	NifStream( numControllerSequences, out, info );
 	for (unsigned int i1 = 0; i1 < controllerSequences.size(); i1++) {
 		if ( info.version < VER_3_3_0_13 ) {
-			NifStream( (unsigned int)&(*controllerSequences[i1]), out, info );
+			WritePtr32( &(*controllerSequences[i1]), out );
 		} else {
 			if ( controllerSequences[i1] != NULL ) {
-				NifStream( link_map.find( StaticCast<NiObject>(controllerSequences[i1]) )->second, out, info );
+				map<NiObjectRef,unsigned int>::const_iterator it = link_map.find( StaticCast<NiObject>(controllerSequences[i1]) );
+				if (it != link_map.end()) {
+					NifStream( it->second, out, info );
+					missing_link_stack.push_back( NULL );
+				} else {
+					NifStream( 0xFFFFFFFF, out, info );
+					missing_link_stack.push_back( controllerSequences[i1] );
+				}
 			} else {
 				NifStream( 0xFFFFFFFF, out, info );
+				missing_link_stack.push_back( NULL );
 			}
 		}
 	};
 	if ( info.version < VER_3_3_0_13 ) {
-		NifStream( (unsigned int)&(*objectPalette), out, info );
+		WritePtr32( &(*objectPalette), out );
 	} else {
 		if ( objectPalette != NULL ) {
-			NifStream( link_map.find( StaticCast<NiObject>(objectPalette) )->second, out, info );
+			map<NiObjectRef,unsigned int>::const_iterator it = link_map.find( StaticCast<NiObject>(objectPalette) );
+			if (it != link_map.end()) {
+				NifStream( it->second, out, info );
+				missing_link_stack.push_back( NULL );
+			} else {
+				NifStream( 0xFFFFFFFF, out, info );
+				missing_link_stack.push_back( objectPalette );
+			}
 		} else {
 			NifStream( 0xFFFFFFFF, out, info );
+			missing_link_stack.push_back( NULL );
 		}
 	}
 
@@ -122,15 +138,15 @@ std::string NiControllerManager::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 }
 
-void NiControllerManager::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info ) {
+void NiControllerManager::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info ) {
 	//--BEGIN PRE-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiTimeController::FixLinks( objects, link_stack, info );
+	NiTimeController::FixLinks( objects, link_stack, missing_link_stack, info );
 	for (unsigned int i1 = 0; i1 < controllerSequences.size(); i1++) {
-		controllerSequences[i1] = FixLink<NiControllerSequence>( objects, link_stack, info );
+		controllerSequences[i1] = FixLink<NiControllerSequence>( objects, link_stack, missing_link_stack, info );
 	};
-	objectPalette = FixLink<NiDefaultAVObjectPalette>( objects, link_stack, info );
+	objectPalette = FixLink<NiDefaultAVObjectPalette>( objects, link_stack, missing_link_stack, info );
 
 	//--BEGIN POST-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
@@ -146,6 +162,14 @@ std::list<NiObjectRef> NiControllerManager::GetRefs() const {
 	if ( objectPalette != NULL )
 		refs.push_back(StaticCast<NiObject>(objectPalette));
 	return refs;
+}
+
+std::list<NiObject *> NiControllerManager::GetPtrs() const {
+	list<NiObject *> ptrs;
+	ptrs = NiTimeController::GetPtrs();
+	for (unsigned int i1 = 0; i1 < controllerSequences.size(); i1++) {
+	};
+	return ptrs;
 }
 
 //--BEGIN MISC CUSTOM CODE--//

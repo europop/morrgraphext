@@ -56,11 +56,11 @@ void NiPSysRotationModifier::Read( istream& in, list<unsigned int> & link_stack,
 	//--END CUSTOM CODE--//
 }
 
-void NiPSysRotationModifier::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const {
+void NiPSysRotationModifier::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const {
 	//--BEGIN PRE-WRITE CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiPSysModifier::Write( out, link_map, info );
+	NiPSysModifier::Write( out, link_map, missing_link_stack, info );
 	NifStream( initialRotationSpeed, out, info );
 	if ( info.version >= 0x14000004 ) {
 		NifStream( initialRotationSpeedVariation, out, info );
@@ -80,7 +80,6 @@ std::string NiPSysRotationModifier::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 
 	stringstream out;
-	unsigned int array_output_count = 0;
 	out << NiPSysModifier::asString();
 	out << "  Initial Rotation Speed:  " << initialRotationSpeed << endl;
 	out << "  Initial Rotation Speed Variation:  " << initialRotationSpeedVariation << endl;
@@ -95,11 +94,11 @@ std::string NiPSysRotationModifier::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 }
 
-void NiPSysRotationModifier::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info ) {
+void NiPSysRotationModifier::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info ) {
 	//--BEGIN PRE-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiPSysModifier::FixLinks( objects, link_stack, info );
+	NiPSysModifier::FixLinks( objects, link_stack, missing_link_stack, info );
 
 	//--BEGIN POST-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
@@ -109,6 +108,12 @@ std::list<NiObjectRef> NiPSysRotationModifier::GetRefs() const {
 	list<Ref<NiObject> > refs;
 	refs = NiPSysModifier::GetRefs();
 	return refs;
+}
+
+std::list<NiObject *> NiPSysRotationModifier::GetPtrs() const {
+	list<NiObject *> ptrs;
+	ptrs = NiPSysModifier::GetPtrs();
+	return ptrs;
 }
 
 //--BEGIN MISC CUSTOM CODE--//

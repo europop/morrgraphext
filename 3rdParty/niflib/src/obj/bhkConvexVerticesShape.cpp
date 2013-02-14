@@ -8,6 +8,7 @@ All rights reserved.  Please see niflib.h for license. */
 //-----------------------------------NOTICE----------------------------------//
 
 //--BEGIN FILE HEAD CUSTOM CODE--//
+#include "../../include/Inertia.h"
 //--END CUSTOM CODE--//
 
 #include "../../include/FixLink.h"
@@ -60,11 +61,11 @@ void bhkConvexVerticesShape::Read( istream& in, list<unsigned int> & link_stack,
 	//--END CUSTOM CODE--//
 }
 
-void bhkConvexVerticesShape::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const {
+void bhkConvexVerticesShape::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const {
 	//--BEGIN PRE-WRITE CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	bhkConvexShape::Write( out, link_map, info );
+	bhkConvexShape::Write( out, link_map, missing_link_stack, info );
 	numNormals = (unsigned int)(normals.size());
 	numVertices = (unsigned int)(vertices.size());
 	for (unsigned int i1 = 0; i1 < 6; i1++) {
@@ -136,11 +137,11 @@ std::string bhkConvexVerticesShape::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 }
 
-void bhkConvexVerticesShape::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info ) {
+void bhkConvexVerticesShape::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info ) {
 	//--BEGIN PRE-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	bhkConvexShape::FixLinks( objects, link_stack, info );
+	bhkConvexShape::FixLinks( objects, link_stack, missing_link_stack, info );
 
 	//--BEGIN POST-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
@@ -152,12 +153,18 @@ std::list<NiObjectRef> bhkConvexVerticesShape::GetRefs() const {
 	return refs;
 }
 
+std::list<NiObject *> bhkConvexVerticesShape::GetPtrs() const {
+	list<NiObject *> ptrs;
+	ptrs = bhkConvexShape::GetPtrs();
+	return ptrs;
+}
+
 //--BEGIN MISC CUSTOM CODE--//
 vector<Vector3> bhkConvexVerticesShape::GetNormals() const {
 	//Remove any bad triangles
 	vector<Vector3> good_normals;
 	for ( unsigned i = 0; i < normals.size(); ++i ) {
-		const Float4 & t = normals[i];
+		const Vector4 & t = normals[i];
 		Vector3 v(t[0], t[1], t[2]);
 		good_normals.push_back(v);
 	}
@@ -165,14 +172,14 @@ vector<Vector3> bhkConvexVerticesShape::GetNormals() const {
 }
 
 int bhkConvexVerticesShape::GetVertexCount() const {
-	return (int)vertices.size();
+	return vertices.size();
 }
 
 vector<Vector3> bhkConvexVerticesShape::GetVertices() const {
 	//Remove any bad triangles
 	vector<Vector3> good_vertices;
 	for ( unsigned i = 0; i < vertices.size(); ++i ) {
-		const Float4 & t = vertices[i];
+		const Vector4 & t = vertices[i];
 		Vector3 v(t[0], t[1], t[2]); 
 		good_vertices.push_back(v);
 	}
@@ -191,12 +198,13 @@ vector<float> bhkConvexVerticesShape::GetDistToCenter() const
 
 void bhkConvexVerticesShape::SetVertices( const vector<Vector3> & in )
 {
-	int size = (int)in.size();
+	size_t size = in.size();
 	vertices.resize(size);
-	for (int i=0; i<size; ++i)
+	for (size_t i=0; i<size; ++i)
 	{
-		Float4 &f = vertices[i];
+		Vector4 &f = vertices[i];
 		const Vector3 &v = in[i];
+
 		f[0] = v.x;
 		f[1] = v.y;
 		f[2] = v.z;
@@ -206,12 +214,13 @@ void bhkConvexVerticesShape::SetVertices( const vector<Vector3> & in )
 
 void bhkConvexVerticesShape::SetNormals( const vector<Vector3> & in )
 {
-	int size = (int)in.size();
+	size_t size = in.size();
 	normals.resize(size);
-	for (int i=0; i<size; ++i)
+	for (size_t i=0; i<size; ++i)
 	{
-		Float4 &f = normals[i];
+		Vector4 &f = normals[i];
 		const Vector3 &v = in[i];
+
 		f[0] = v.x;
 		f[1] = v.y;
 		f[2] = v.z;
@@ -224,14 +233,34 @@ void bhkConvexVerticesShape::SetDistToCenter( const vector<float> & in )
 	if ( in.size() != normals.size() ) {
 		throw runtime_error("Distance vector size does not match normal size.");
 	}
-	int size = (int)in.size();
+
+	size_t size = in.size();
 	normals.resize(size);
-	for (int i=0; i<size; ++i)
+	for (size_t i=0; i<size; ++i)
 	{
-		Float4 &f = normals[i];
+		Vector4 &f = normals[i];
+
 		f[3] = in[i];
 	}
 }
 
+vector<Vector4> bhkConvexVerticesShape::GetNormalsAndDist() const
+{
+	return normals;
+}
 
+void bhkConvexVerticesShape::SetNormalsAndDist(const vector<Vector4>& value) 
+{
+	normals = value;
+}
+
+void bhkConvexVerticesShape::CalcMassProperties(float density, bool solid, float &mass, float &volume, Vector3 &center, InertiaMatrix& inertia)
+{
+	center = Vector3(0,0,0);
+	mass = 0.0f, volume = 0.0f;
+	inertia = InertiaMatrix::IDENTITY;
+	vector<Vector3> verts = GetVertices();
+	vector<Triangle> tris; // no tris mean convex
+	Inertia::CalcMassPropertiesPolyhedron(verts, tris, density, solid, mass, volume, center, inertia);
+}
 //--END CUSTOM CODE--//

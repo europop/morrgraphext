@@ -47,11 +47,11 @@ void NiTriShape::Read( istream& in, list<unsigned int> & link_stack, const NifIn
 	//--END CUSTOM CODE--//
 }
 
-void NiTriShape::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const {
+void NiTriShape::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const {
 	//--BEGIN PRE-WRITE CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiTriBasedGeom::Write( out, link_map, info );
+	NiTriBasedGeom::Write( out, link_map, missing_link_stack, info );
 
 	//--BEGIN POST-WRITE CUSTOM CODE--//
 	//--END CUSTOM CODE--//
@@ -62,7 +62,6 @@ std::string NiTriShape::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 
 	stringstream out;
-	unsigned int array_output_count = 0;
 	out << NiTriBasedGeom::asString();
 	return out.str();
 
@@ -70,11 +69,11 @@ std::string NiTriShape::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 }
 
-void NiTriShape::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info ) {
+void NiTriShape::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info ) {
 	//--BEGIN PRE-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiTriBasedGeom::FixLinks( objects, link_stack, info );
+	NiTriBasedGeom::FixLinks( objects, link_stack, missing_link_stack, info );
 
 	//--BEGIN POST-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
@@ -84,6 +83,12 @@ std::list<NiObjectRef> NiTriShape::GetRefs() const {
 	list<Ref<NiObject> > refs;
 	refs = NiTriBasedGeom::GetRefs();
 	return refs;
+}
+
+std::list<NiObject *> NiTriShape::GetPtrs() const {
+	list<NiObject *> ptrs;
+	ptrs = NiTriBasedGeom::GetPtrs();
+	return ptrs;
 }
 
 //--BEGIN MISC CUSTOM CODE--//

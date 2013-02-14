@@ -56,11 +56,11 @@ void NiScreenLODData::Read( istream& in, list<unsigned int> & link_stack, const 
 	//--END CUSTOM CODE--//
 }
 
-void NiScreenLODData::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const {
+void NiScreenLODData::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const {
 	//--BEGIN PRE-WRITE CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiLODData::Write( out, link_map, info );
+	NiLODData::Write( out, link_map, missing_link_stack, info );
 	proportionCount = (unsigned int)(proportionLevels.size());
 	NifStream( boundCenter, out, info );
 	NifStream( boundRadius, out, info );
@@ -106,11 +106,11 @@ std::string NiScreenLODData::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 }
 
-void NiScreenLODData::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info ) {
+void NiScreenLODData::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info ) {
 	//--BEGIN PRE-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiLODData::FixLinks( objects, link_stack, info );
+	NiLODData::FixLinks( objects, link_stack, missing_link_stack, info );
 
 	//--BEGIN POST-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
@@ -120,6 +120,12 @@ std::list<NiObjectRef> NiScreenLODData::GetRefs() const {
 	list<Ref<NiObject> > refs;
 	refs = NiLODData::GetRefs();
 	return refs;
+}
+
+std::list<NiObject *> NiScreenLODData::GetPtrs() const {
+	list<NiObject *> ptrs;
+	ptrs = NiLODData::GetPtrs();
+	return ptrs;
 }
 
 //--BEGIN MISC CUSTOM CODE--//

@@ -19,7 +19,11 @@ namespace Niflib {
 class bhkConvexVerticesShape;
 typedef Ref<bhkConvexVerticesShape> bhkConvexVerticesShapeRef;
 
-/*! A convex shape built from vertices? */
+/*!
+ * A convex shape built from vertices. Note that if the shape is used in
+ *         a non-static object (such as clutter), then they will simply fall
+ *         through ground when they are under a bhkListShape.
+ */
 class bhkConvexVerticesShape : public bhkConvexShape {
 public:
 	/*! Constructor */
@@ -96,30 +100,59 @@ public:
 	*/
 	NIFLIB_API void SetDistToCenter( const vector<float> & in );
 
+	/*! 
+	* Used to retrieve the normal and the distance to center for vertices.  The size of the vector will either be zero if no normals are used, or be the same as the vertex count retrieved with the IShapeData::GetVertexCount function.
+	* \return A vector containing the normals used by this mesh, if any.
+	*/
+	NIFLIB_API vector<Vector4> GetNormalsAndDist() const;
+
+	/*! 
+	* Used to set the normal and the distance to center for vertices.  The size of the vector will either be zero if no normals are used, or be the same as the vertex count retrieved with the IShapeData::GetVertexCount function.
+	*/
+	NIFLIB_API void SetNormalsAndDist(const vector<Vector4>& value);
+
+	/*! Helper routine for calculating mass properties.
+	 *  \param[in]  density Uniform density of object
+	 *  \param[in]  solid Determines whether the object is assumed to be solid or not
+	 *  \param[out] mass Calculated mass of the object
+	 *  \param[out] center Center of mass
+	 *  \param[out] inertia Mass Inertia Tensor
+	 *  \return Return mass, center, and inertia tensor.
+	 */
+	NIFLIB_API virtual void CalcMassProperties(float density, bool solid, float &mass, float &volume, Vector3 &center, InertiaMatrix& inertia);
+
 	//--END CUSTOM CODE--//
 protected:
-	/*! Unknown. */
+	/*!
+	 * Unknown. Must be (0.0,0.0,-0.0,0.0,0.0,-0.0) for arrow detection to work (mind
+	 * the minus signs, -0.0 is 0x80000000 in hex).
+	 */
 	array<6,float > unknown6Floats;
 	/*! Number of vertices. */
 	mutable unsigned int numVertices;
-	/*! Vertices. Fourth component is 0. */
-	vector<Float4 > vertices;
-	/*! The number of normals. */
+	/*! Vertices. Fourth component is 0. Lexicographically sorted. */
+	vector<Vector4 > vertices;
+	/*! The number of half spaces. */
 	mutable unsigned int numNormals;
 	/*!
-	 * The normals of the shape's outer faces. Fourth component is the distance from
-	 * center, negative.
+	 * Half spaces as determined by the set of vertices above. First three components
+	 * define the normal pointing to the exterior, fourth component is the signed
+	 * distance of the separating plane to the origin: it is minus the dot product of v
+	 * and n, where v is any vertex on the separating plane, and n is the normal.
+	 * Lexicographically sorted.
 	 */
-	vector<Float4 > normals;
+	vector<Vector4 > normals;
 public:
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
 	NIFLIB_HIDDEN virtual void Read( istream& in, list<unsigned int> & link_stack, const NifInfo & info );
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
-	NIFLIB_HIDDEN virtual void Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const;
+	NIFLIB_HIDDEN virtual void Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const;
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
-	NIFLIB_HIDDEN virtual void FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info );
+	NIFLIB_HIDDEN virtual void FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info );
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
 	NIFLIB_HIDDEN virtual list<NiObjectRef> GetRefs() const;
+	/*! NIFLIB_HIDDEN function.  For internal use only. */
+	NIFLIB_HIDDEN virtual list<NiObject *> GetPtrs() const;
 };
 
 //--BEGIN FILE FOOT CUSTOM CODE--//

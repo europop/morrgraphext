@@ -48,11 +48,11 @@ void NiBlendPoint3Interpolator::Read( istream& in, list<unsigned int> & link_sta
 	//--END CUSTOM CODE--//
 }
 
-void NiBlendPoint3Interpolator::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const {
+void NiBlendPoint3Interpolator::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const {
 	//--BEGIN PRE-WRITE CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiBlendInterpolator::Write( out, link_map, info );
+	NiBlendInterpolator::Write( out, link_map, missing_link_stack, info );
 	NifStream( pointValue, out, info );
 
 	//--BEGIN POST-WRITE CUSTOM CODE--//
@@ -64,7 +64,6 @@ std::string NiBlendPoint3Interpolator::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 
 	stringstream out;
-	unsigned int array_output_count = 0;
 	out << NiBlendInterpolator::asString();
 	out << "  Point Value:  " << pointValue << endl;
 	return out.str();
@@ -73,11 +72,11 @@ std::string NiBlendPoint3Interpolator::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 }
 
-void NiBlendPoint3Interpolator::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info ) {
+void NiBlendPoint3Interpolator::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info ) {
 	//--BEGIN PRE-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiBlendInterpolator::FixLinks( objects, link_stack, info );
+	NiBlendInterpolator::FixLinks( objects, link_stack, missing_link_stack, info );
 
 	//--BEGIN POST-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
@@ -87,6 +86,12 @@ std::list<NiObjectRef> NiBlendPoint3Interpolator::GetRefs() const {
 	list<Ref<NiObject> > refs;
 	refs = NiBlendInterpolator::GetRefs();
 	return refs;
+}
+
+std::list<NiObject *> NiBlendPoint3Interpolator::GetPtrs() const {
+	list<NiObject *> ptrs;
+	ptrs = NiBlendInterpolator::GetPtrs();
+	return ptrs;
 }
 
 //--BEGIN MISC CUSTOM CODE--//

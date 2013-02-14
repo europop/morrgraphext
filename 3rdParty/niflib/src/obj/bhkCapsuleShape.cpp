@@ -8,6 +8,7 @@ All rights reserved.  Please see niflib.h for license. */
 //-----------------------------------NOTICE----------------------------------//
 
 //--BEGIN FILE HEAD CUSTOM CODE--//
+#include "../../include/Inertia.h"
 //--END CUSTOM CODE--//
 
 #include "../../include/FixLink.h"
@@ -19,7 +20,7 @@ using namespace Niflib;
 //Definition of TYPE constant
 const Type bhkCapsuleShape::TYPE("bhkCapsuleShape", &bhkConvexShape::TYPE );
 
-bhkCapsuleShape::bhkCapsuleShape() : unknownShort1((unsigned short)0), unknownShort2((unsigned short)0), unknownShort3((unsigned short)0), unknownShort4((unsigned short)0), radius1(0.0f), radius2(0.0f) {
+bhkCapsuleShape::bhkCapsuleShape() : radius1(0.0f), radius2(0.0f) {
 	//--BEGIN CONSTRUCTOR CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 }
@@ -42,10 +43,9 @@ void bhkCapsuleShape::Read( istream& in, list<unsigned int> & link_stack, const 
 	//--END CUSTOM CODE--//
 
 	bhkConvexShape::Read( in, link_stack, info );
-	NifStream( unknownShort1, in, info );
-	NifStream( unknownShort2, in, info );
-	NifStream( unknownShort3, in, info );
-	NifStream( unknownShort4, in, info );
+	for (unsigned int i1 = 0; i1 < 8; i1++) {
+		NifStream( unknown8Bytes[i1], in, info );
+	};
 	NifStream( firstPoint, in, info );
 	NifStream( radius1, in, info );
 	NifStream( secondPoint, in, info );
@@ -55,15 +55,14 @@ void bhkCapsuleShape::Read( istream& in, list<unsigned int> & link_stack, const 
 	//--END CUSTOM CODE--//
 }
 
-void bhkCapsuleShape::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const {
+void bhkCapsuleShape::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const {
 	//--BEGIN PRE-WRITE CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	bhkConvexShape::Write( out, link_map, info );
-	NifStream( unknownShort1, out, info );
-	NifStream( unknownShort2, out, info );
-	NifStream( unknownShort3, out, info );
-	NifStream( unknownShort4, out, info );
+	bhkConvexShape::Write( out, link_map, missing_link_stack, info );
+	for (unsigned int i1 = 0; i1 < 8; i1++) {
+		NifStream( unknown8Bytes[i1], out, info );
+	};
 	NifStream( firstPoint, out, info );
 	NifStream( radius1, out, info );
 	NifStream( secondPoint, out, info );
@@ -80,10 +79,18 @@ std::string bhkCapsuleShape::asString( bool verbose ) const {
 	stringstream out;
 	unsigned int array_output_count = 0;
 	out << bhkConvexShape::asString();
-	out << "  Unknown Short 1:  " << unknownShort1 << endl;
-	out << "  Unknown Short 2:  " << unknownShort2 << endl;
-	out << "  Unknown Short 3:  " << unknownShort3 << endl;
-	out << "  Unknown Short 4:  " << unknownShort4 << endl;
+	array_output_count = 0;
+	for (unsigned int i1 = 0; i1 < 8; i1++) {
+		if ( !verbose && ( array_output_count > MAXARRAYDUMP ) ) {
+			out << "<Data Truncated. Use verbose mode to see complete listing.>" << endl;
+			break;
+		};
+		if ( !verbose && ( array_output_count > MAXARRAYDUMP ) ) {
+			break;
+		};
+		out << "    Unknown 8 Bytes[" << i1 << "]:  " << unknown8Bytes[i1] << endl;
+		array_output_count++;
+	};
 	out << "  First Point:  " << firstPoint << endl;
 	out << "  Radius 1:  " << radius1 << endl;
 	out << "  Second Point:  " << secondPoint << endl;
@@ -94,11 +101,11 @@ std::string bhkCapsuleShape::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 }
 
-void bhkCapsuleShape::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info ) {
+void bhkCapsuleShape::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info ) {
 	//--BEGIN PRE-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	bhkConvexShape::FixLinks( objects, link_stack, info );
+	bhkConvexShape::FixLinks( objects, link_stack, missing_link_stack, info );
 
 	//--BEGIN POST-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
@@ -108,6 +115,12 @@ std::list<NiObjectRef> bhkCapsuleShape::GetRefs() const {
 	list<Ref<NiObject> > refs;
 	refs = bhkConvexShape::GetRefs();
 	return refs;
+}
+
+std::list<NiObject *> bhkCapsuleShape::GetPtrs() const {
+	list<NiObject *> ptrs;
+	ptrs = bhkConvexShape::GetPtrs();
+	return ptrs;
 }
 
 //--BEGIN MISC CUSTOM CODE--//
@@ -150,6 +163,19 @@ float bhkCapsuleShape::GetRadius2() const {
 
 void bhkCapsuleShape::SetRadius2( float value ) {
 	radius2 = value;
+}
+
+/*! Helper routine for calculating mass properties.
+*  \param[in]  density Uniform density of object
+*  \param[in]  solid Determines whether the object is assumed to be solid or not
+*  \param[out] mass Calculated mass of the object
+*  \param[out] center Center of mass
+*  \param[out] inertia Mass Inertia Tensor
+*  \return Return mass, center, and inertia tensor.
+*/
+void bhkCapsuleShape::CalcMassProperties(float density, bool solid, float &mass, float &volume, Vector3 &center, InertiaMatrix& inertia)
+{
+	Inertia::CalcMassPropertiesCapsule(firstPoint, secondPoint, radius, density, solid, mass, volume, center, inertia);
 }
 
 //--END CUSTOM CODE--//

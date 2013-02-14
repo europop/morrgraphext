@@ -19,7 +19,7 @@ namespace Niflib {
 class NiBSplineData;
 typedef Ref<NiBSplineData> NiBSplineDataRef;
 
-/*! Unknown. */
+/*! B-spline data points as floats, or as shorts for compressed B-splines. */
 class NiBSplineData : public NiObject {
 public:
 	/*! Constructor */
@@ -55,10 +55,28 @@ public:
 	//--BEGIN MISC CUSTOM CODE--//
 
 	/*!
-	 * Get Signed shorts representing the spline data scaled by SHRT_MAX.
+	 * Get floats representing the spline data.
 	 * \return The spline data.
 	 */
-	NIFLIB_API vector<short> GetControlPoints() const;
+	NIFLIB_API vector<float> GetFloatControlPoints() const;
+
+	/*!
+	* Sets the float control points representing the spline data
+	* \param[in] The new float control points to replace the current ones
+	*/
+	NIFLIB_API void SetFloatControlPoints(vector<float> value);
+
+	/*!
+	* Adds float control points at the end of the float control points collection 
+	* \param[in] The float points to add at the end of the collection
+	*/
+	NIFLIB_API void AppendFloatControlPoints(vector<float> value);
+
+	/*!
+	* Get the number of float control points stored in the data
+	* \return The number of float control points
+	*/
+	NIFLIB_API int GetNumFloatControlPoints();
 
 	/*!
 	 * Get Range of signed shorts representing the data scaled by SHRT_MAX.
@@ -66,25 +84,61 @@ public:
 	 * \param[in] count The number of control points to get.
 	 * \return The control points that fall within the specified range.
 	 */
-	NIFLIB_API vector<short> GetControlPointRange(int offset, int count) const;
+	NIFLIB_API vector<float> GetFloatControlPointRange(int offset, int count) const;
+
+	/*!
+	 * Get Signed shorts representing the spline data scaled by SHRT_MAX.
+	 * \return The spline data.
+	 */
+	NIFLIB_API vector<short> GetShortControlPoints() const;
+
+	/*!
+	* Sets the short control points representing the spline data
+	* \param[in] The new short control points to replace the current ones
+	*/
+	NIFLIB_API void SetShortControlPoints(vector<short> value);
+
+	/*!
+	* Adds short control points at the end of the short control points collection 
+	* \param[in] The short points to add at the end of the collection
+	*/
+	NIFLIB_API void AppendShortControlPoints(vector<short> value);
+
+	/*!
+	* Get the number of short control points stored in the data
+	* \return The number of short control points
+	*/
+	NIFLIB_API int GetNumShortControlPoints();
+
+	/*!
+	 * Get Range of signed shorts representing the data scaled by SHRT_MAX.
+	 * \param[in] offset The start of the range.
+	 * \param[in] count The number of control points to get.
+	 * \return The control points that fall within the specified range.
+	 */
+	NIFLIB_API vector<short> GetShortControlPointRange(int offset, int count) const;
 
 	//--END CUSTOM CODE--//
 protected:
-	/*! Unknown. Zero? */
-	unsigned int unknownInt;
-	/*! Number of Data Points */
-	mutable unsigned int count;
+	/*! Number of Float Data Points */
+	mutable unsigned int numFloatControlPoints;
+	/*! Float values representing the control data. */
+	vector<float > floatControlPoints;
+	/*! Number of Short Data Points */
+	mutable unsigned int numShortControlPoints;
 	/*! Signed shorts representing the data from 0 to 1 (scaled by SHRT_MAX). */
-	vector<short > controlPoints;
+	vector<short > shortControlPoints;
 public:
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
 	NIFLIB_HIDDEN virtual void Read( istream& in, list<unsigned int> & link_stack, const NifInfo & info );
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
-	NIFLIB_HIDDEN virtual void Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const;
+	NIFLIB_HIDDEN virtual void Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const;
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
-	NIFLIB_HIDDEN virtual void FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info );
+	NIFLIB_HIDDEN virtual void FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info );
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
 	NIFLIB_HIDDEN virtual list<NiObjectRef> GetRefs() const;
+	/*! NIFLIB_HIDDEN function.  For internal use only. */
+	NIFLIB_HIDDEN virtual list<NiObject *> GetPtrs() const;
 };
 
 //--BEGIN FILE FOOT CUSTOM CODE--//

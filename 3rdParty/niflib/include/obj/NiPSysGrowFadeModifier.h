@@ -19,7 +19,11 @@ namespace Niflib {
 class NiPSysGrowFadeModifier;
 typedef Ref<NiPSysGrowFadeModifier> NiPSysGrowFadeModifierRef;
 
-/*! Unknown particle system modifier. */
+/*!
+ * Particle modifier that controls the time it takes to grow a particle from Size=0
+ * to the specified Size in the emitter, and then back to 0.  This modifer has no
+ * control over alpha settings.
+ */
 class NiPSysGrowFadeModifier : public NiPSysModifier {
 public:
 	/*! Constructor */
@@ -55,23 +59,27 @@ public:
 	//--BEGIN MISC CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 protected:
-	/*! Unknown. */
+	/*! Time in seconds to fade in. */
 	float growTime;
 	/*! Unknown. */
 	unsigned short growGeneration;
-	/*! Unknown. */
+	/*! Time in seconds to fade out. */
 	float fadeTime;
 	/*! Unknown. */
 	unsigned short fadeGeneration;
+	/*! Unknown */
+	float baseScale;
 public:
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
 	NIFLIB_HIDDEN virtual void Read( istream& in, list<unsigned int> & link_stack, const NifInfo & info );
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
-	NIFLIB_HIDDEN virtual void Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const;
+	NIFLIB_HIDDEN virtual void Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const;
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
-	NIFLIB_HIDDEN virtual void FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info );
+	NIFLIB_HIDDEN virtual void FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info );
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
 	NIFLIB_HIDDEN virtual list<NiObjectRef> GetRefs() const;
+	/*! NIFLIB_HIDDEN function.  For internal use only. */
+	NIFLIB_HIDDEN virtual list<NiObject *> GetPtrs() const;
 };
 
 //--BEGIN FILE FOOT CUSTOM CODE--//

@@ -49,11 +49,11 @@ void NiBlendInterpolator::Read( istream& in, list<unsigned int> & link_stack, co
 	//--END CUSTOM CODE--//
 }
 
-void NiBlendInterpolator::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const {
+void NiBlendInterpolator::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const {
 	//--BEGIN PRE-WRITE CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiInterpolator::Write( out, link_map, info );
+	NiInterpolator::Write( out, link_map, missing_link_stack, info );
 	NifStream( unknownShort, out, info );
 	NifStream( unknownInt, out, info );
 
@@ -66,7 +66,6 @@ std::string NiBlendInterpolator::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 
 	stringstream out;
-	unsigned int array_output_count = 0;
 	out << NiInterpolator::asString();
 	out << "  Unknown Short:  " << unknownShort << endl;
 	out << "  Unknown Int:  " << unknownInt << endl;
@@ -76,11 +75,11 @@ std::string NiBlendInterpolator::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 }
 
-void NiBlendInterpolator::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info ) {
+void NiBlendInterpolator::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info ) {
 	//--BEGIN PRE-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiInterpolator::FixLinks( objects, link_stack, info );
+	NiInterpolator::FixLinks( objects, link_stack, missing_link_stack, info );
 
 	//--BEGIN POST-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
@@ -90,6 +89,12 @@ std::list<NiObjectRef> NiBlendInterpolator::GetRefs() const {
 	list<Ref<NiObject> > refs;
 	refs = NiInterpolator::GetRefs();
 	return refs;
+}
+
+std::list<NiObject *> NiBlendInterpolator::GetPtrs() const {
+	list<NiObject *> ptrs;
+	ptrs = NiInterpolator::GetPtrs();
+	return ptrs;
 }
 
 //--BEGIN MISC CUSTOM CODE--//

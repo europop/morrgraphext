@@ -48,11 +48,11 @@ void NiPSysSphericalCollider::Read( istream& in, list<unsigned int> & link_stack
 	//--END CUSTOM CODE--//
 }
 
-void NiPSysSphericalCollider::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const {
+void NiPSysSphericalCollider::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const {
 	//--BEGIN PRE-WRITE CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiPSysCollider::Write( out, link_map, info );
+	NiPSysCollider::Write( out, link_map, missing_link_stack, info );
 	NifStream( radius, out, info );
 
 	//--BEGIN POST-WRITE CUSTOM CODE--//
@@ -64,7 +64,6 @@ std::string NiPSysSphericalCollider::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 
 	stringstream out;
-	unsigned int array_output_count = 0;
 	out << NiPSysCollider::asString();
 	out << "  Radius:  " << radius << endl;
 	return out.str();
@@ -73,11 +72,11 @@ std::string NiPSysSphericalCollider::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 }
 
-void NiPSysSphericalCollider::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info ) {
+void NiPSysSphericalCollider::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info ) {
 	//--BEGIN PRE-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiPSysCollider::FixLinks( objects, link_stack, info );
+	NiPSysCollider::FixLinks( objects, link_stack, missing_link_stack, info );
 
 	//--BEGIN POST-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
@@ -87,6 +86,12 @@ std::list<NiObjectRef> NiPSysSphericalCollider::GetRefs() const {
 	list<Ref<NiObject> > refs;
 	refs = NiPSysCollider::GetRefs();
 	return refs;
+}
+
+std::list<NiObject *> NiPSysSphericalCollider::GetPtrs() const {
+	list<NiObject *> ptrs;
+	ptrs = NiPSysCollider::GetPtrs();
+	return ptrs;
 }
 
 //--BEGIN MISC CUSTOM CODE--//

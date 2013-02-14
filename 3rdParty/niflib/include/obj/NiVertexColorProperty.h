@@ -96,21 +96,33 @@ public:
 
 	//--END CUSTOM CODE--//
 protected:
-	/*! Property flags. */
+	/*!
+	 * Property flags. Appears to be unused until 20.1.0.3.
+	 * 
+	 *             Bits 0-2: Unknown
+	 *             Bit 3: Lighting Mode?
+	 *             Bits 4-5: Vertex Mode?
+	 */
 	unsigned short flags;
-	/*! Determines how vertex and material colors are mixed. */
+	/*!
+	 * Determines how vertex and material colors are mixed.
+	 *             related gl function: glColorMaterial
+	 *             In Flags from version 20.1.0.3 onwards.
+	 */
 	VertMode vertexMode;
-	/*! The light mode. */
+	/*! The light mode. In Flags from 20.1.0.3 on. */
 	LightMode lightingMode;
 public:
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
 	NIFLIB_HIDDEN virtual void Read( istream& in, list<unsigned int> & link_stack, const NifInfo & info );
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
-	NIFLIB_HIDDEN virtual void Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const;
+	NIFLIB_HIDDEN virtual void Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const;
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
-	NIFLIB_HIDDEN virtual void FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info );
+	NIFLIB_HIDDEN virtual void FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info );
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
 	NIFLIB_HIDDEN virtual list<NiObjectRef> GetRefs() const;
+	/*! NIFLIB_HIDDEN function.  For internal use only. */
+	NIFLIB_HIDDEN virtual list<NiObject *> GetPtrs() const;
 };
 
 //--BEGIN FILE FOOT CUSTOM CODE--//

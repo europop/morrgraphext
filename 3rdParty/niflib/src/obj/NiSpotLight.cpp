@@ -19,7 +19,7 @@ using namespace Niflib;
 //Definition of TYPE constant
 const Type NiSpotLight::TYPE("NiSpotLight", &NiPointLight::TYPE );
 
-NiSpotLight::NiSpotLight() : cutoffAngle(0.0f), exponent(0.0f) {
+NiSpotLight::NiSpotLight() : cutoffAngle(0.0f), unknownFloat(0.0f), exponent(0.0f) {
 	//--BEGIN CONSTRUCTOR CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 }
@@ -43,18 +43,24 @@ void NiSpotLight::Read( istream& in, list<unsigned int> & link_stack, const NifI
 
 	NiPointLight::Read( in, link_stack, info );
 	NifStream( cutoffAngle, in, info );
+	if ( info.version >= 0x14020007 ) {
+		NifStream( unknownFloat, in, info );
+	};
 	NifStream( exponent, in, info );
 
 	//--BEGIN POST-READ CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 }
 
-void NiSpotLight::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const {
+void NiSpotLight::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const {
 	//--BEGIN PRE-WRITE CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiPointLight::Write( out, link_map, info );
+	NiPointLight::Write( out, link_map, missing_link_stack, info );
 	NifStream( cutoffAngle, out, info );
+	if ( info.version >= 0x14020007 ) {
+		NifStream( unknownFloat, out, info );
+	};
 	NifStream( exponent, out, info );
 
 	//--BEGIN POST-WRITE CUSTOM CODE--//
@@ -66,9 +72,9 @@ std::string NiSpotLight::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 
 	stringstream out;
-	unsigned int array_output_count = 0;
 	out << NiPointLight::asString();
 	out << "  Cutoff Angle:  " << cutoffAngle << endl;
+	out << "  Unknown Float:  " << unknownFloat << endl;
 	out << "  Exponent:  " << exponent << endl;
 	return out.str();
 
@@ -76,11 +82,11 @@ std::string NiSpotLight::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 }
 
-void NiSpotLight::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info ) {
+void NiSpotLight::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info ) {
 	//--BEGIN PRE-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiPointLight::FixLinks( objects, link_stack, info );
+	NiPointLight::FixLinks( objects, link_stack, missing_link_stack, info );
 
 	//--BEGIN POST-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
@@ -90,6 +96,12 @@ std::list<NiObjectRef> NiSpotLight::GetRefs() const {
 	list<Ref<NiObject> > refs;
 	refs = NiPointLight::GetRefs();
 	return refs;
+}
+
+std::list<NiObject *> NiSpotLight::GetPtrs() const {
+	list<NiObject *> ptrs;
+	ptrs = NiPointLight::GetPtrs();
+	return ptrs;
 }
 
 //--BEGIN MISC CUSTOM CODE--//

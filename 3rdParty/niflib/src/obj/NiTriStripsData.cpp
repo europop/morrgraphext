@@ -60,7 +60,7 @@ void NiTriStripsData::Read( istream& in, list<unsigned int> & link_stack, const 
 	for (unsigned int i1 = 0; i1 < stripLengths.size(); i1++) {
 		NifStream( stripLengths[i1], in, info );
 	};
-	if ( info.version >= 0x0A010000 ) {
+	if ( info.version >= 0x0A000103 ) {
 		NifStream( hasPoints, in, info );
 	};
 	if ( info.version <= 0x0A000102 ) {
@@ -72,8 +72,8 @@ void NiTriStripsData::Read( istream& in, list<unsigned int> & link_stack, const 
 			};
 		};
 	};
-	if ( info.version >= 0x0A010000 ) {
-		if ( (hasPoints != 0) ) {
+	if ( info.version >= 0x0A000103 ) {
+		if ( hasPoints ) {
 			points.resize(numStrips);
 			for (unsigned int i3 = 0; i3 < points.size(); i3++) {
 				points[i3].resize(stripLengths[i3]);
@@ -88,11 +88,11 @@ void NiTriStripsData::Read( istream& in, list<unsigned int> & link_stack, const 
 	//--END CUSTOM CODE--//
 }
 
-void NiTriStripsData::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const {
+void NiTriStripsData::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const {
 	//--BEGIN PRE-WRITE CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiTriBasedGeomData::Write( out, link_map, info );
+	NiTriBasedGeomData::Write( out, link_map, missing_link_stack, info );
 	for (unsigned int i1 = 0; i1 < points.size(); i1++)
 		stripLengths[i1] = (unsigned short)(points[i1].size());
 	numStrips = (unsigned short)(stripLengths.size());
@@ -100,7 +100,7 @@ void NiTriStripsData::Write( ostream& out, const map<NiObjectRef,unsigned int> &
 	for (unsigned int i1 = 0; i1 < stripLengths.size(); i1++) {
 		NifStream( stripLengths[i1], out, info );
 	};
-	if ( info.version >= 0x0A010000 ) {
+	if ( info.version >= 0x0A000103 ) {
 		NifStream( hasPoints, out, info );
 	};
 	if ( info.version <= 0x0A000102 ) {
@@ -110,8 +110,8 @@ void NiTriStripsData::Write( ostream& out, const map<NiObjectRef,unsigned int> &
 			};
 		};
 	};
-	if ( info.version >= 0x0A010000 ) {
-		if ( (hasPoints != 0) ) {
+	if ( info.version >= 0x0A000103 ) {
+		if ( hasPoints ) {
 			for (unsigned int i3 = 0; i3 < points.size(); i3++) {
 				for (unsigned int i4 = 0; i4 < stripLengths[i3]; i4++) {
 					NifStream( points[i3][i4], out, info );
@@ -168,11 +168,11 @@ std::string NiTriStripsData::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 }
 
-void NiTriStripsData::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info ) {
+void NiTriStripsData::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info ) {
 	//--BEGIN PRE-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiTriBasedGeomData::FixLinks( objects, link_stack, info );
+	NiTriBasedGeomData::FixLinks( objects, link_stack, missing_link_stack, info );
 
 	//--BEGIN POST-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
@@ -182,6 +182,12 @@ std::list<NiObjectRef> NiTriStripsData::GetRefs() const {
 	list<Ref<NiObject> > refs;
 	refs = NiTriBasedGeomData::GetRefs();
 	return refs;
+}
+
+std::list<NiObject *> NiTriStripsData::GetPtrs() const {
+	list<NiObject *> ptrs;
+	ptrs = NiTriBasedGeomData::GetPtrs();
+	return ptrs;
 }
 
 //--BEGIN MISC CUSTOM CODE--//
@@ -299,7 +305,7 @@ void NiTriStripsData::SetNvTriangles( const vector<Triangle> & in ) {
    SetCacheSize(CACHESIZE_GEFORCE3);
    // don't generate hundreds of strips
    SetStitchStrips(true);
-   GenerateStrips(data, (unsigned int)(in.size()*3), &groups, &numGroups);
+   GenerateStrips(data, int(in.size()*3), &groups, &numGroups);
 
    delete [] data;
 
@@ -351,20 +357,20 @@ void NiTriStripsData::SetTSTriangles( const vector<Triangle> & in ) {
    {
       if (groups[i].Type == TRIANGLE_STRIP)
       {			
-         strips.push_back(TriStrip(groups[i].Indices.size()));
+         strips.push_back( TriStrip( (unsigned short)(groups[i].Indices.size()) ) );
          TriStrip &strip = strips.back();
 
          for (j=0; j<groups[i].Indices.size(); j++)
-            strip[j] = (unsigned short)groups[i].Indices[j];
+            strip[j] = groups[i].Indices[j];
       } else
       {
-         int size = (int)stris.size();
+         size_t size = stris.size();
          stris.resize(size + groups[i].Indices.size()/3);
          for (j=(size>0)?(size-1):0; j<stris.size(); j++)
          {
-            stris[j][0] = (unsigned short)groups[i].Indices[j*3+0];
-            stris[j][1] = (unsigned short)groups[i].Indices[j*3+1];
-            stris[j][2] = (unsigned short)groups[i].Indices[j*3+2];
+            stris[j][0] = groups[i].Indices[j*3+0];
+            stris[j][1] = groups[i].Indices[j*3+1];
+            stris[j][2] = groups[i].Indices[j*3+2];
          }
       }
    }
@@ -397,7 +403,7 @@ void NiTriStripsData::SetTSTriangles( const vector<Triangle> & in ) {
 
    if (strips.size() > 0)
    {
-      SetStripCount( (int)strips.size() );
+      SetStripCount( int(strips.size()) );
 
       int i = 0;
       TriStrips::const_iterator it;

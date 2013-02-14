@@ -20,7 +20,6 @@ All rights reserved.  Please see niflib.h for license. */
 namespace Niflib {
 
 // Forward define of referenced NIF objects
-class NiObject;
 class NiNode;
 class NiMeshPSysData;
 typedef Ref<NiMeshPSysData> NiMeshPSysDataRef;
@@ -61,37 +60,27 @@ public:
 	//--BEGIN MISC CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 protected:
-	/*!
-	 * Unknown. Seems to refer to particle modifiers, however at least one file has a
-	 * NiNode here.  May indicate that this is really two separate links in different
-	 * versions or some other problem.
-	 */
-	Ref<NiObject > modifier;
-	/*! Unknown. */
-	byte unknownByte2;
-	/*! The number of unknown links that follow. */
-	mutable unsigned int numUnknownLinks;
-	/*! Unknown. Seems to refer to particle modifiers. */
-	vector<Ref<NiObject > > unknownLinks;
-	/*! Repeat of Vertex Count? */
-	unsigned int numVertices2;
+	/*! Unknown. Possible vertex count but probably not. */
+	unsigned int unknownInt2;
 	/*! Unknown. 0? */
 	byte unknownByte3;
-	/*! Unknown.  1? */
-	unsigned int unknownInt2;
-	/*! Repeat of Vertex Count? */
-	unsigned int numVertices3;
-	/*! Links to a NiNode; but this NiNode doesn't seem to be a mesh? */
-	Ref<NiNode > unknownLink2;
+	/*! Unknown. */
+	mutable unsigned int numUnknownInts1;
+	/*! Unknown integers */
+	vector<unsigned int > unknownInts1;
+	/*! Unknown NiNode. */
+	Ref<NiNode > unknownNode;
 public:
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
 	NIFLIB_HIDDEN virtual void Read( istream& in, list<unsigned int> & link_stack, const NifInfo & info );
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
-	NIFLIB_HIDDEN virtual void Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const;
+	NIFLIB_HIDDEN virtual void Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const;
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
-	NIFLIB_HIDDEN virtual void FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info );
+	NIFLIB_HIDDEN virtual void FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info );
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
 	NIFLIB_HIDDEN virtual list<NiObjectRef> GetRefs() const;
+	/*! NIFLIB_HIDDEN function.  For internal use only. */
+	NIFLIB_HIDDEN virtual list<NiObject *> GetPtrs() const;
 };
 
 //--BEGIN FILE FOOT CUSTOM CODE--//

@@ -55,22 +55,30 @@ void NiExtraData::Read( istream& in, list<unsigned int> & link_stack, const NifI
 	//--END CUSTOM CODE--//
 }
 
-void NiExtraData::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const {
+void NiExtraData::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const {
 	//--BEGIN PRE-WRITE CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiObject::Write( out, link_map, info );
+	NiObject::Write( out, link_map, missing_link_stack, info );
 	if ( info.version >= 0x0A000100 ) {
 		NifStream( name, out, info );
 	};
 	if ( info.version <= 0x04020200 ) {
 		if ( info.version < VER_3_3_0_13 ) {
-			NifStream( (unsigned int)&(*nextExtraData), out, info );
+			WritePtr32( &(*nextExtraData), out );
 		} else {
 			if ( nextExtraData != NULL ) {
-				NifStream( link_map.find( StaticCast<NiObject>(nextExtraData) )->second, out, info );
+				map<NiObjectRef,unsigned int>::const_iterator it = link_map.find( StaticCast<NiObject>(nextExtraData) );
+				if (it != link_map.end()) {
+					NifStream( it->second, out, info );
+					missing_link_stack.push_back( NULL );
+				} else {
+					NifStream( 0xFFFFFFFF, out, info );
+					missing_link_stack.push_back( nextExtraData );
+				}
 			} else {
 				NifStream( 0xFFFFFFFF, out, info );
+				missing_link_stack.push_back( NULL );
 			}
 		}
 	};
@@ -84,7 +92,6 @@ std::string NiExtraData::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 
 	stringstream out;
-	unsigned int array_output_count = 0;
 	out << NiObject::asString();
 	out << "  Name:  " << name << endl;
 	out << "  Next Extra Data:  " << nextExtraData << endl;
@@ -94,13 +101,13 @@ std::string NiExtraData::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 }
 
-void NiExtraData::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info ) {
+void NiExtraData::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info ) {
 	//--BEGIN PRE-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiObject::FixLinks( objects, link_stack, info );
+	NiObject::FixLinks( objects, link_stack, missing_link_stack, info );
 	if ( info.version <= 0x04020200 ) {
-		nextExtraData = FixLink<NiExtraData>( objects, link_stack, info );
+		nextExtraData = FixLink<NiExtraData>( objects, link_stack, missing_link_stack, info );
 	};
 
 	//--BEGIN POST-FIXLINKS CUSTOM CODE--//
@@ -113,6 +120,12 @@ std::list<NiObjectRef> NiExtraData::GetRefs() const {
 	if ( nextExtraData != NULL )
 		refs.push_back(StaticCast<NiObject>(nextExtraData));
 	return refs;
+}
+
+std::list<NiObject *> NiExtraData::GetPtrs() const {
+	list<NiObject *> ptrs;
+	ptrs = NiObject::GetPtrs();
+	return ptrs;
 }
 
 //--BEGIN MISC CUSTOM CODE--//

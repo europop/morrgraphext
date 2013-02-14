@@ -14,9 +14,9 @@ All rights reserved.  Please see niflib.h for license. */
 #include "../../include/ObjectRegistry.h"
 #include "../../include/NIF_IO.h"
 #include "../../include/obj/NiPSysCollider.h"
-#include "../../include/obj/NiPSysSpawnModifier.h"
-#include "../../include/obj/NiObject.h"
 #include "../../include/obj/NiNode.h"
+#include "../../include/obj/NiObject.h"
+#include "../../include/obj/NiPSysSpawnModifier.h"
 using namespace Niflib;
 
 //Definition of TYPE constant
@@ -62,48 +62,80 @@ void NiPSysCollider::Read( istream& in, list<unsigned int> & link_stack, const N
 	//--END CUSTOM CODE--//
 }
 
-void NiPSysCollider::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const {
+void NiPSysCollider::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const {
 	//--BEGIN PRE-WRITE CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiObject::Write( out, link_map, info );
+	NiObject::Write( out, link_map, missing_link_stack, info );
 	NifStream( bounce, out, info );
 	NifStream( spawnOnCollide, out, info );
 	NifStream( dieOnCollide, out, info );
 	if ( info.version < VER_3_3_0_13 ) {
-		NifStream( (unsigned int)&(*spawnModifier), out, info );
+		WritePtr32( &(*spawnModifier), out );
 	} else {
 		if ( spawnModifier != NULL ) {
-			NifStream( link_map.find( StaticCast<NiObject>(spawnModifier) )->second, out, info );
+			map<NiObjectRef,unsigned int>::const_iterator it = link_map.find( StaticCast<NiObject>(spawnModifier) );
+			if (it != link_map.end()) {
+				NifStream( it->second, out, info );
+				missing_link_stack.push_back( NULL );
+			} else {
+				NifStream( 0xFFFFFFFF, out, info );
+				missing_link_stack.push_back( spawnModifier );
+			}
 		} else {
 			NifStream( 0xFFFFFFFF, out, info );
+			missing_link_stack.push_back( NULL );
 		}
 	}
 	if ( info.version < VER_3_3_0_13 ) {
-		NifStream( (unsigned int)&(*parent), out, info );
+		WritePtr32( &(*parent), out );
 	} else {
 		if ( parent != NULL ) {
-			NifStream( link_map.find( StaticCast<NiObject>(parent) )->second, out, info );
+			map<NiObjectRef,unsigned int>::const_iterator it = link_map.find( StaticCast<NiObject>(parent) );
+			if (it != link_map.end()) {
+				NifStream( it->second, out, info );
+				missing_link_stack.push_back( NULL );
+			} else {
+				NifStream( 0xFFFFFFFF, out, info );
+				missing_link_stack.push_back( parent );
+			}
 		} else {
 			NifStream( 0xFFFFFFFF, out, info );
+			missing_link_stack.push_back( NULL );
 		}
 	}
 	if ( info.version < VER_3_3_0_13 ) {
-		NifStream( (unsigned int)&(*nextCollider), out, info );
+		WritePtr32( &(*nextCollider), out );
 	} else {
 		if ( nextCollider != NULL ) {
-			NifStream( link_map.find( StaticCast<NiObject>(nextCollider) )->second, out, info );
+			map<NiObjectRef,unsigned int>::const_iterator it = link_map.find( StaticCast<NiObject>(nextCollider) );
+			if (it != link_map.end()) {
+				NifStream( it->second, out, info );
+				missing_link_stack.push_back( NULL );
+			} else {
+				NifStream( 0xFFFFFFFF, out, info );
+				missing_link_stack.push_back( nextCollider );
+			}
 		} else {
 			NifStream( 0xFFFFFFFF, out, info );
+			missing_link_stack.push_back( NULL );
 		}
 	}
 	if ( info.version < VER_3_3_0_13 ) {
-		NifStream( (unsigned int)&(*colliderObject), out, info );
+		WritePtr32( &(*colliderObject), out );
 	} else {
 		if ( colliderObject != NULL ) {
-			NifStream( link_map.find( StaticCast<NiObject>(colliderObject) )->second, out, info );
+			map<NiObjectRef,unsigned int>::const_iterator it = link_map.find( StaticCast<NiObject>(colliderObject) );
+			if (it != link_map.end()) {
+				NifStream( it->second, out, info );
+				missing_link_stack.push_back( NULL );
+			} else {
+				NifStream( 0xFFFFFFFF, out, info );
+				missing_link_stack.push_back( colliderObject );
+			}
 		} else {
 			NifStream( 0xFFFFFFFF, out, info );
+			missing_link_stack.push_back( NULL );
 		}
 	}
 
@@ -116,7 +148,6 @@ std::string NiPSysCollider::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 
 	stringstream out;
-	unsigned int array_output_count = 0;
 	out << NiObject::asString();
 	out << "  Bounce:  " << bounce << endl;
 	out << "  Spawn on Collide:  " << spawnOnCollide << endl;
@@ -131,15 +162,15 @@ std::string NiPSysCollider::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 }
 
-void NiPSysCollider::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info ) {
+void NiPSysCollider::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info ) {
 	//--BEGIN PRE-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiObject::FixLinks( objects, link_stack, info );
-	spawnModifier = FixLink<NiPSysSpawnModifier>( objects, link_stack, info );
-	parent = FixLink<NiObject>( objects, link_stack, info );
-	nextCollider = FixLink<NiObject>( objects, link_stack, info );
-	colliderObject = FixLink<NiNode>( objects, link_stack, info );
+	NiObject::FixLinks( objects, link_stack, missing_link_stack, info );
+	spawnModifier = FixLink<NiPSysSpawnModifier>( objects, link_stack, missing_link_stack, info );
+	parent = FixLink<NiObject>( objects, link_stack, missing_link_stack, info );
+	nextCollider = FixLink<NiObject>( objects, link_stack, missing_link_stack, info );
+	colliderObject = FixLink<NiNode>( objects, link_stack, missing_link_stack, info );
 
 	//--BEGIN POST-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
@@ -152,9 +183,17 @@ std::list<NiObjectRef> NiPSysCollider::GetRefs() const {
 		refs.push_back(StaticCast<NiObject>(spawnModifier));
 	if ( nextCollider != NULL )
 		refs.push_back(StaticCast<NiObject>(nextCollider));
-	if ( colliderObject != NULL )
-		refs.push_back(StaticCast<NiObject>(colliderObject));
 	return refs;
+}
+
+std::list<NiObject *> NiPSysCollider::GetPtrs() const {
+	list<NiObject *> ptrs;
+	ptrs = NiObject::GetPtrs();
+	if ( parent != NULL )
+		ptrs.push_back((NiObject *)(parent));
+	if ( colliderObject != NULL )
+		ptrs.push_back((NiObject *)(colliderObject));
+	return ptrs;
 }
 
 //--BEGIN MISC CUSTOM CODE--//

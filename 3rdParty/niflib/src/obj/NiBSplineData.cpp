@@ -19,7 +19,7 @@ using namespace Niflib;
 //Definition of TYPE constant
 const Type NiBSplineData::TYPE("NiBSplineData", &NiObject::TYPE );
 
-NiBSplineData::NiBSplineData() : unknownInt((unsigned int)0), count((unsigned int)0) {
+NiBSplineData::NiBSplineData() : numFloatControlPoints((unsigned int)0), numShortControlPoints((unsigned int)0) {
 	//--BEGIN CONSTRUCTOR CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 }
@@ -42,27 +42,35 @@ void NiBSplineData::Read( istream& in, list<unsigned int> & link_stack, const Ni
 	//--END CUSTOM CODE--//
 
 	NiObject::Read( in, link_stack, info );
-	NifStream( unknownInt, in, info );
-	NifStream( count, in, info );
-	controlPoints.resize(count);
-	for (unsigned int i1 = 0; i1 < controlPoints.size(); i1++) {
-		NifStream( controlPoints[i1], in, info );
+	NifStream( numFloatControlPoints, in, info );
+	floatControlPoints.resize(numFloatControlPoints);
+	for (unsigned int i1 = 0; i1 < floatControlPoints.size(); i1++) {
+		NifStream( floatControlPoints[i1], in, info );
+	};
+	NifStream( numShortControlPoints, in, info );
+	shortControlPoints.resize(numShortControlPoints);
+	for (unsigned int i1 = 0; i1 < shortControlPoints.size(); i1++) {
+		NifStream( shortControlPoints[i1], in, info );
 	};
 
 	//--BEGIN POST-READ CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 }
 
-void NiBSplineData::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const {
+void NiBSplineData::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const {
 	//--BEGIN PRE-WRITE CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiObject::Write( out, link_map, info );
-	count = (unsigned int)(controlPoints.size());
-	NifStream( unknownInt, out, info );
-	NifStream( count, out, info );
-	for (unsigned int i1 = 0; i1 < controlPoints.size(); i1++) {
-		NifStream( controlPoints[i1], out, info );
+	NiObject::Write( out, link_map, missing_link_stack, info );
+	numShortControlPoints = (unsigned int)(shortControlPoints.size());
+	numFloatControlPoints = (unsigned int)(floatControlPoints.size());
+	NifStream( numFloatControlPoints, out, info );
+	for (unsigned int i1 = 0; i1 < floatControlPoints.size(); i1++) {
+		NifStream( floatControlPoints[i1], out, info );
+	};
+	NifStream( numShortControlPoints, out, info );
+	for (unsigned int i1 = 0; i1 < shortControlPoints.size(); i1++) {
+		NifStream( shortControlPoints[i1], out, info );
 	};
 
 	//--BEGIN POST-WRITE CUSTOM CODE--//
@@ -76,11 +84,11 @@ std::string NiBSplineData::asString( bool verbose ) const {
 	stringstream out;
 	unsigned int array_output_count = 0;
 	out << NiObject::asString();
-	count = (unsigned int)(controlPoints.size());
-	out << "  Unknown Int:  " << unknownInt << endl;
-	out << "  Count:  " << count << endl;
+	numShortControlPoints = (unsigned int)(shortControlPoints.size());
+	numFloatControlPoints = (unsigned int)(floatControlPoints.size());
+	out << "  Num Float Control Points:  " << numFloatControlPoints << endl;
 	array_output_count = 0;
-	for (unsigned int i1 = 0; i1 < controlPoints.size(); i1++) {
+	for (unsigned int i1 = 0; i1 < floatControlPoints.size(); i1++) {
 		if ( !verbose && ( array_output_count > MAXARRAYDUMP ) ) {
 			out << "<Data Truncated. Use verbose mode to see complete listing.>" << endl;
 			break;
@@ -88,7 +96,20 @@ std::string NiBSplineData::asString( bool verbose ) const {
 		if ( !verbose && ( array_output_count > MAXARRAYDUMP ) ) {
 			break;
 		};
-		out << "    Control Points[" << i1 << "]:  " << controlPoints[i1] << endl;
+		out << "    Float Control Points[" << i1 << "]:  " << floatControlPoints[i1] << endl;
+		array_output_count++;
+	};
+	out << "  Num Short Control Points:  " << numShortControlPoints << endl;
+	array_output_count = 0;
+	for (unsigned int i1 = 0; i1 < shortControlPoints.size(); i1++) {
+		if ( !verbose && ( array_output_count > MAXARRAYDUMP ) ) {
+			out << "<Data Truncated. Use verbose mode to see complete listing.>" << endl;
+			break;
+		};
+		if ( !verbose && ( array_output_count > MAXARRAYDUMP ) ) {
+			break;
+		};
+		out << "    Short Control Points[" << i1 << "]:  " << shortControlPoints[i1] << endl;
 		array_output_count++;
 	};
 	return out.str();
@@ -97,11 +118,11 @@ std::string NiBSplineData::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 }
 
-void NiBSplineData::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info ) {
+void NiBSplineData::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info ) {
 	//--BEGIN PRE-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiObject::FixLinks( objects, link_stack, info );
+	NiObject::FixLinks( objects, link_stack, missing_link_stack, info );
 
 	//--BEGIN POST-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
@@ -113,19 +134,91 @@ std::list<NiObjectRef> NiBSplineData::GetRefs() const {
 	return refs;
 }
 
-//--BEGIN MISC CUSTOM CODE--//
-
-vector<short > NiBSplineData::GetControlPoints() const 
-{
-	return controlPoints;
+std::list<NiObject *> NiBSplineData::GetPtrs() const {
+	list<NiObject *> ptrs;
+	ptrs = NiObject::GetPtrs();
+	return ptrs;
 }
 
-vector<short > NiBSplineData::GetControlPointRange(int offset, int count) const
+//--BEGIN MISC CUSTOM CODE--//
+
+vector<float> NiBSplineData::GetFloatControlPoints() const 
+{
+	return floatControlPoints;
+}
+
+void NiBSplineData::SetFloatControlPoints( vector<float> value ) 
+{
+	this->floatControlPoints.clear();
+	this->numFloatControlPoints = value.size();
+
+	for(unsigned int i = 0; i < value.size(); i++) {
+		this->floatControlPoints.push_back(value[i]);
+	}
+}
+
+void NiBSplineData::AppendFloatControlPoints( vector<float> value )
+{
+	this->numFloatControlPoints += value.size();
+
+	for(unsigned int i = 0; i < value.size(); i++) {
+		this->floatControlPoints.push_back(value[i]);
+	}
+}
+
+int NiBSplineData::GetNumFloatControlPoints()
+{
+	return this->numFloatControlPoints;
+}
+
+vector<float> NiBSplineData::GetFloatControlPointRange(int offset, int count) const
+{
+	vector<float> value;
+	if (offset < 0 || count < 0 || ((offset + count) > int(floatControlPoints.size())))
+		throw runtime_error("Invalid offset or count.");
+	vector<float>::const_iterator srcbeg = floatControlPoints.begin(), srcend = floatControlPoints.begin(); 
+	std::advance(srcbeg, offset);
+	std::advance(srcend, offset + count);
+	return vector<float>(srcbeg, srcend);
+}
+
+vector<short > NiBSplineData::GetShortControlPoints() const 
+{
+	return shortControlPoints;
+}
+
+void NiBSplineData::SetShortControlPoints( vector<short> value )
+{
+	this->shortControlPoints.clear();
+	this->numShortControlPoints = value.size();
+
+	for(unsigned int i = 0; i < value.size(); i++) {
+		this->shortControlPoints.push_back(value[i]);
+	}
+}
+
+void NiBSplineData::AppendShortControlPoints( vector<short> value )
+{
+	this->numShortControlPoints += value.size();
+
+	for(unsigned int i = 0; i < value.size(); i++) {
+		this->shortControlPoints.push_back(value[i]);
+	}
+}
+
+
+int NiBSplineData::GetNumShortControlPoints()
+{
+	return this->numShortControlPoints;
+}
+
+
+vector<short > NiBSplineData::GetShortControlPointRange(int offset, int count) const
 {
    vector<short> value;
-   if (offset < 0 || count < 0 || ((offset + count) > int(controlPoints.size())))
+   if (offset < 0 || count < 0 || ((offset + count) > int(shortControlPoints.size())))
       throw runtime_error("Invalid offset or count.");
-   vector<short>::const_iterator srcbeg = controlPoints.begin(), srcend = controlPoints.begin(); 
+   vector<short>::const_iterator srcbeg = shortControlPoints.begin(), srcend = shortControlPoints.begin(); 
    std::advance(srcbeg, offset);
    std::advance(srcend, offset + count);
    return vector<short>(srcbeg, srcend);

@@ -59,6 +59,45 @@ public:
 	NIFLIB_API virtual const Type & GetType() const;
 
 	//--BEGIN MISC CUSTOM CODE--//
+
+   // Name of this object. This is also the name of the action associated with this
+   // file. For instance, if the original NIF file is called "demon.nif" and this
+   // animation file contains an attack sequence, then the file would be called
+   // "demon_attack1.kf" and this field would contain the string "attack1".
+   // \return The current value.
+   string GetName() const;
+
+   // Name of this object. This is also the name of the action associated with this
+   // file. For instance, if the original NIF file is called "demon.nif" and this
+   // animation file contains an attack sequence, then the file would be called
+   // "demon_attack1.kf" and this field would contain the string "attack1".
+   // \param[in] value The new value.
+   void SetName( const string & value );
+
+   // Name of following referenced NiTextKeyExtraData class.
+   // \return The current value.
+   string GetTextKeysName() const;
+
+   // Name of following referenced NiTextKeyExtraData class.
+   // \param[in] value The new value.
+   void SetTextKeysName( const string & value );
+
+   // Link to NiTextKeyExtraData.
+   // \return The current value.
+   Ref<NiTextKeyExtraData > GetTextKeys() const;
+
+   // Link to NiTextKeyExtraData.
+   // \param[in] value The new value.
+   void SetTextKeys( Ref<NiTextKeyExtraData > value );
+
+   // Refers to controlled objects.
+   // \return The current value.
+   vector<ControllerLink > GetControlledBlocks() const;
+
+   // Refers to controlled objects.
+   // \param[in] value The new value.
+   void SetControlledBlocks( const vector<ControllerLink >& value );
+
 	//--END CUSTOM CODE--//
 protected:
 	/*!
@@ -67,11 +106,15 @@ protected:
 	 * animation file contains an attack sequence, then the file would be called
 	 * "demon_attack1.kf" and this field would contain the string "attack1".
 	 */
-	string name;
+	IndexString name;
 	/*! Name of following referenced NiTextKeyExtraData class. */
-	string textKeysName;
+	IndexString textKeysName;
 	/*! Link to NiTextKeyExtraData. */
 	Ref<NiTextKeyExtraData > textKeys;
+	/*! Unknown */
+	int unknownInt4;
+	/*! Unknown */
+	int unknownInt5;
 	/*! Number of controlled objects. */
 	mutable unsigned int numControlledBlocks;
 	/*! Unknown. */
@@ -82,11 +125,13 @@ public:
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
 	NIFLIB_HIDDEN virtual void Read( istream& in, list<unsigned int> & link_stack, const NifInfo & info );
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
-	NIFLIB_HIDDEN virtual void Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const;
+	NIFLIB_HIDDEN virtual void Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const;
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
-	NIFLIB_HIDDEN virtual void FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info );
+	NIFLIB_HIDDEN virtual void FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info );
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
 	NIFLIB_HIDDEN virtual list<NiObjectRef> GetRefs() const;
+	/*! NIFLIB_HIDDEN function.  For internal use only. */
+	NIFLIB_HIDDEN virtual list<NiObject *> GetPtrs() const;
 };
 
 //--BEGIN FILE FOOT CUSTOM CODE--//

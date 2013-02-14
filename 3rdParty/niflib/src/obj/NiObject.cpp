@@ -49,7 +49,7 @@ void NiObject::Read( istream& in, list<unsigned int> & link_stack, const NifInfo
 	//--END CUSTOM CODE--//
 }
 
-void NiObject::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const {
+void NiObject::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const {
 	//--BEGIN PRE-WRITE CUSTOM CODE--//
 
 	//--END CUSTOM CODE--//
@@ -66,7 +66,6 @@ std::string NiObject::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 
 	stringstream out;
-	unsigned int array_output_count = 0;
 	return out.str();
 
 	//--BEGIN POST-STRING CUSTOM CODE--//
@@ -74,7 +73,7 @@ std::string NiObject::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 }
 
-void NiObject::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info ) {
+void NiObject::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info ) {
 	//--BEGIN PRE-FIXLINKS CUSTOM CODE--//
 
 	//--END CUSTOM CODE--//
@@ -88,6 +87,11 @@ void NiObject::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<uns
 std::list<NiObjectRef> NiObject::GetRefs() const {
 	list<Ref<NiObject> > refs;
 	return refs;
+}
+
+std::list<NiObject *> NiObject::GetPtrs() const {
+	list<NiObject *> ptrs;
+	return ptrs;
 }
 
 //--BEGIN MISC CUSTOM CODE--//
@@ -104,7 +108,8 @@ NiObjectRef NiObject::Clone( unsigned int version, unsigned int user_version ) {
 
 	//Write this object's data to the stream
 	NifInfo info( version, user_version );
-	this->Write( tmp, link_map, info );
+	list<NiObject *> missing_link_stack;
+	this->Write( tmp, link_map, missing_link_stack, info );
 
 	//Dummy stack
 	list<unsigned int> link_stack;

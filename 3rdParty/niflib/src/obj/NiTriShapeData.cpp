@@ -53,8 +53,8 @@ void NiTriShapeData::Read( istream& in, list<unsigned int> & link_stack, const N
 			NifStream( triangles[i2], in, info );
 		};
 	};
-	if ( info.version >= 0x0A010000 ) {
-		if ( (hasTriangles != 0) ) {
+	if ( info.version >= 0x0A000103 ) {
+		if ( hasTriangles ) {
 			triangles.resize(numTriangles);
 			for (unsigned int i3 = 0; i3 < triangles.size(); i3++) {
 				NifStream( triangles[i3], in, info );
@@ -77,12 +77,13 @@ void NiTriShapeData::Read( istream& in, list<unsigned int> & link_stack, const N
 	//--END CUSTOM CODE--//
 }
 
-void NiTriShapeData::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const {
+void NiTriShapeData::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const {
 	//--BEGIN PRE-WRITE CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiTriBasedGeomData::Write( out, link_map, info );
+	NiTriBasedGeomData::Write( out, link_map, missing_link_stack, info );
 	numMatchGroups = (unsigned short)(matchGroups.size());
+	hasTriangles = hasTrianglesCalc(info);
 	NifStream( numTrianglePoints, out, info );
 	if ( info.version >= 0x0A010000 ) {
 		NifStream( hasTriangles, out, info );
@@ -92,8 +93,8 @@ void NiTriShapeData::Write( ostream& out, const map<NiObjectRef,unsigned int> & 
 			NifStream( triangles[i2], out, info );
 		};
 	};
-	if ( info.version >= 0x0A010000 ) {
-		if ( (hasTriangles != 0) ) {
+	if ( info.version >= 0x0A000103 ) {
+		if ( hasTriangles ) {
 			for (unsigned int i3 = 0; i3 < triangles.size(); i3++) {
 				NifStream( triangles[i3], out, info );
 			};
@@ -164,11 +165,11 @@ std::string NiTriShapeData::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 }
 
-void NiTriShapeData::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info ) {
+void NiTriShapeData::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info ) {
 	//--BEGIN PRE-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiTriBasedGeomData::FixLinks( objects, link_stack, info );
+	NiTriBasedGeomData::FixLinks( objects, link_stack, missing_link_stack, info );
 
 	//--BEGIN POST-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
@@ -178,6 +179,12 @@ std::list<NiObjectRef> NiTriShapeData::GetRefs() const {
 	list<Ref<NiObject> > refs;
 	refs = NiTriBasedGeomData::GetRefs();
 	return refs;
+}
+
+std::list<NiObject *> NiTriShapeData::GetPtrs() const {
+	list<NiObject *> ptrs;
+	ptrs = NiTriBasedGeomData::GetPtrs();
+	return ptrs;
 }
 
 //--BEGIN MISC CUSTOM CODE--//
@@ -191,20 +198,57 @@ void NiTriShapeData::SetVertices( const vector<Vector3> & in ) {
 	NiTriBasedGeomData::SetVertices( in );
 
 	//Also, clear match detection data
-	matchGroups.clear();
+	RemoveMatchData();
 }
 
-void NiTriShapeData::DoMatchDetection() { 
-	matchGroups.resize( vertices.size() );
+void NiTriShapeData::DoMatchDetection() {
+	/* minimum number of groups of shared normals */
+	matchGroups.resize( 0 );
+	/* counting sharing */
+	vector<bool> is_shared( vertices.size(), false );
 
-	for ( unsigned int i = 0; i < matchGroups.size(); ++i ){
+	for ( unsigned short i = 0; i < vertices.size() - 1; ++i ) {
+		/* this index belongs to a group already */
+		if ( is_shared[i] )
+			continue;
+
+		/* we may find a valid group for this vertex */
+		MatchGroup group;
+		/* this vertex belongs to the group as well */
+		group.vertexIndices.push_back(i);
+
 		// Find all vertices that match this one.
-		for ( unsigned short j = 0; j < vertices.size(); ++j ) {
-			if ( vertices[i] == vertices[j] ) {
-				matchGroups[i].vertexIndices.push_back(j);
-			}
+		for ( unsigned short j = i + 1; j < vertices.size(); ++j ) {
+			/* this index belongs to another group already */
+			/* so its vert/norm cannot match this group! */
+			if ( is_shared[j] )
+				continue;
+			/* for automatic regeneration we just consider
+			 * identical positions, though the format would
+			 * allow distinct positions to share a normal
+			 */
+			if ( vertices[j] != vertices[i] )
+				continue;
+			if ( normals [j] != normals [i] )
+				continue;
+			/* remember this vertex' index */
+			group.vertexIndices.push_back(j);
+		}
+
+		/* the currently observed vertex shares a normal with others */
+		if ( ( group.numVertices = group.vertexIndices.size() ) > 1 ) {
+			/* mark all of the participating vertices to belong to a group */
+			for ( unsigned short n = 0; n < group.numVertices; n++ )
+				is_shared[group.vertexIndices[n]] = true;
+
+			/* register the group */
+			matchGroups.push_back(group);
 		}
 	}
+}
+
+void NiTriShapeData::RemoveMatchData() { 
+	matchGroups.clear();
 }
 
 bool NiTriShapeData::HasMatchData() {

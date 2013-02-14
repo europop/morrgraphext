@@ -21,7 +21,7 @@ All rights reserved.  Please see niflib.h for license. */
 namespace Niflib {
 
 // Forward define of referenced NIF objects
-class bhkConstraint;
+class bhkSerializable;
 class bhkRigidBody;
 typedef Ref<bhkRigidBody> bhkRigidBodyRef;
 
@@ -84,13 +84,13 @@ public:
 	 * Gets the current translation of this rigid body.
 	 * \return The translation of this rigid body.
 	 */
-	NIFLIB_API Vector3 GetTranslation() const;
+	NIFLIB_API Vector4 GetTranslation() const;
 
 	/*!
 	 * Sets a new translation for this rigid body.
 	 * \param[in] value  The new translation for this rigid body.
 	 */
-	NIFLIB_API void SetTranslation( const Vector3 & value );
+	NIFLIB_API void SetTranslation( const Vector4 & value );
 
 	/*!
 	 * Gets the current rotation of this rigid body.
@@ -108,49 +108,49 @@ public:
 	 * Gets the current linear velocity of this rigid body.
 	 * \return The linear velocity of this rigid body.
 	 */
-	NIFLIB_API Vector3 GetLinearVelocity() const;
+	NIFLIB_API Vector4 GetLinearVelocity() const;
 
 	/*!
 	 * Sets a new linear velocity for this rigid body.
 	 * \param[in] value The new linear velocity for this rigid body.
 	 */
-	NIFLIB_API void SetLinearVelocity( const Vector3 & value );
+	NIFLIB_API void SetLinearVelocity( const Vector4 & value );
 
 	/*!
 	 * Gets the current angular velocity of this rigid body.
 	 * \return The angular velocity of this rigid body.
 	 */
-	NIFLIB_API Vector3 GetAngularVelocity() const;
+	NIFLIB_API Vector4 GetAngularVelocity() const;
 
 	/*!
 	 * Sets a new angular velocity for this rigid body.
 	 * \param[in] value The new angular velocity for this rigid body.
 	 */
-	NIFLIB_API void SetAngularVelocity( const Vector3 & value );
+	NIFLIB_API void SetAngularVelocity( const Vector4 & value );
 
 	/*!
 	 * Gets the current inertia of this rigid body.
 	 * \return The inertia of this rigid body.
 	 */
-	NIFLIB_API array<12,float> GetInertia() const;
+	NIFLIB_API InertiaMatrix GetInertia() const;
 
 	/*!
 	 * Sets a new inertia for this rigid body.
 	 * \param[in] value The new inertia for this rigid body.
 	 */
-	NIFLIB_API void SetInertia( const array<12,float> & value );
+	NIFLIB_API void SetInertia( const InertiaMatrix & value );
 
 	/*!
 	 * Gets the current center point of this rigid body.
 	 * \return The center point of this rigid body.
 	 */
-	NIFLIB_API Vector3 GetCenter() const;
+	NIFLIB_API Vector4 GetCenter() const;
 
 	/*!
 	 * Sets a new center point for this rigid body.
 	 * \param[in] value The new center point for this rigid body.
 	 */
-	NIFLIB_API void SetCenter( const Vector3 & value );
+	NIFLIB_API void SetCenter( const Vector4 & value );
 
 	/*!
 	 * Gets the current mass of this rigid body.
@@ -272,52 +272,105 @@ public:
 	 */
 	NIFLIB_API void SetQualityType( MotionQuality value );
 
+	// The initial deactivator type of the body.
+	// \return The current value.
+	NIFLIB_API DeactivatorType GetDeactivatorType() const;
+
+	// The initial deactivator type of the body.
+	// \param[in] value The new value.
+	NIFLIB_API void SetDeactivatorType( const DeactivatorType & value );
+
+	// Usually set to 1 for fixed objects, or set to 2 for moving ones.  Seems to
+	// always be same as Unknown Byte 1.
+	// \return The current value.
+	NIFLIB_API SolverDeactivation GetSolverDeactivation() const;
+
+	// Usually set to 1 for fixed objects, or set to 2 for moving ones.  Seems to
+	// always be same as Unknown Byte 1.
+	// \param[in] value The new value.
+	NIFLIB_API void SetSolverDeactivation( const SolverDeactivation & value );
+
+	/*!
+	 * Adds a constraint to this bhkRigidBody.
+	 */
+	NIFLIB_API void AddConstraint( bhkSerializable * obj );
+
+	/*!
+	 * Removes a constraint from this bhkRigidBody.
+	 */
+	NIFLIB_API void RemoveConstraint( bhkSerializable * obj );
+
+	/*!
+	 * Removes all constraints from this bhkRigidBody.
+	 */
+	NIFLIB_API void ClearConstraints();
+
+	/*!
+	 * Retrieves all the constraints attached to this bhkRigidBody.
+	 */
+	NIFLIB_API vector< Ref<bhkSerializable> > GetConstraints() const;
+
+	// Apply scale factor <scale> on data.
+	// \param[in] scale Factor to scale by
+	NIFLIB_API void ApplyScale(float scale);
+
+	// Look at all the objects under this rigid body and update the mass
+	//  center of gravity, and inertia tensor accordingly. If the mass parameter
+	//  is given then the density argument is ignored.
+	NIFLIB_API void UpdateMassProperties(float density = 1.0f, bool solid = true, float mass = 0.0f);
+
 	//--END CUSTOM CODE--//
 protected:
+	/*! Unknown. Could be 2 shorts corresponding to Unknown 7 Shorts[1] and [2]. */
+	int unknownInt1;
 	/*! Unknown. */
-	array<5,float > unknown5Floats;
+	int unknownInt2;
+	/*! Unknown. Could be 3 floats. */
+	array<3,int > unknown3Ints;
+	/*! The collision response. See hkResponseType for hkpWorld default implementations. */
+	hkResponseType collisionResponse_;
+	/*! Unknown */
+	byte unknownByte;
+	/*!
+	 * Lowers the frequency for processContactCallbacks. A value of 5 means that a
+	 * callback is raised every 5th frame.
+	 */
+	unsigned short processContactCallbackDelay_;
 	/*! Unknown. */
-	array<4,unsigned short > unknown4Shorts;
+	array<2,unsigned short > unknown2Shorts;
 	/*! Copy of Layer value? */
 	OblivionLayer layerCopy;
 	/*! Copy of Col Filter value? */
 	byte colFilterCopy;
-	/*! Unknown. */
+	/*!
+	 * Unknown.
+	 *             Oblivion defaults: 0 21280 2481 62977 65535 44 0
+	 *             Skyrim defaults: 0 56896 1343 0 0 1 65535 (fourth and fifth element
+	 * *must* be zero)
+	 */
 	array<7,unsigned short > unknown7Shorts;
 	/*!
 	 * A vector that moves the body by the specified amount. Only enabled in
 	 * bhkRigidBodyT objects.
 	 */
-	Vector3 translation;
-	/*!
-	 * This seems to often be 1 for single objects, or the first one in a
-	 *             a linked object group. This may be due to those objects often being
-	 * bhkRigidBodyT as well.
-	 */
-	float unknownFloat00;
+	Vector4 translation;
 	/*!
 	 * The rotation Yaw/Pitch/Roll to apply to the body. Only enabled in bhkRigidBodyT
 	 * objects.
 	 */
 	QuaternionXYZW rotation;
 	/*! Linear velocity. */
-	Vector3 linearVelocity;
-	/*! Unknown. */
-	float unknownFloat01;
+	Vector4 linearVelocity;
 	/*! Angular velocity. */
-	Vector3 angularVelocity;
-	/*! Unknown. */
-	float unknownFloat02;
+	Vector4 angularVelocity;
 	/*! Defines how the mass is distributed among the body. */
-	array<12,float > inertia;
+	InertiaMatrix inertia;
 	/*!
 	 * This seems to be used to relocate the object's center of mass. Useful for
 	 * balancing objects in contraints.
 	 */
-	Vector3 center;
-	/*! Unknown float. */
-	float unknownFloat03;
-	/*! The body's mass. */
+	Vector4 center;
+	/*! The body's mass in kg. A mass of zero represents an immovable object. */
 	float mass;
 	/*!
 	 * Damping value for linear movement. A value that is too small fixes the object in
@@ -326,28 +379,42 @@ protected:
 	float linearDamping;
 	/*! Damping value for angular movement. */
 	float angularDamping;
+	/*! Unknown. */
+	float unknownTimefactorOrGravityfactor1;
+	/*! Unknown. */
+	float unknownTimefactorOrGravityfactor2;
 	/*! The body's friction. */
 	float friction;
-	/*! The body's restitution (elasticity). */
+	/*! Unknown. */
+	float rollingfrictionmultiplier_;
+	/*!
+	 * The body's restitution (elasticity).
+	 *             If the restitution is not 0.0 the object will need extra CPU for all
+	 * new collisions.
+	 *             Try to set restitution to 0 for maximum performance (e.g. collapsing
+	 * buildings)
+	 */
 	float restitution;
 	/*! Maximal linear velocity. */
 	float maxLinearVelocity;
 	/*! Maximal angular velocity. Pi x 10? */
 	float maxAngularVelocity;
-	/*! Penetration depth. */
+	/*!
+	 * The maximum allowed penetration for this object.
+	 *             This is a hint to the engine to see how much CPU the engine should
+	 * invest to keep this object from penetrating.
+	 *             A good choice is 5% - 20% of the smallest diameter of the object.
+	 */
 	float penetrationDepth;
 	/*! Motion system? Overrides Quality when on Keyframed? */
 	MotionSystem motionSystem;
-	/*!
-	 * Usually set to 1 for fixed objects, or set to 2 for moving ones.  Seems to
-	 * always be same as Unknown Byte 2.
-	 */
-	byte unknownByte1;
+	/*! The initial deactivator type of the body. */
+	DeactivatorType deactivatorType;
 	/*!
 	 * Usually set to 1 for fixed objects, or set to 2 for moving ones.  Seems to
 	 * always be same as Unknown Byte 1.
 	 */
-	byte unknownByte2;
+	SolverDeactivation solverDeactivation;
 	/*! The motion type. Determines quality of motion? */
 	MotionQuality qualityType;
 	/*! Unknown. */
@@ -356,21 +423,27 @@ protected:
 	unsigned int unknownInt7;
 	/*! Unknown. */
 	unsigned int unknownInt8;
+	/*! Unknown. Skyrim only. */
+	unsigned int unknownInt81;
 	/*! The number of constraints this object is bound to. */
 	mutable unsigned int numConstraints;
 	/*! Unknown. */
-	vector<Ref<bhkConstraint > > constraints;
-	/*! Unknown. */
+	vector<Ref<bhkSerializable > > constraints;
+	/*! 0 = do not respond to wind, 1 = respond to wind (?) */
 	unsigned int unknownInt9;
+	/*! Unknown. */
+	unsigned short unknownInt91;
 public:
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
 	NIFLIB_HIDDEN virtual void Read( istream& in, list<unsigned int> & link_stack, const NifInfo & info );
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
-	NIFLIB_HIDDEN virtual void Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const;
+	NIFLIB_HIDDEN virtual void Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const;
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
-	NIFLIB_HIDDEN virtual void FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info );
+	NIFLIB_HIDDEN virtual void FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info );
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
 	NIFLIB_HIDDEN virtual list<NiObjectRef> GetRefs() const;
+	/*! NIFLIB_HIDDEN function.  For internal use only. */
+	NIFLIB_HIDDEN virtual list<NiObject *> GetPtrs() const;
 };
 
 //--BEGIN FILE FOOT CUSTOM CODE--//

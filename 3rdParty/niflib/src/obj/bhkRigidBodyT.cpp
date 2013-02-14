@@ -47,11 +47,11 @@ void bhkRigidBodyT::Read( istream& in, list<unsigned int> & link_stack, const Ni
 	//--END CUSTOM CODE--//
 }
 
-void bhkRigidBodyT::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const {
+void bhkRigidBodyT::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const {
 	//--BEGIN PRE-WRITE CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	bhkRigidBody::Write( out, link_map, info );
+	bhkRigidBody::Write( out, link_map, missing_link_stack, info );
 
 	//--BEGIN POST-WRITE CUSTOM CODE--//
 	//--END CUSTOM CODE--//
@@ -62,7 +62,6 @@ std::string bhkRigidBodyT::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 
 	stringstream out;
-	unsigned int array_output_count = 0;
 	out << bhkRigidBody::asString();
 	return out.str();
 
@@ -70,11 +69,11 @@ std::string bhkRigidBodyT::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 }
 
-void bhkRigidBodyT::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info ) {
+void bhkRigidBodyT::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info ) {
 	//--BEGIN PRE-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	bhkRigidBody::FixLinks( objects, link_stack, info );
+	bhkRigidBody::FixLinks( objects, link_stack, missing_link_stack, info );
 
 	//--BEGIN POST-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
@@ -84,6 +83,12 @@ std::list<NiObjectRef> bhkRigidBodyT::GetRefs() const {
 	list<Ref<NiObject> > refs;
 	refs = bhkRigidBody::GetRefs();
 	return refs;
+}
+
+std::list<NiObject *> bhkRigidBodyT::GetPtrs() const {
+	list<NiObject *> ptrs;
+	ptrs = bhkRigidBody::GetPtrs();
+	return ptrs;
 }
 
 //--BEGIN MISC CUSTOM CODE--//

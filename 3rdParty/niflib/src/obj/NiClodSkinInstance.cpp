@@ -47,11 +47,11 @@ void NiClodSkinInstance::Read( istream& in, list<unsigned int> & link_stack, con
 	//--END CUSTOM CODE--//
 }
 
-void NiClodSkinInstance::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const {
+void NiClodSkinInstance::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const {
 	//--BEGIN PRE-WRITE CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiSkinInstance::Write( out, link_map, info );
+	NiSkinInstance::Write( out, link_map, missing_link_stack, info );
 
 	//--BEGIN POST-WRITE CUSTOM CODE--//
 	//--END CUSTOM CODE--//
@@ -62,7 +62,6 @@ std::string NiClodSkinInstance::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 
 	stringstream out;
-	unsigned int array_output_count = 0;
 	out << NiSkinInstance::asString();
 	return out.str();
 
@@ -70,11 +69,11 @@ std::string NiClodSkinInstance::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 }
 
-void NiClodSkinInstance::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info ) {
+void NiClodSkinInstance::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info ) {
 	//--BEGIN PRE-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiSkinInstance::FixLinks( objects, link_stack, info );
+	NiSkinInstance::FixLinks( objects, link_stack, missing_link_stack, info );
 
 	//--BEGIN POST-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
@@ -84,6 +83,12 @@ std::list<NiObjectRef> NiClodSkinInstance::GetRefs() const {
 	list<Ref<NiObject> > refs;
 	refs = NiSkinInstance::GetRefs();
 	return refs;
+}
+
+std::list<NiObject *> NiClodSkinInstance::GetPtrs() const {
+	list<NiObject *> ptrs;
+	ptrs = NiSkinInstance::GetPtrs();
+	return ptrs;
 }
 
 //--BEGIN MISC CUSTOM CODE--//

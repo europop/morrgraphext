@@ -20,7 +20,7 @@ using namespace Niflib;
 //Definition of TYPE constant
 const Type NiPoint3InterpController::TYPE("NiPoint3InterpController", &NiSingleInterpController::TYPE );
 
-NiPoint3InterpController::NiPoint3InterpController() : data(NULL) {
+NiPoint3InterpController::NiPoint3InterpController() : targetColor((TargetColor)0), data(NULL) {
 	//--BEGIN CONSTRUCTOR CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 }
@@ -56,22 +56,30 @@ void NiPoint3InterpController::Read( istream& in, list<unsigned int> & link_stac
 	//--END CUSTOM CODE--//
 }
 
-void NiPoint3InterpController::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const {
+void NiPoint3InterpController::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const {
 	//--BEGIN PRE-WRITE CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiSingleInterpController::Write( out, link_map, info );
+	NiSingleInterpController::Write( out, link_map, missing_link_stack, info );
 	if ( info.version >= 0x0A010000 ) {
 		NifStream( targetColor, out, info );
 	};
 	if ( info.version <= 0x0A010000 ) {
 		if ( info.version < VER_3_3_0_13 ) {
-			NifStream( (unsigned int)&(*data), out, info );
+			WritePtr32( &(*data), out );
 		} else {
 			if ( data != NULL ) {
-				NifStream( link_map.find( StaticCast<NiObject>(data) )->second, out, info );
+				map<NiObjectRef,unsigned int>::const_iterator it = link_map.find( StaticCast<NiObject>(data) );
+				if (it != link_map.end()) {
+					NifStream( it->second, out, info );
+					missing_link_stack.push_back( NULL );
+				} else {
+					NifStream( 0xFFFFFFFF, out, info );
+					missing_link_stack.push_back( data );
+				}
 			} else {
 				NifStream( 0xFFFFFFFF, out, info );
+				missing_link_stack.push_back( NULL );
 			}
 		}
 	};
@@ -85,7 +93,6 @@ std::string NiPoint3InterpController::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 
 	stringstream out;
-	unsigned int array_output_count = 0;
 	out << NiSingleInterpController::asString();
 	out << "  Target Color:  " << targetColor << endl;
 	out << "  Data:  " << data << endl;
@@ -95,13 +102,13 @@ std::string NiPoint3InterpController::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 }
 
-void NiPoint3InterpController::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info ) {
+void NiPoint3InterpController::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info ) {
 	//--BEGIN PRE-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiSingleInterpController::FixLinks( objects, link_stack, info );
+	NiSingleInterpController::FixLinks( objects, link_stack, missing_link_stack, info );
 	if ( info.version <= 0x0A010000 ) {
-		data = FixLink<NiPosData>( objects, link_stack, info );
+		data = FixLink<NiPosData>( objects, link_stack, missing_link_stack, info );
 	};
 
 	//--BEGIN POST-FIXLINKS CUSTOM CODE--//
@@ -114,6 +121,12 @@ std::list<NiObjectRef> NiPoint3InterpController::GetRefs() const {
 	if ( data != NULL )
 		refs.push_back(StaticCast<NiObject>(data));
 	return refs;
+}
+
+std::list<NiObject *> NiPoint3InterpController::GetPtrs() const {
+	list<NiObject *> ptrs;
+	ptrs = NiSingleInterpController::GetPtrs();
+	return ptrs;
 }
 
 //--BEGIN MISC CUSTOM CODE--//

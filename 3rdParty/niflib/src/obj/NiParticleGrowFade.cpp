@@ -49,11 +49,11 @@ void NiParticleGrowFade::Read( istream& in, list<unsigned int> & link_stack, con
 	//--END CUSTOM CODE--//
 }
 
-void NiParticleGrowFade::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const {
+void NiParticleGrowFade::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const {
 	//--BEGIN PRE-WRITE CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiParticleModifier::Write( out, link_map, info );
+	NiParticleModifier::Write( out, link_map, missing_link_stack, info );
 	NifStream( grow, out, info );
 	NifStream( fade, out, info );
 
@@ -66,7 +66,6 @@ std::string NiParticleGrowFade::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 
 	stringstream out;
-	unsigned int array_output_count = 0;
 	out << NiParticleModifier::asString();
 	out << "  Grow:  " << grow << endl;
 	out << "  Fade:  " << fade << endl;
@@ -76,11 +75,11 @@ std::string NiParticleGrowFade::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 }
 
-void NiParticleGrowFade::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info ) {
+void NiParticleGrowFade::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info ) {
 	//--BEGIN PRE-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiParticleModifier::FixLinks( objects, link_stack, info );
+	NiParticleModifier::FixLinks( objects, link_stack, missing_link_stack, info );
 
 	//--BEGIN POST-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
@@ -90,6 +89,12 @@ std::list<NiObjectRef> NiParticleGrowFade::GetRefs() const {
 	list<Ref<NiObject> > refs;
 	refs = NiParticleModifier::GetRefs();
 	return refs;
+}
+
+std::list<NiObject *> NiParticleGrowFade::GetPtrs() const {
+	list<NiObject *> ptrs;
+	ptrs = NiParticleModifier::GetPtrs();
+	return ptrs;
 }
 
 //--BEGIN MISC CUSTOM CODE--//

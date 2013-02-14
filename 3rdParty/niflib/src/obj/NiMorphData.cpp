@@ -20,7 +20,7 @@ using namespace Niflib;
 //Definition of TYPE constant
 const Type NiMorphData::TYPE("NiMorphData", &NiObject::TYPE );
 
-NiMorphData::NiMorphData() : numMorphs((unsigned int)0), numVertices((unsigned int)0), unknownByte((byte)0) {
+NiMorphData::NiMorphData() : numMorphs((unsigned int)0), numVertices((unsigned int)0), relativeTargets((byte)1) {
 	//--BEGIN CONSTRUCTOR CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 }
@@ -45,7 +45,7 @@ void NiMorphData::Read( istream& in, list<unsigned int> & link_stack, const NifI
 	NiObject::Read( in, link_stack, info );
 	NifStream( numMorphs, in, info );
 	NifStream( numVertices, in, info );
-	NifStream( unknownByte, in, info );
+	NifStream( relativeTargets, in, info );
 	morphs.resize(numMorphs);
 	for (unsigned int i1 = 0; i1 < morphs.size(); i1++) {
 		if ( info.version >= 0x0A01006A ) {
@@ -59,7 +59,10 @@ void NiMorphData::Read( istream& in, list<unsigned int> & link_stack, const NifI
 				NifStream( morphs[i1].keys[i3], in, info, morphs[i1].interpolation );
 			};
 		};
-		if ( ( info.version >= 0x0A01006A ) && ( info.version <= 0x0A01006A ) ) {
+		if ( ( info.version >= 0x0A01006A ) && ( info.version <= 0x0A020000 ) ) {
+			NifStream( morphs[i1].unknownInt, in, info );
+		};
+		if ( ( info.version >= 0x14000004 ) && ( info.version <= 0x14000005 ) && ( info.userVersion == 0 ) ) {
 			NifStream( morphs[i1].unknownInt, in, info );
 		};
 		morphs[i1].vectors.resize(numVertices);
@@ -72,15 +75,15 @@ void NiMorphData::Read( istream& in, list<unsigned int> & link_stack, const NifI
 	//--END CUSTOM CODE--//
 }
 
-void NiMorphData::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const {
+void NiMorphData::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const {
 	//--BEGIN PRE-WRITE CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiObject::Write( out, link_map, info );
+	NiObject::Write( out, link_map, missing_link_stack, info );
 	numMorphs = (unsigned int)(morphs.size());
 	NifStream( numMorphs, out, info );
 	NifStream( numVertices, out, info );
-	NifStream( unknownByte, out, info );
+	NifStream( relativeTargets, out, info );
 	for (unsigned int i1 = 0; i1 < morphs.size(); i1++) {
 		morphs[i1].numKeys = (unsigned int)(morphs[i1].keys.size());
 		if ( info.version >= 0x0A01006A ) {
@@ -93,7 +96,10 @@ void NiMorphData::Write( ostream& out, const map<NiObjectRef,unsigned int> & lin
 				NifStream( morphs[i1].keys[i3], out, info, morphs[i1].interpolation );
 			};
 		};
-		if ( ( info.version >= 0x0A01006A ) && ( info.version <= 0x0A01006A ) ) {
+		if ( ( info.version >= 0x0A01006A ) && ( info.version <= 0x0A020000 ) ) {
+			NifStream( morphs[i1].unknownInt, out, info );
+		};
+		if ( ( info.version >= 0x14000004 ) && ( info.version <= 0x14000005 ) && ( info.userVersion == 0 ) ) {
 			NifStream( morphs[i1].unknownInt, out, info );
 		};
 		for (unsigned int i2 = 0; i2 < morphs[i1].vectors.size(); i2++) {
@@ -115,7 +121,7 @@ std::string NiMorphData::asString( bool verbose ) const {
 	numMorphs = (unsigned int)(morphs.size());
 	out << "  Num Morphs:  " << numMorphs << endl;
 	out << "  Num Vertices:  " << numVertices << endl;
-	out << "  Unknown Byte:  " << unknownByte << endl;
+	out << "  Relative Targets:  " << relativeTargets << endl;
 	array_output_count = 0;
 	for (unsigned int i1 = 0; i1 < morphs.size(); i1++) {
 		if ( !verbose && ( array_output_count > MAXARRAYDUMP ) ) {
@@ -158,11 +164,11 @@ std::string NiMorphData::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 }
 
-void NiMorphData::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info ) {
+void NiMorphData::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info ) {
 	//--BEGIN PRE-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiObject::FixLinks( objects, link_stack, info );
+	NiObject::FixLinks( objects, link_stack, missing_link_stack, info );
 
 	//--BEGIN POST-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
@@ -172,6 +178,12 @@ std::list<NiObjectRef> NiMorphData::GetRefs() const {
 	list<Ref<NiObject> > refs;
 	refs = NiObject::GetRefs();
 	return refs;
+}
+
+std::list<NiObject *> NiMorphData::GetPtrs() const {
+	list<NiObject *> ptrs;
+	ptrs = NiObject::GetPtrs();
+	return ptrs;
 }
 
 //--BEGIN MISC CUSTOM CODE--//
@@ -235,6 +247,15 @@ void NiMorphData::SetMorphVerts( int n, const vector<Vector3> & in ) {
 
 	//It's the right size, so go ahead and set it
 	morphs[n].vectors = in;
+}
+
+string NiMorphData::GetFrameName( int n ) const
+{
+	return morphs[n].frameName;
+}
+
+void NiMorphData::SetFrameName( int n, string const & key ) {
+	morphs[n].frameName = key;
 }
 
 //--END CUSTOM CODE--//

@@ -11,6 +11,7 @@ All rights reserved.  Please see niflib.h for license. */
 #define _NISOURCETEXTURE_H_
 
 //--BEGIN FILE HEAD CUSTOM CODE--//
+#include "NiPixelData.h"
 //--END CUSTOM CODE--//
 
 #include "NiTexture.h"
@@ -21,7 +22,7 @@ namespace Niflib {
 
 // Forward define of referenced NIF objects
 class NiObject;
-class NiPixelData;
+class ATextureRenderData;
 class NiSourceTexture;
 typedef Ref<NiSourceTexture> NiSourceTextureRef;
 
@@ -132,18 +133,13 @@ protected:
 	/*! Is the texture external? */
 	byte useExternal;
 	/*! The external texture file name. */
-	string fileName;
+	IndexString fileName;
 	/*! Unknown. */
 	Ref<NiObject > unknownLink;
-	/*! Unknown. */
+	/*! Unknown. Seems to be set if Pixel Data is present? */
 	byte unknownByte;
-	/*!
-	 * The original source filename of the image embedded by the referred NiPixelData
-	 * object.
-	 */
-	string originalFileName_;
-	/*! Pixel data object index. */
-	Ref<NiPixelData > pixelData;
+	/*! Pixel data object index. NiPixelData or NiPersistentSrcTextureRendererData */
+	Ref<ATextureRenderData > pixelData;
 	/*! Specifies the way the image will be stored. */
 	PixelLayout pixelLayout;
 	/*! Specifies whether mip maps are used. */
@@ -153,17 +149,23 @@ protected:
 	 * list of properties to enable material and/or texture transparency.
 	 */
 	AlphaFormat alphaFormat;
-	/*! Set to one if textures have mipmaps? */
-	byte unknownByte2;
+	/*! Is Static? */
+	byte isStatic;
+	/*! Load direct to renderer */
+	bool directRender;
+	/*! Render data is persistant */
+	bool persistRenderData;
 public:
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
 	NIFLIB_HIDDEN virtual void Read( istream& in, list<unsigned int> & link_stack, const NifInfo & info );
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
-	NIFLIB_HIDDEN virtual void Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const;
+	NIFLIB_HIDDEN virtual void Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const;
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
-	NIFLIB_HIDDEN virtual void FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info );
+	NIFLIB_HIDDEN virtual void FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info );
 	/*! NIFLIB_HIDDEN function.  For internal use only. */
 	NIFLIB_HIDDEN virtual list<NiObjectRef> GetRefs() const;
+	/*! NIFLIB_HIDDEN function.  For internal use only. */
+	NIFLIB_HIDDEN virtual list<NiObject *> GetPtrs() const;
 };
 
 //--BEGIN FILE FOOT CUSTOM CODE--//

@@ -14,8 +14,8 @@ All rights reserved.  Please see niflib.h for license. */
 #include "../../include/ObjectRegistry.h"
 #include "../../include/NIF_IO.h"
 #include "../../include/obj/NiBSplineInterpolator.h"
-#include "../../include/obj/NiBSplineData.h"
 #include "../../include/obj/NiBSplineBasisData.h"
+#include "../../include/obj/NiBSplineData.h"
 using namespace Niflib;
 
 //Definition of TYPE constant
@@ -56,29 +56,45 @@ void NiBSplineInterpolator::Read( istream& in, list<unsigned int> & link_stack, 
 	//--END CUSTOM CODE--//
 }
 
-void NiBSplineInterpolator::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, const NifInfo & info ) const {
+void NiBSplineInterpolator::Write( ostream& out, const map<NiObjectRef,unsigned int> & link_map, list<NiObject *> & missing_link_stack, const NifInfo & info ) const {
 	//--BEGIN PRE-WRITE CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiInterpolator::Write( out, link_map, info );
+	NiInterpolator::Write( out, link_map, missing_link_stack, info );
 	NifStream( startTime, out, info );
 	NifStream( stopTime, out, info );
 	if ( info.version < VER_3_3_0_13 ) {
-		NifStream( (unsigned int)&(*splineData), out, info );
+		WritePtr32( &(*splineData), out );
 	} else {
 		if ( splineData != NULL ) {
-			NifStream( link_map.find( StaticCast<NiObject>(splineData) )->second, out, info );
+			map<NiObjectRef,unsigned int>::const_iterator it = link_map.find( StaticCast<NiObject>(splineData) );
+			if (it != link_map.end()) {
+				NifStream( it->second, out, info );
+				missing_link_stack.push_back( NULL );
+			} else {
+				NifStream( 0xFFFFFFFF, out, info );
+				missing_link_stack.push_back( splineData );
+			}
 		} else {
 			NifStream( 0xFFFFFFFF, out, info );
+			missing_link_stack.push_back( NULL );
 		}
 	}
 	if ( info.version < VER_3_3_0_13 ) {
-		NifStream( (unsigned int)&(*basisData), out, info );
+		WritePtr32( &(*basisData), out );
 	} else {
 		if ( basisData != NULL ) {
-			NifStream( link_map.find( StaticCast<NiObject>(basisData) )->second, out, info );
+			map<NiObjectRef,unsigned int>::const_iterator it = link_map.find( StaticCast<NiObject>(basisData) );
+			if (it != link_map.end()) {
+				NifStream( it->second, out, info );
+				missing_link_stack.push_back( NULL );
+			} else {
+				NifStream( 0xFFFFFFFF, out, info );
+				missing_link_stack.push_back( basisData );
+			}
 		} else {
 			NifStream( 0xFFFFFFFF, out, info );
+			missing_link_stack.push_back( NULL );
 		}
 	}
 
@@ -91,7 +107,6 @@ std::string NiBSplineInterpolator::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 
 	stringstream out;
-	unsigned int array_output_count = 0;
 	out << NiInterpolator::asString();
 	out << "  Start Time:  " << startTime << endl;
 	out << "  Stop Time:  " << stopTime << endl;
@@ -103,13 +118,13 @@ std::string NiBSplineInterpolator::asString( bool verbose ) const {
 	//--END CUSTOM CODE--//
 }
 
-void NiBSplineInterpolator::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, const NifInfo & info ) {
+void NiBSplineInterpolator::FixLinks( const map<unsigned int,NiObjectRef> & objects, list<unsigned int> & link_stack, list<NiObjectRef> & missing_link_stack, const NifInfo & info ) {
 	//--BEGIN PRE-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
 
-	NiInterpolator::FixLinks( objects, link_stack, info );
-	splineData = FixLink<NiBSplineData>( objects, link_stack, info );
-	basisData = FixLink<NiBSplineBasisData>( objects, link_stack, info );
+	NiInterpolator::FixLinks( objects, link_stack, missing_link_stack, info );
+	splineData = FixLink<NiBSplineData>( objects, link_stack, missing_link_stack, info );
+	basisData = FixLink<NiBSplineBasisData>( objects, link_stack, missing_link_stack, info );
 
 	//--BEGIN POST-FIXLINKS CUSTOM CODE--//
 	//--END CUSTOM CODE--//
@@ -123,6 +138,12 @@ std::list<NiObjectRef> NiBSplineInterpolator::GetRefs() const {
 	if ( basisData != NULL )
 		refs.push_back(StaticCast<NiObject>(basisData));
 	return refs;
+}
+
+std::list<NiObject *> NiBSplineInterpolator::GetPtrs() const {
+	list<NiObject *> ptrs;
+	ptrs = NiInterpolator::GetPtrs();
+	return ptrs;
 }
 
 //--BEGIN MISC CUSTOM CODE--//

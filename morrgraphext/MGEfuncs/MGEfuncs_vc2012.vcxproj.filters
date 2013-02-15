@@ -17,6 +17,7 @@
     </ClCompile>
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="NifConverter.cpp" />
+    <ClCompile Include="Assembler.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="progmesh\CollapseTriangle.h">

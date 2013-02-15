@@ -161,7 +161,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="mge\Assembler.c" />
     <ClCompile Include="Localization\mw_layout.cpp" />
     <ClCompile Include="mge\DInputMisc.cpp" />
     <ClCompile Include="mge\DInputWrapper.cpp" />

@@ -156,6 +156,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Assembler.c" />
     <ClCompile Include="progmesh\CollapseTriangle.cpp" />
     <ClCompile Include="progmesh\CollapseVertex.cpp" />
     <ClCompile Include="progmesh\ProgMesh.cpp" />

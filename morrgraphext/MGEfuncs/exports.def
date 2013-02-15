@@ -1,6 +1,9 @@
 LIBRARY MGEfuncs
 EXPORTS
 
+AssembleInstruction=AssembleInstruction
+DisassembleInstruction=DisassembleInstruction
+
 MGEKeyRemapper_Init=InitRemapper
 MGEKeyRemapper_End=EndRemapper
 MGEKeyRemapper_Pressed=GetKeyPressed

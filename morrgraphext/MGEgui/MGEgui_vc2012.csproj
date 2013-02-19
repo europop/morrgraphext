@@ -73,6 +73,7 @@
     <Compile Include="DLRipplesForm.Designer.cs">
       <DependentUpon>DLRipplesForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Localization\DefaultLocalization.cs" />
     <Compile Include="Localization\LocalizationInterface.cs" />
     <Compile Include="MainFormLight.cs">
       <SubType>Form</SubType>

@@ -15,7 +15,7 @@ namespace MGEgui.Localization {
 
             public string FileName;
             public string Language;
-            public INIFile langFile;
+            public List<INIFile> langFiles = new List<INIFile>();
             public string Translator;
 
             private const string secLang = "## Language ##";
@@ -30,11 +30,56 @@ namespace MGEgui.Localization {
 
             public Localization (string fileName) {
                 FileName = fileName;
-                langFile = new INIFile (fileName, langINI);
+                INIFile langFile = new INIFile(fileName, langINI);
                 Language = langFile.getKeyString (entLang);
                 Translator = langFile.getKeyString (entTtor);
+                langFiles.Add(langFile);
             }
 
+            /// <summary>
+            /// Default Localization
+            /// </summary>
+            public Localization (Form form) {
+                FileName = "";
+                List<INIFile.INIVariableDef> lang = new List<INIFile.INIVariableDef>(langINI);
+                lang.AddRange(AddVariableDef(DefaultLocalization._Strings, DefaultLocalization.__Strings));
+                lang.AddRange(AddVariableDef(DefaultLocalization.MainForm_Strings, DefaultLocalization._MainForm_Strings));
+                
+                if(form != null) {
+                    Dictionary<String, String> default_text = new Dictionary<String, String>();
+                    Control [] controls = Statics.GetChildControls (form);
+                    foreach (Control control in controls) {
+                        if (!(control is ComboBox || control is TextBox || control is NumericUpDown) || control.Name == "tbSShotDir") if (!default_text.ContainsValue(control.Name)) default_text.Add(control.Name, control.Text);
+                    }
+                    lang.AddRange(AddVariableDef("MainForm.Text", default_text));
+                }
+
+                lang.AddRange(AddVariableDef(DefaultLocalization.MainForm_ToolTips, DefaultLocalization._MainForm_ToolTips));
+                INIFile langFile = new INIFile(lang.ToArray());
+                Language = DefaultLocalization.Language;
+                Translator = "";
+                langFiles.Add(langFile);
+            }
+
+            private List<INIFile.INIVariableDef> AddVariableDef(String section, Dictionary<string, string[]> toolTips) {
+                int uniquename = 0;
+                List<INIFile.INIVariableDef> lang = new List<INIFile.INIVariableDef>();
+                lang.Add(new INIFile.INIVariableDef(section, "[" + section + "]"));
+                foreach(String key in toolTips.Keys) {
+                    lang.Add(new INIFile.INIVariableDef(section + uniquename++.ToString(), section, key, INIFile.INIVariableType.String, toolTips[key][1]));
+                }
+                return lang;
+            }
+
+            private List<INIFile.INIVariableDef> AddVariableDef(String section, Dictionary<String, String> strings) {
+                int uniquename = 0;
+                List<INIFile.INIVariableDef> lang = new List<INIFile.INIVariableDef>();
+                lang.Add(new INIFile.INIVariableDef(section, "[" + section + "]"));
+                foreach(String key in strings.Keys) {
+                    lang.Add(new INIFile.INIVariableDef(section + uniquename++.ToString(), section, key, INIFile.INIVariableType.String, strings[key]));
+                }
+                return lang;
+            }
         }
 
         private static List<CultureInfo> UserCultures = new List<CultureInfo>();
@@ -43,7 +88,7 @@ namespace MGEgui.Localization {
                 if(UserCultures.Count == 0) {
                     UserCultures.Add(CultureInfo.CurrentCulture);
                     foreach (InputLanguage inputlanguage in System.Windows.Forms.InputLanguage.InstalledInputLanguages)
-                        if (!UserCultures.Contains(inputlanguage.Culture) && !inputlanguage.Culture.EnglishName.StartsWith(GetFirstInPair(DefaultLanguage)))
+                        if (!UserCultures.Contains(inputlanguage.Culture) && !inputlanguage.Culture.EnglishName.StartsWith(GetFirstInPair(DefaultLocalization.Language)))
                             UserCultures.Add(inputlanguage.Culture);
                 }
                 return UserCultures.ToArray();
@@ -93,7 +138,6 @@ namespace MGEgui.Localization {
         }
 
         private Dictionary<string, Localization> localizations;
-        public const String DefaultLanguage = "English (default)";
         private Localization currentLocalization;
 
         public LocalizationInterface () {
@@ -101,13 +145,19 @@ namespace MGEgui.Localization {
         }
 
         public void Add (Localization localization) {
-            localizations.Add (localization.Language, localization);
+            AddLocalizations(localization.Language, localization);
+        }
+
+        private void AddLocalizations(String language, Localization localization) {
+            if (localizations.ContainsKey(language)) {
+                localizations[language].langFiles.AddRange(localization.langFiles);
+            } else localizations.Add(language, localization);
         }
 
         public void Add (string fileName) {
             if (fileName != null && fileName != "") {
                 Localization localization = new Localization (fileName);
-                if (localization.Language != "") localizations.Add (localization.Language, localization);
+                if (localization.Language != "") AddLocalizations(localization.Language, localization);
             }
         }
 
@@ -126,7 +176,7 @@ namespace MGEgui.Localization {
             }
             set {
                 if (localizations.ContainsKey (Language)) localizations [Language] = value;
-                else localizations.Add (Language, value);
+                else AddLocalizations(Language, value);
             }
         }
 
@@ -138,7 +188,7 @@ namespace MGEgui.Localization {
                 if(value != null && localizations.ContainsKey(value))
                     currentLocalization = localizations[value];
                 else
-                    currentLocalization = localizations[DefaultLanguage];
+                    currentLocalization = localizations[DefaultLocalization.Language];
             }
         }
         
@@ -146,84 +196,37 @@ namespace MGEgui.Localization {
             get { return localizations.Count; }
         }
 
-        public void ApplyStrings (string name, Dictionary<string, Str> messages, string Language) {
-            if (localizations.ContainsKey (Language)) {
-                Localization localization = localizations [Language];
-                ApplyStrings (name, messages, localization);
-            }
-        }
-
         public void ApplyStrings (string name, Dictionary<string, string> messages) {
-            ApplyStrings(name, messages, localizations[DefaultLanguage]);
+            ApplyStrings(name, messages, localizations[DefaultLocalization.Language]);
             ApplyStrings(name, messages, currentLocalization);
         }
 
-        public void ApplyStrings (string name, Dictionary<string, Str> messages, Localization localization) {
-            Dictionary<string, string> dict;
-            dict = localization.langFile.getSectionKeys (name + ".Strings");
-            foreach (KeyValuePair<string, string> entry in dict) {
-                if (messages.ContainsKey (entry.Key)) messages [entry.Key].text = entry.Value;
-            }
-        }
-
         public void ApplyStrings (string name, Dictionary<string, string> messages, Localization localization) {
-            Dictionary<string, string> dict;
-            dict = localization.langFile.getSectionKeys (name + ".Strings");
-            foreach (KeyValuePair<string, string> entry in dict) {
-                messages [entry.Key] = entry.Value;
+            foreach (INIFile langFile in localization.langFiles) {
+                Dictionary<string, string> dict;
+                dict = langFile.getSectionKeys (name + ".Strings");
+                foreach (KeyValuePair<string, string> entry in dict) {
+                    messages [entry.Key] = entry.Value;
+                }
             }
         }
 
         public void Apply (Form form) {
-            Apply(form, localizations[DefaultLanguage]);
+            Apply(form, localizations[DefaultLocalization.Language]);
             Apply(form, currentLocalization);
-        }
-        
-        public void Apply (Form form, string Language) {
-            if (localizations.ContainsKey (Language)) {
-                Localization localization = localizations [Language];
-                Dictionary<string, string> dict;
-                dict = localization.langFile.getSectionKeys (form.Name + ".Text");
-                foreach (KeyValuePair<string, string> entry in dict) {
-                    Control [] controls = form.Controls.Find (entry.Key, true);
-                    foreach (Control control in controls) if (!(control is ComboBox)) control.Text = entry.Value;
-                }
-                FieldInfo messages_field;
-                messages_field = form.GetType ().GetField ("strings");
-                if (messages_field != null) {
-                    Dictionary<string, Str> messages = new Dictionary<string, Str> ();
-                    if (messages_field.FieldType == messages.GetType ()) {
-                        messages = messages_field.GetValue (form) as Dictionary<string, Str>;
-                        ApplyStrings (form.Name, messages, localization);
-                    }
-                }
-                messages_field = form.GetType ().GetField ("tooltip_messages");
-                if (messages_field != null) {
-                    Dictionary<string, Tip> tips = new Dictionary<string, Tip> ();
-                    if (messages_field.FieldType == tips.GetType ()) {
-                        tips = messages_field.GetValue (form) as Dictionary<string, Tip>;
-                        dict = localization.langFile.getSectionKeys (form.Name + ".ToolTips");
-                        foreach (KeyValuePair<string, string> entry in dict) {
-                            if (tips.ContainsKey (entry.Key)) tips [entry.Key].tip = entry.Value;
-                            else {
-                                Control [] controls = form.Controls.Find (entry.Key, true);
-                                foreach (Control control in controls) if (control is TabPage) (control as TabPage).ToolTipText = entry.Value;
-                            }
-                        }
-                    }
-                }
-            }
         }
 
         public void Apply (Form form, Localization localization) {
             FieldInfo messages_field;
-            Dictionary<string, string> dict;
-            dict = localization.langFile.getSectionKeys(form.Name + ".Text");
-            foreach(KeyValuePair<string, string> entry in dict) {
-                Control[] controls = form.Controls.Find(entry.Key, true);
-                foreach(Control control in controls) {
-                    if(!(control is ComboBox))
-                        control.Text = entry.Value;
+            foreach (INIFile langFile in localization.langFiles) {
+                Dictionary<string, string> dict;
+                dict = langFile.getSectionKeys(form.Name + ".Text");
+                foreach(KeyValuePair<string, string> entry in dict) {
+                    Control[] controls = form.Controls.Find(entry.Key, true);
+                    foreach(Control control in controls) {
+                        if(!(control is ComboBox))
+                            control.Text = entry.Value;
+                    }
                 }
             }
 
@@ -240,20 +243,23 @@ namespace MGEgui.Localization {
                 tips = messages_field.GetValue(form) as Dictionary<string, string[]>;
                 messages_field = form.GetType().GetField("toolTip");
                 ToolTip toolTip = messages_field.GetValue(form) as ToolTip;
-                dict = localization.langFile.getSectionKeys(form.Name + ".ToolTips");
-                foreach (KeyValuePair<string, string> entry in dict) {
-                    if (tips.ContainsKey(entry.Key)) {
-                        foreach(string controlName in tips[entry.Key]) {
-                            Control[] controls = form.Controls.Find(controlName, true);
-                            foreach(Control control in controls)
-                                toolTip.SetToolTip(control, entry.Value);
+                foreach (INIFile langFile in localization.langFiles) {
+                    Dictionary<string, string> dict;
+                    dict = langFile.getSectionKeys(form.Name + ".ToolTips");
+                    foreach (KeyValuePair<string, string> entry in dict) {
+                        if (tips.ContainsKey(entry.Key)) {
+                            foreach(string controlName in tips[entry.Key]) {
+                                Control[] controls = form.Controls.Find(controlName, true);
+                                foreach(Control control in controls)
+                                    toolTip.SetToolTip(control, entry.Value);
+                            }
                         }
-                    }
-                    else {
-                        Control[] controls = form.Controls.Find(entry.Key, true);
-                        foreach(Control control in controls) {
-                            if(control is TabPage)
-                                (control as TabPage).ToolTipText = entry.Value;
+                        else {
+                            Control[] controls = form.Controls.Find(entry.Key, true);
+                            foreach(Control control in controls) {
+                                if(control is TabPage)
+                                    (control as TabPage).ToolTipText = entry.Value;
+                            }
                         }
                     }
                 }

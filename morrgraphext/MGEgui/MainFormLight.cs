@@ -25,6 +25,7 @@ namespace MGEgui {
 
         public MainFormLight (bool AutoLang) {
             InitializeComponent ();
+            this.Name = "MainForm";
             //Attach dud context menus to combo boxes
             cmbAntiAlias.ContextMenu = DudMenu;
             cmbAnisoLevel.ContextMenu = DudMenu;
@@ -52,7 +53,6 @@ namespace MGEgui {
             if (AutoLang) cbUILangAuto.Checked = true;
             else cmbUILanguage.SelectedIndex = cmbUILanguage.FindStringExact (Statics.Localizations.Current);
             //Store default locations
-//            gbMainSettingsLocation = gbMainSettings.Location;
             gbMainUILocation = gbMainUI.Location;
             gbMainUILocation.Y -= this.Size.Height;
             //Load settings
@@ -1343,7 +1343,6 @@ namespace MGEgui {
             this.cbDLDistantLand.Enabled = status;
             this.gbDistantLand.Enabled = status && this.cbDLDistantLand.Checked;
             this.pCam3rdPrsn.Enabled = status;
-//            this.gbMainSettings.Enabled = status;
         }
 
         private void udDLDrawDist_ValueChanged (object sender, EventArgs e) {
@@ -1446,9 +1445,7 @@ namespace MGEgui {
         private void cmbUILanguage_SelectedIndexChanged (object sender, EventArgs e) {
             Statics.Localizations.Current = cmbUILanguage.Text;
             string s = tbSShotDir.Text;
-            Statics.Localizations.ApplyStrings ("", Statics.strings
-, cmbUILanguage.Text
-                );
+            Statics.Localizations.ApplyStrings ("", Statics.strings);
             Statics.Localizations.Apply (this);
             clearedSSDir = tbSShotDir.Text;
             if (tbSShotDir.TextAlign != HorizontalAlignment.Center) tbSShotDir.Text = s;

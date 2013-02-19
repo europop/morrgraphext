@@ -148,40 +148,6 @@ namespace MGEgui {
         }
     }
 
-    public class Tip {
-        public string [] controls;
-        public string tip;
-        public string defaultTip;
-
-        public Tip (string [] controls, string tip) {
-            this.controls = controls;
-            this.tip = tip;
-            this.defaultTip = tip;
-        }
-
-        public void reset () {
-            tip = defaultTip;
-        }
-    }
-
-    public class Str {
-        public string text;
-        public string defaultText;
-
-        public Str (string text) {
-            this.text = text;
-            this.defaultText = text;
-        }
-
-        public void reset () {
-            text = defaultText;
-        }
-
-         public static implicit operator String(Str str) {
-             return str.text;
-         }
-    }
-
     /// <summary>
     /// Contains some constant variables, misc static functions and the program entry point
     /// </summary>
@@ -267,6 +233,7 @@ namespace MGEgui {
         public static int tipReadSpeed;
 
         public static LocalizationInterface Localizations;
+        public static Dictionary<string, String> strings = new Dictionary<string, String>();
 
         public static MainForm mf;
         public static MainFormLight mfl;
@@ -311,43 +278,6 @@ namespace MGEgui {
             return (Control [])controls.ToArray (typeof (Control));
         }
 
-        #region strings
-        public static Dictionary<string, Str> strings = new Dictionary<string, Str> {
-            {"Error", new Str (
-                "Error")},
-            {"Warning", new Str (
-                "Warning")},
-            {"Message", new Str (
-                "Message")},
-            {"Close", new Str (
-                "&Close")},
-            {"MGEguiRunning", new Str (
-                "MGEgui.exe is already running.")},
-            {"MWRunning", new Str (
-                "Morrowind appears to be currently running.\n" +
-                "Please quit the game before executing MGEgui.exe")},
-            {"NotMWDir", new Str (
-                "MGE must be installed to the Morrowind directory.")},
-            {"MGEMissing", new Str (
-                "One or more of MGE's files appear to be missing. Please reinstall.")},
-            {"MWIncompat", new Str (
-                "Your version of Morrowind is not compatible with MGE.\n" +
-                "MGE requires a fully patched copy of Bloodmoon (i.e. Morrowind version 1.6.1820).")},
-            {"MWCorrupt", new Str (
-                "Morrowind.exe appears to be corrupt.\n" +
-                "MGE is unable to determine Morrowind's version.")},
-            {"DSound", new Str (
-                "You appear to have part of an old version of MGE installed.\n" +
-                "You need to remove dsound.dll from your Morrowind directory for this version of MGE to function.")},
-            {"MWRegistry", new Str (
-                "Unable to find Morrowind registry keys. Please run the game before installing MGE.")},
-            {"MgeAccess", new Str (
-                "Unable to write to registry. Please run MGE as administrator.")},
-            {"Translation", new Str (
-                "")}
-        };
-        #endregion
-
         /// <summary>
         /// Entry point for this program
         /// </summary>
@@ -370,34 +300,34 @@ namespace MGEgui {
                     Localizations.Add (langfile);
                 }
             } catch { };
-            LocalizationInterface.Localization language = null;
-//            Localizations.Current = LocalizationInterface.DefaultLanguage;
-//            Localizations.ApplyStrings("", strings);
+            Localizations.Add(new LocalizationInterface.Localization((Form)null));    // Adds truncated variant of default localization.
+            String language = DefaultLocalization.Language;
             bool autoLanguage = true;
             try {
                 INIFile MGEini = new INIFile (iniFileName, new INIFile.INIVariableDef [] { INIFile.iniDefEmpty, MainForm.iniLanguage, MainForm.iniAutoLang });
-                language = Localizations [MGEini.getKeyString ("Language")];
+                language = MGEini.getKeyString ("Language");
                 autoLanguage = (MGEini.getKeyValue ("AutoLang") == 1);
-                if (language != null) Localizations.ApplyStrings ("", strings, language);
             } catch { }
+            Localizations.Current = language;
+            Localizations.ApplyStrings("", strings);
 
             if (args.mutex && !MutexCheck.PerformCheck ()) {
-                MessageBox.Show (strings ["MGEguiRunning"].text, strings ["Error"].text);
+                MessageBox.Show (strings ["MGEguiRunning"], strings ["Error"]);
                 return;
             }
             Process [] morrowind = Process.GetProcessesByName ("Morrowind");
             foreach (Process p in morrowind) {
-                MessageBox.Show (strings ["MWRunning"].text, strings ["Error"].text);
+                MessageBox.Show (strings ["MWRunning"], strings ["Error"]);
                 return;
             }
 
             if (!File.Exists ("./morrowind.exe") || !File.Exists ("./morrowind.ini") || !Directory.Exists ("data files")) {
-                MessageBox.Show (strings ["NotMWDir"].text, strings ["Error"].text);
+                MessageBox.Show (strings ["NotMWDir"], strings ["Error"]);
                 return;
             }
             if (!Directory.Exists ("MGE3") || !File.Exists ("./MGE3/MGEfuncs.dll") || !File.Exists ("./d3d8.dll") ||
                !File.Exists ("./dinput8.dll")) {
-                MessageBox.Show (strings ["MGEMissing"].text, strings ["Error"].text);
+                MessageBox.Show (strings ["MGEMissing"], strings ["Error"]);
                 return;
             }
             //Morrowind version info
@@ -405,11 +335,11 @@ namespace MGEgui {
                 FileVersionInfo MorrowVersion = FileVersionInfo.GetVersionInfo ("Morrowind.exe");
                 if (MorrowVersion.ProductPrivatePart != 722 && MorrowVersion.ProductPrivatePart != 1029 && MorrowVersion.ProductPrivatePart != 1875 && MorrowVersion.ProductPrivatePart != 1820)
 				{
-                    MessageBox.Show (strings ["MWIncompat"].text, strings ["Error"].text);
+                    MessageBox.Show (strings ["MWIncompat"], strings ["Error"]);
                     return;
                 }
             } catch {
-                MessageBox.Show (strings ["MWCorrupt"].text, strings ["Error"].text);
+                MessageBox.Show (strings ["MWCorrupt"], strings ["Error"]);
                 return;
             }
             //Check for dsound.dll
@@ -417,7 +347,7 @@ namespace MGEgui {
                 try {
                     File.Delete ("dsound.dll");
                 } catch {
-                    MessageBox.Show (strings ["DSound"].text, strings ["Error"].text);
+                    MessageBox.Show (strings ["DSound"], strings ["Error"]);
                     return;
                 }
             }
@@ -427,7 +357,7 @@ namespace MGEgui {
             RegistryKey key = Statics.reg_key_bethesda.OpenSubKey(Statics.reg_morrowind);
             if (key != null) { key.Close(); key = null;
             } else {
-                MessageBox.Show (strings ["MWRegistry"].text, strings ["Error"].text);
+                MessageBox.Show (strings ["MWRegistry"], strings ["Error"]);
                 return;
             }
 
@@ -435,7 +365,7 @@ namespace MGEgui {
             try {
                 key = Statics.reg_key_bethesda.OpenSubKey(Statics.reg_morrowind, true);
             } catch (System.Security.SecurityException) {
-                MessageBox.Show(strings["MgeAccess"].text, strings["Error"].text);
+                MessageBox.Show(strings["MgeAccess"], strings["Error"]);
                 return;
             }
             if (key != null) { key.Close(); key = null; }
@@ -474,7 +404,7 @@ namespace MGEgui {
                     mfl = new MainFormLight(autoLanguage);
                     Application.Run(mfl);
                 } else {
-                    mf = new MainForm (language, autoLanguage);
+                    mf = new MainForm (autoLanguage);
                     Application.Run (mf); 
                 }
             }

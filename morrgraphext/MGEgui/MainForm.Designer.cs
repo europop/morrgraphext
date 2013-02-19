@@ -1319,13 +1319,11 @@ namespace MGEgui {
             this.cmbMsgsLocale.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.cmbMsgsLocale.Enabled = false;
             this.cmbMsgsLocale.FormattingEnabled = true;
-            this.cmbMsgsLocale.Items.AddRange(new object[] { MGEgui.Localization.LocalizationInterface.DefaultLanguage });
             this.cmbMsgsLocale.Location = new System.Drawing.Point(10, 41);
             this.cmbMsgsLocale.Name = "cmbMsgsLocale";
             this.cmbMsgsLocale.Size = new System.Drawing.Size(128, 21);
             this.cmbMsgsLocale.Sorted = true;
             this.cmbMsgsLocale.TabIndex = 0;
-            this.cmbMsgsLocale.Text = MGEgui.Localization.LocalizationInterface.DefaultLanguage;
             this.cmbMsgsLocale.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.IgnoreKey);
             // 
             // lMsgsTime
@@ -2139,12 +2137,10 @@ namespace MGEgui {
             // cmbUILanguage
             // 
             this.cmbUILanguage.FormattingEnabled = true;
-            this.cmbUILanguage.Items.AddRange(new object[] { MGEgui.Localization.LocalizationInterface.DefaultLanguage });
             this.cmbUILanguage.Location = new System.Drawing.Point(0, 16);
             this.cmbUILanguage.Name = "cmbUILanguage";
             this.cmbUILanguage.Size = new System.Drawing.Size(156, 21);
             this.cmbUILanguage.TabIndex = 1;
-            this.cmbUILanguage.Text = MGEgui.Localization.LocalizationInterface.DefaultLanguage;
             this.cmbUILanguage.SelectedIndexChanged += new System.EventHandler(this.cmbUILanguage_SelectedIndexChanged);
             this.cmbUILanguage.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.IgnoreKey);
             // 

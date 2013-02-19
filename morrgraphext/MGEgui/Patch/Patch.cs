@@ -8,50 +8,9 @@ using System.Drawing.Design;
 using System.Globalization;
 using System.IO;
 using MGEgui.Localization;
+using MGEgui.INI;
 
 namespace MGEgui.Patching {
-
-    public class INIFile : MGEgui.INI.INIFile {
-        public INIFile(string file, INIVariableDef[] varDefn, bool saveDef) : base(file, varDefn, saveDef) { }
-        public INIFile(string file, INIVariableDef[] varDefn) : base(file, varDefn) { }
-        public INIFile(string file, INIVariableDef[] varDefn, Encoding encoding, bool saveDef) : base(file, varDefn, encoding, saveDef) { }
-        public INIFile(string file, INIVariableDef[] varDefn, Encoding encoding) : base(file, varDefn, encoding) { }
-        public string[] getSections() {
-            List<String> sections = new List<String>();
-            foreach (INIFile.INILine line in iniContent) {
-                String Section = line.entry.Trim();
-                int start = Section.IndexOf("[") + 1;
-                int length = Section.IndexOf("]") - start;
-                if ((start == 1) && (length > 0)) Section = Section.Substring(start, length).Trim(); else continue;
-                if (hasSection(Section)) sections.Add(Section);
-            }
-            return sections.ToArray();
-        }
-        public String getCommentAbove(String section, String key) {
-            String section_lwr = section.ToLower();
-            String[] lines = getSectList(section_lwr);
-            String previous_line = "";
-            foreach (String line in lines) if (line.StartsWith(key, StringComparison.OrdinalIgnoreCase)) break; else previous_line = line;
-            String comment = "";
-            foreach (INIFile.INILine line in iniContent) {
-                if (line.section != section_lwr) continue;
-                if (line.key == key) break;
-                if(previous_line.Length > 0) {
-                    if (line.entry == previous_line) previous_line = "";
-                } else if (line.comment.Length > 0)
-                    comment += line.comment.Substring(line.comment.IndexOf(INIFile.INIComment) + INIFile.INIComment.Length) + "\n";
-            }
-            return comment;
-        }        
-        public bool setCommentAbove(String section, String key, String comment) {
-            String section_lwr = section.ToLower();
-            for (int i = 0; i < iniContent.Count; i++) {
-                if (iniContent[i].section != section_lwr) continue;
-                if (iniContent[i].key == key) { iniContent.Insert(i, new INILine((INIFile.INIComment + comment).Trim())); return true; }
-            }
-            return false;
-        }
-    }
 
     [TypeConverter(typeof(UnitConverter))]
     public class Unit {
@@ -358,8 +317,8 @@ namespace MGEgui.Patching {
                 languages.Remove(culture.Parent.EnglishName);
                 languages.Insert(0, culture.Parent.EnglishName);
             }
-            languages.Remove(LocalizationInterface.GetFirstInPair(LocalizationInterface.DefaultLanguage));
-            languages.Insert(0, LocalizationInterface.GetFirstInPair(LocalizationInterface.DefaultLanguage));
+            languages.Remove(LocalizationInterface.GetFirstInPair(DefaultLocalization.Language));
+            languages.Insert(0, LocalizationInterface.GetFirstInPair(DefaultLocalization.Language));
             languages.Insert(0, "");
             List<String> top = new List<String>();
             foreach (Unit unit in (Unit[])((Patch)context.Instance).Description) if (unit.Name != "" && unit.Hex.Trim() != "") top.Add(unit.Name);

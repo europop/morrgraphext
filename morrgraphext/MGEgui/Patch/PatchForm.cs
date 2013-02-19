@@ -7,6 +7,7 @@ using System.Text;
 using System.Windows.Forms;
 using System.IO;
 using MGEgui.Patching;
+using MGEgui.INI;
 
 namespace MGEgui {
     public partial class PatchForm : Form {

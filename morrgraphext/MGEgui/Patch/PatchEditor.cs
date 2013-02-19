@@ -7,6 +7,7 @@ using System.Text;
 using System.Windows.Forms;
 using System.IO;
 using MGEgui.Patching;
+using MGEgui.INI;
 
 namespace MGEgui {
     public partial class PatchEditorForm : Form {
@@ -592,7 +593,7 @@ namespace MGEgui {
             byte[] bOriginal = BinaryFiles[original.ToLower()];
             byte[] bPatched = BinaryFiles[patched.ToLower()];
             if(bOriginal.Length != bPatched.Length) {
-                MessageBox.Show("Files for comparison must be equal in size!", Statics.strings["Warning"].text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Files for comparison must be equal in size!", Statics.strings["Warning"], MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 this.Text = "";
                 return;
             }
@@ -622,7 +623,7 @@ namespace MGEgui {
                 lbSections.SelectedIndex = lbSections.Items.Count - 1;
                 HistoryUpdate();
             } else {
-                MessageBox.Show("Selected files are identical.", Statics.strings["Message"].text, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("Selected files are identical.", Statics.strings["Message"], MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             BinaryFiles.Remove(original.ToLower());
             BinaryFiles.Remove(patched.ToLower());

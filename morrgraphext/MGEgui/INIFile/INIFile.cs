@@ -41,6 +41,12 @@ using System.Text;
  *	v.1.11 (2010-05-19):
  *	 - added saving with selected precision for floating point variables
  *	 - fixed escaping and unescaping strings and made escape and unescape methods static
+ *	v.1.12 (2011-09-23): (by Europop)
+ *	 - added getSections that returns String array
+ *	v.1.13 (2012-12-12): (by Europop)
+ *	 - added getCommentAbove and setCommentAbove for managing the comments above the specified key
+ *	v.1.14 (2013-02-17): (by Europop)
+ *	- added class constructor to allow work without the ini file.
  *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
@@ -859,7 +865,67 @@ namespace MGEgui.INI {
             }
             return ret;
         }
+        
+        public string[] getSections() {
+            List<String> sections = new List<String>();
+            foreach (INIFile.INILine line in iniContent) {
+                String Section = line.entry.Trim();
+                int start = Section.IndexOf("[") + 1;
+                int length = Section.IndexOf("]") - start;
+                if ((start == 1) && (length > 0)) Section = Section.Substring(start, length).Trim(); else continue;
+                if (hasSection(Section)) sections.Add(Section);
+            }
+            return sections.ToArray();
+        }
 
+        public String getCommentAbove(String section, String key) {
+            String section_lwr = section.ToLower();
+            String[] lines = getSectList(section_lwr);
+            String previous_line = "";
+            foreach (String line in lines) if (line.StartsWith(key, StringComparison.OrdinalIgnoreCase)) break; else previous_line = line;
+            String comment = "";
+            foreach (INIFile.INILine line in iniContent) {
+                if (line.section != section_lwr) continue;
+                if (line.key == key) break;
+                if(previous_line.Length > 0) {
+                    if (line.entry == previous_line) previous_line = "";
+                } else if (line.comment.Length > 0)
+                    comment += line.comment.Substring(line.comment.IndexOf(INIFile.INIComment) + INIFile.INIComment.Length) + "\n";
+            }
+            return comment;
+        }        
+
+        public bool setCommentAbove(String section, String key, String comment) {
+            String section_lwr = section.ToLower();
+            for (int i = 0; i < iniContent.Count; i++) {
+                if (iniContent[i].section != section_lwr) continue;
+                if (iniContent[i].key == key) { iniContent.Insert(i, new INILine((INIFile.INIComment + comment).Trim())); return true; }
+            }
+            return false;
+        }
+
+        public INIFile(INIVariableDef[] varDefn) {
+            this.fileName = "";
+            this.varDefn = varDefn;
+            this.saveDef = false;
+            this.iniContent = new List<INILine>();
+            INILine.setSection = "";
+            foreach(INIVariableDef vd in varDefn) {
+                if (vd.section == null) continue;
+                INILine line = new INILine("");
+                line.section = vd.section.ToLower();
+                line.key = vd.key;
+                line.value = vd.defValue;
+                line.defVal = vd.defValue;
+                line.varType = vd.type;
+                line.varDict = vd.dict;
+                line.varBool = vd.boolType;
+                line.useMinMax = vd.useMinMax;
+                line.max = vd.max;
+                line.min = vd.min;
+                iniContent.Add(line);
+            }
+        }
     }
 
 }
